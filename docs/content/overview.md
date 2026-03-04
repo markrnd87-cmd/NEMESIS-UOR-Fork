@@ -53,11 +53,79 @@ The 16 namespaces are organized into three **space** classifications:
 
 ## How It Works
 
-1. A value has a **type** ({@class https://uor.foundation/type/TypeDefinition})
-2. A **query** ({@class https://uor.foundation/query/Query}) asks about the value
-3. A **resolver** ({@class https://uor.foundation/resolver/Resolver}) factorizes it in the ring
-4. The **partition** ({@class https://uor.foundation/partition/Partition}) decomposes the result
-5. **Observables** ({@class https://uor.foundation/observable/Observable}) measure properties
-6. A **certificate** ({@class https://uor.foundation/cert/Certificate}) attests correctness
-7. A **trace** ({@class https://uor.foundation/trace/ComputationTrace}) records the computation
-8. **State** ({@class https://uor.foundation/state/Context}) maintains evaluation context
+The resolution pipeline transforms a typed value into a certified, traceable result:
+
+1. A value has a **type** ({@class https://uor.foundation/type/TypeDefinition}) that declares
+   what constraints apply — residue classes, carry patterns, depth bounds — each pinning
+   fibers of the Z/2Z fibration. See [Type System](concepts/type-system.html).
+
+2. A **query** ({@class https://uor.foundation/query/Query}) specifies what to resolve:
+   coordinates, metrics, or canonical representation. See [Resolution](concepts/resolution.html).
+
+3. A **resolver** ({@class https://uor.foundation/resolver/Resolver}) factorizes the value
+   in the ring using the dihedral group structure. For partially-constrained types, the
+   resolver iterates, applying {@class https://uor.foundation/resolver/RefinementSuggestion}
+   until the {@class https://uor.foundation/partition/FiberBudget} closes.
+   See [Factorization](concepts/factorization.html) and [Iterative Resolution](concepts/iterative-resolution.html).
+
+4. The **partition** ({@class https://uor.foundation/partition/Partition}) decomposes the
+   ring into four disjoint sets — irreducible, reducible, units, exterior — classifying
+   every element. See [Partition](concepts/partition.html).
+
+5. **Observables** ({@class https://uor.foundation/observable/Observable}) measure geometric
+   properties: ring distance, Hamming distance, curvature, holonomy, and more.
+   See [Observables](concepts/observables.html).
+
+6. A **certificate** ({@class https://uor.foundation/cert/Certificate}) attests that the
+   result is correct and the transform preserves the claimed isometry properties.
+
+7. A **trace** ({@class https://uor.foundation/trace/ComputationTrace}) records every step,
+   linking the certificate to the derivation that produced it.
+
+8. **State** ({@class https://uor.foundation/state/Context}) maintains the evaluation
+   context across resolution steps: quantum level, active bindings, and frame transitions.
+   See [State Model](concepts/state-model.html).
+
+## Structural Reasoning
+
+When constraints interact in complex ways, the resolution pipeline may stall or produce
+incomplete results. Amendments 21–22 add an algebraic topology layer that diagnoses these
+situations:
+
+The **constraint nerve** ({@class https://uor.foundation/resolver/ConstraintNerve}) is a
+{@class https://uor.foundation/homology/SimplicialComplex} whose simplices represent
+compatible subsets of constraints. Its topological structure reveals whether resolution
+will converge smoothly:
+
+- **Trivial homology** (all Betti numbers zero except β_0) means the constraint space is
+  contractible — resolution converges without obstruction.
+- **Nontrivial β_1** means the constraints contain loops — cyclic dependencies that may
+  cause resolution to stall.
+- **Nontrivial higher Betti numbers** detect higher-dimensional voids in the constraint
+  structure.
+
+The **sheaf cohomology** layer ({@class https://uor.foundation/cohomology/Sheaf}) detects
+when local constraint satisfaction fails to globalize. A
+{@class https://uor.foundation/cohomology/GluingObstruction} in H^1 pinpoints exactly where
+local solutions cannot be assembled into a global resolution.
+
+See [Homology](concepts/homology.html), [Cohomology](concepts/cohomology.html),
+[Sheaf Semantics](concepts/sheaf-semantics.html), and the
+[ψ-Pipeline Guide](guides/psi-pipeline.html) for the full structural reasoning pipeline.
+
+## Algebraic Verification
+
+The framework includes **250 named algebraic identities** spanning 7 algebras:
+Ring, Boolean, Cross-Structure, Dihedral, Unit, Affine, and Carry. Each identity is a named
+{@class https://uor.foundation/op/Identity} individual with `lhs`, `rhs`, and `forAll`
+properties specifying the equation and its domain.
+
+Every identity carries two grounding properties:
+- {@prop https://uor.foundation/op/verificationStatus}: either `verifiable` (exhaustively
+  checkable over the finite ring) or `derivable` (follows from axioms via a trait-graph walk).
+- {@prop https://uor.foundation/op/verificationPath}: the specific verification route — an
+  enumeration domain or the chain of algebraic dependencies.
+
+Of the 250 identities, 51 are verifiable by exhaustive enumeration and 199 are derivable
+from axioms. See [Algebraic Laws](concepts/algebraic-laws.html) for the seven algebras and
+their identities.

@@ -50,6 +50,7 @@ Rendered as: `[Ring](../namespaces/schema.html#Ring)` with the class label from 
 - Technical claims about the ontology (domain, range, functional properties) must be verified
   via the `[[claims]]` TOML front-matter mechanism.
 - Each concept page: definition, motivation, mathematical basis, ontology representation, examples.
+- Concept pages should cross-reference related concepts to help readers navigate the connected narrative.
 
 ## README.md
 

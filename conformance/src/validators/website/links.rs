@@ -161,6 +161,21 @@ fn resolve_href(base_dir: &str, href: &str, base_path: &str) -> String {
     } else if base_dir.is_empty() {
         href.to_string()
     } else {
-        format!("{}/{}", base_dir, href)
+        normalize_path(&format!("{}/{}", base_dir, href))
     }
+}
+
+/// Normalizes a path by resolving `.` and `..` components.
+fn normalize_path(path: &str) -> String {
+    let mut parts: Vec<&str> = Vec::new();
+    for segment in path.split('/') {
+        match segment {
+            "." | "" if !parts.is_empty() => {}
+            ".." => {
+                parts.pop();
+            }
+            _ => parts.push(segment),
+        }
+    }
+    parts.join("/")
 }

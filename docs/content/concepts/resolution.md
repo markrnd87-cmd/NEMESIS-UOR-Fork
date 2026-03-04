@@ -44,3 +44,48 @@ The final output of resolution is:
 - A {@class https://uor.foundation/partition/Partition} of R_n
 - A {@class https://uor.foundation/trace/ComputationTrace} recording the steps
 - Optionally, a {@class https://uor.foundation/cert/Certificate} attesting the result
+
+## The Full Pipeline
+
+The resolution pipeline flows through several stages, each tracked by the
+{@class https://uor.foundation/resolver/ResolutionState}:
+
+1. **Query**: A {@class https://uor.foundation/query/Query} specifies the
+   target — what element or property to resolve and which coordinate system
+   to use.
+2. **Type check**: The resolver reads the input's
+   {@class https://uor.foundation/type/TypeDefinition} to determine which
+   constraints apply (residue classes, carry patterns, depth bounds).
+3. **Factorization**: The
+   {@class https://uor.foundation/resolver/DihedralFactorizationResolver}
+   decomposes the element in the dihedral group D_{2^n}, producing the
+   canonical neg/bnot factorization.
+4. **Partition**: The factorization result classifies the element into one of
+   the four {@class https://uor.foundation/partition/Partition} components
+   (irreducible, reducible, unit, exterior).
+5. **Observation**: {@class https://uor.foundation/observable/Observable}
+   instances measure properties of the resolved element — Hamming weight,
+   spectral gap, entropy.
+6. **Certification**: A {@class https://uor.foundation/cert/Certificate}
+   records the resolution result with a verification status and hash.
+
+## Iterative vs Single-Pass
+
+The factorization pipeline (steps 1–6 above) is a **single pass** through
+the resolver hierarchy. When constraints conflict or the type's fiber budget
+is not fully resolved, the system enters an **iterative resolution loop**
+that refines the solution. Each iteration applies constraints, re-evaluates
+observables, and checks convergence. See
+[Iterative Resolution](iterative-resolution.html) for convergence conditions
+and [Factorization](factorization.html) for the single-pass dihedral
+decomposition.
+
+## Topological Diagnostics
+
+When iterative resolution stalls, the
+{@class https://uor.foundation/resolver/ConstraintNerve} provides structural
+diagnostics. Its Betti numbers reveal whether stalls arise from topological
+obstructions (constraint loops) or from insufficient constraint coverage.
+See [Analytical Completeness](analytical-completeness.html) for the nerve
+construction and [ψ-Pipeline](../guides/psi-pipeline.html) for the full
+structural reasoning workflow.

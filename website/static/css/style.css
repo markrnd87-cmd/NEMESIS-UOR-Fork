@@ -414,6 +414,90 @@ dd {
   font-size: 0.9rem;
 }
 
+/* ── Pipeline Section ──────────────────────────────────────────────────────── */
+
+.pipeline {
+  margin-bottom: 3rem;
+}
+
+.pipeline h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.pipeline-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.pipeline-step {
+  background: #fff;
+  border: 1px solid #dde3ef;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  flex: 0 1 16rem;
+  position: relative;
+}
+
+.pipeline-step:hover {
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+}
+
+.step-number {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+  background: #0066cc;
+  color: #fff;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.pipeline-step h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.pipeline-step p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.pipeline-arrow {
+  width: 2rem;
+  height: 2px;
+  background: #0066cc;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pipeline-arrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -4px;
+  border: 5px solid transparent;
+  border-left-color: #0066cc;
+}
+
+/* ── Namespace Docs Link ──────────────────────────────────────────────────── */
+
+.ns-docs-link {
+  margin: 0.75rem 0 1.5rem;
+}
+
+.ns-docs-link a {
+  color: #0066cc;
+  font-weight: 600;
+}
+
 /* ── Namespace Grid ────────────────────────────────────────────────────────── */
 
 .namespace-grid h2 {
@@ -590,6 +674,32 @@ form[role="search"] label {
 }
 
 @media (max-width: 768px) {
+  .pipeline-steps {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .pipeline-arrow {
+    width: 2px;
+    height: 1.5rem;
+    margin: 0 auto;
+  }
+
+  .pipeline-arrow::after {
+    right: auto;
+    left: -4px;
+    top: auto;
+    bottom: 0;
+    border: 5px solid transparent;
+    border-top-color: #0066cc;
+    border-left-color: transparent;
+  }
+
+  .pipeline-step {
+    flex: none;
+    width: 100%;
+  }
+
   .site-header {
     flex-direction: column;
     align-items: flex-start;

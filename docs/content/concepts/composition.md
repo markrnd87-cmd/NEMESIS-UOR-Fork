@@ -70,3 +70,8 @@ what structure a transform preserves (e.g., "ring homomorphism", "metric isometr
 This connects composition to the certification layer: a
 {@class https://uor.foundation/morphism/Isometry} preserves metric structure
 via {@prop https://uor.foundation/morphism/preservesMetric}.
+
+The critical composition `neg ∘ bnot = succ` is the rewrite rule that drives
+the {@class https://uor.foundation/resolver/DihedralFactorizationResolver} —
+see [Factorization](factorization.html) for how this law decomposes ring
+elements under the dihedral group action.

@@ -59,3 +59,30 @@ exists.
 | H^0 nontrivial | At least one global resolution exists |
 | H^1 = 0 | Local solutions always glue to global solutions |
 | H^1 nontrivial | Gluing obstructions present; iterative refinement needed |
+
+## Gluing Obstruction Example
+
+Consider three constraints C_1, C_2, C_3 on R_4 where:
+
+- C_1 and C_2 overlap on fiber 0 and agree locally (both pin fiber 0 to the
+  same value).
+- C_2 and C_3 overlap on fiber 1 and agree locally.
+- C_1 and C_3 do not overlap directly, but the transitive path
+  C_1 → C_2 → C_3 induces a consistency requirement.
+
+If the value forced at fiber 0 by C_1 propagates through C_2 to fiber 1 in a
+way that contradicts C_3's requirement, a
+{@class https://uor.foundation/cohomology/GluingObstruction} arises. The
+obstruction class lives in H^1 of the constraint
+{@class https://uor.foundation/cohomology/Sheaf} and measures exactly this
+cyclic inconsistency.
+
+When H^1 = 0, every compatible family of local
+{@class https://uor.foundation/cohomology/Section} objects glues into a global
+section — meaning local constraint satisfaction guarantees global resolution.
+When H^1 ≠ 0, the resolver must apply iterative refinement to kill the
+obstruction classes before a global solution can be assembled.
+
+See [Cohomology](cohomology.html) for the cochain complex construction and
+[Analytical Completeness](analytical-completeness.html) for the dual homological
+perspective.

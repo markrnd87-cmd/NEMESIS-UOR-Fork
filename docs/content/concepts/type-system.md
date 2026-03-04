@@ -52,3 +52,33 @@ type of bound values:
 
 Types serve as the source for partition computations via
 {@prop https://uor.foundation/partition/sourceType}.
+
+## Constrained Types
+
+A {@class https://uor.foundation/type/ConstrainedType} wraps a base type with
+additional constraints that restrict the set of valid values. Constraints
+are combined using {@class https://uor.foundation/type/CompositeConstraint}:
+
+```turtle
+<https://uor.foundation/instance/constrained-odd-shallow>
+    a                   type:ConstrainedType ;
+    type:baseType       <https://uor.foundation/instance/type-u8> ;
+    type:constraint     "residue(2,1) AND depth(1,2)" .
+```
+
+This constrained type accepts only values in Z/256Z that are odd (residue 1
+mod 2) and have valuation depth between 1 and 2. Each constraint pins
+specific fibers of the Z/2Z fibration:
+
+- {@class https://uor.foundation/type/ResidueConstraint} (mod 2, residue 1)
+  pins fiber 0.
+- {@class https://uor.foundation/type/DepthConstraint} (depth 1–2) pins
+  fibers 0 and 1.
+
+## Types and Fiber Budgets
+
+Each constraint pins fibers, and the type's total fiber budget tracks how
+many fibers remain free. A fully resolved type has zero free fibers — every
+fiber is pinned by at least one constraint. See
+[Fiber Budget](fiber-budget.html) for the accounting and
+[Constraint Algebra](constraint-algebra.html) for how constraints compose.

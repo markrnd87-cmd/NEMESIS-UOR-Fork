@@ -67,4 +67,5 @@ many fibers it closes ({@prop https://uor.foundation/derivation/fibersClosed}).
 The canonical form is the foundation of content addressing: the
 {@class https://uor.foundation/u/Address} of an object is derived from its
 canonical form. Two objects with the same canonical form receive the same
-address.
+address. See [Addressing](addressing.html) for the Braille-encoded glyph
+scheme that maps canonical forms to content-addressable identifiers.

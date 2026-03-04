@@ -72,3 +72,8 @@ pins the union of fibers pinned by its components.
     type:maxDepth   "2"^^xsd:nonNegativeInteger ;
     type:metricAxis  type:verticalAxis .
 ```
+
+Each constraint pins specific fibers tracked by the
+{@class https://uor.foundation/partition/FiberBudget} — see
+[Fiber Budget](fiber-budget.html) for how pinned fibers accumulate toward
+resolution closure.

@@ -47,6 +47,35 @@ For R_4 = Z/16Z (n=4, 16 elements):
     partition:exterior      <...ext-set-R4> .
 ```
 
+## How Elements Are Classified
+
+An element x ∈ R_n is classified by its factorization behavior:
+
+- **Irreducible**: x has no non-trivial factorization — its only
+  factorizations involve units. These are the "primes" of the ring.
+- **Reducible**: x factors into two or more non-units. These elements
+  decompose further under the dihedral factorization.
+- **Unit**: x is invertible in R_n (i.e., gcd(x, 2^n) = 1). Units are
+  exactly the odd elements.
+- **Exterior**: x lies outside the multiplicative kernel — typically the
+  zero element and nilpotents.
+
+## Worked Example: R_4
+
+For R_4 = Z/16Z with 16 elements (0–15):
+
+| Component | Elements | {@prop https://uor.foundation/partition/cardinality} | {@prop https://uor.foundation/partition/density} |
+|-----------|----------|-------------|---------|
+| {@class https://uor.foundation/partition/UnitSet} | {1, 3, 5, 7, 9, 11, 13, 15} | 8 | 1/2 |
+| {@class https://uor.foundation/partition/IrreducibleSet} | {2} | 1 | 1/16 |
+| {@class https://uor.foundation/partition/ReducibleSet} | {4, 6, 8, 10, 12, 14} | 6 | 3/8 |
+| {@class https://uor.foundation/partition/ExteriorSet} | {0} | 1 | 1/16 |
+
+The 8 units are exactly the odd numbers (invertible mod 16). The sole
+irreducible is 2, the generator of the maximal ideal. All even non-zero
+non-powers-of-two elements are reducible (e.g., 6 = 2 × 3). Zero is
+exterior.
+
 ## Role in Resolution
 
 The {@class https://uor.foundation/resolver/DihedralFactorizationResolver}
@@ -54,3 +83,6 @@ produces a `Partition` as its output. The partition is then used by:
 - {@class https://uor.foundation/observable/Observable} to measure properties
 - {@class https://uor.foundation/cert/Certificate} to certify correctness
 - {@class https://uor.foundation/morphism/Transform} to apply transformations
+
+See [Factorization](factorization.html) for the dihedral decomposition that
+produces the partition.

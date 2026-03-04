@@ -69,4 +69,37 @@ Context (quantum=8) → Frame-0 (0 bindings) → Transition → Frame-1 (1 bindi
                                           ComputationTrace
 ```
 
-This is validated by SHACL test `test4_state_lifecycle`.
+### Turtle Example
+
+```turtle
+# Context: 8-bit ring with capacity for 4 bindings
+<https://uor.foundation/instance/ctx-r8>
+    a                   state:Context ;
+    state:quantum       "8"^^xsd:nonNegativeInteger ;
+    state:capacity      "4"^^xsd:nonNegativeInteger .
+
+# Binding: address 0 holds value 42 of type u8
+<https://uor.foundation/instance/binding-0>
+    a                   state:Binding ;
+    state:address       "0"^^xsd:nonNegativeInteger ;
+    state:content       "42"^^xsd:nonNegativeInteger ;
+    state:boundType     <https://uor.foundation/instance/type-u8> ;
+    state:timestamp     "1"^^xsd:nonNegativeInteger .
+
+# Frame: snapshot with one active binding
+<https://uor.foundation/instance/frame-1>
+    a                   state:Frame ;
+    state:context       <https://uor.foundation/instance/ctx-r8> ;
+    state:activeBindings "1"^^xsd:nonNegativeInteger .
+
+# Transition: from empty frame to frame with one binding
+<https://uor.foundation/instance/transition-0-1>
+    a                       state:Transition ;
+    state:from              <https://uor.foundation/instance/frame-0> ;
+    state:to                <https://uor.foundation/instance/frame-1> ;
+    state:addedBindings     "1"^^xsd:nonNegativeInteger ;
+    state:removedBindings   "0"^^xsd:nonNegativeInteger .
+```
+
+This lifecycle is validated by SHACL test `test4_state_lifecycle`. See
+[Evaluation](evaluation.html) for how evaluation triggers state transitions.

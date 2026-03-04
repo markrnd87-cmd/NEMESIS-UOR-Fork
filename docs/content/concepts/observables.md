@@ -62,3 +62,8 @@ Observables are consumed by the resolution pipeline. The
 {@class https://uor.foundation/resolver/RefinementSuggestion} uses metric
 axis information ({@prop https://uor.foundation/resolver/suggestedAxis}) to
 guide which constraints to apply next, informed by observable measurements.
+
+The {@class https://uor.foundation/observable/Jacobian} is a curvature
+observable that decomposes the incompatibility metric fiber by fiber — see
+[Differential Calculus](differential-calculus.html) for the Jacobian's
+definition and its role in curvature-weighted constraint selection (DC_10).

@@ -51,4 +51,6 @@ into global sections. Specifically:
   classes in H^1 classify the distinct ways that gluing can fail.
 
 This principle is the cohomological foundation of the resolution pipeline:
-local constraint satisfaction does not always imply global resolution.
+local constraint satisfaction does not always imply global resolution. See
+[Sheaf Semantics](sheaf-semantics.html) for worked examples of gluing
+obstructions and their resolution-theoretic interpretation.

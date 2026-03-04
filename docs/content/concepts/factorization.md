@@ -69,3 +69,7 @@ Factorization is the first stage of the three-resolver pipeline:
 1. **DihedralFactorizationResolver** -- decomposes into orbits
 2. {@class https://uor.foundation/resolver/CanonicalFormResolver} -- computes canonical forms
 3. {@class https://uor.foundation/resolver/EvaluationResolver} -- evaluates results
+
+See [Partition](partition.html) for the four-component decomposition that
+factorization produces, and [Composition](composition.html) for how the
+critical composition law `neg ∘ bnot = succ` drives the factorization algebra.

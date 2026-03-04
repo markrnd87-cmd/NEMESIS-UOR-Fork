@@ -71,3 +71,9 @@ Iteration 1: apply ResidueConstraint → 3/8 pinned (rate = 3.0)
 Iteration 2: apply CarryConstraint   → 6/8 pinned (rate = 3.0)
 Iteration 3: apply DepthConstraint   → 8/8 pinned (rate = 2.67, complete)
 ```
+
+When resolution stalls (convergence rate drops to zero), the
+{@class https://uor.foundation/resolver/ConstraintNerve} provides topological
+diagnostics via the [ψ-Pipeline](../guides/psi-pipeline.html) — Betti numbers
+reveal whether the stall is due to cyclic constraint dependencies or
+insufficient constraint coverage.

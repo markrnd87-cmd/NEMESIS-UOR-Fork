@@ -56,3 +56,8 @@ invariants derived from homology:
 | `boundarySquaredZero` | ∂_{k-1} ∘ ∂_k = 0 for all k |
 | `psi_4` | Index bridge: χ(K) = Σ_k (-1)^k β_k (Euler characteristic) |
 | `indexBridge` | Connects Betti numbers to the analytical index of the constraint complex |
+
+Betti numbers determine whether resolution converges without topological
+obstruction — see [Analytical Completeness](analytical-completeness.html) for
+the UOR index theorem connecting curvature, Euler characteristic, and
+residual entropy.

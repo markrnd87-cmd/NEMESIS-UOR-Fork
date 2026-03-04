@@ -132,6 +132,29 @@ pub fn render_homepage(summaries: &[NamespaceSummary], base_path: &str) -> Strin
 <p>{total_ns} namespaces · {total_classes} classes · {total_props} properties · {total_inds} named individuals</p>
 </section>
 
+<section class="pipeline">
+<h2>The Resolution Pipeline</h2>
+<div class="pipeline-steps">
+<div class="pipeline-step">
+<span class="step-number">1</span>
+<h3>Define</h3>
+<p>Declare types with constraints that pin fibers of the Z/2Z fibration.</p>
+</div>
+<div class="pipeline-arrow" aria-hidden="true"></div>
+<div class="pipeline-step">
+<span class="step-number">2</span>
+<h3>Resolve</h3>
+<p>Factorize under D_{{2^n}}, classify into partition components, measure observables.</p>
+</div>
+<div class="pipeline-arrow" aria-hidden="true"></div>
+<div class="pipeline-step">
+<span class="step-number">3</span>
+<h3>Certify</h3>
+<p>Attest the result with a verification hash and replayable computation trace.</p>
+</div>
+</div>
+</section>
+
 <section class="namespace-grid">
 <h2>Namespaces</h2>
 <div class="grid">
@@ -188,7 +211,7 @@ pub fn render_namespaces_index(summaries: &[NamespaceSummary]) -> String {
 }
 
 /// Renders a namespace detail page from the spec module.
-pub fn render_namespace_page(module: &NamespaceModule) -> String {
+pub fn render_namespace_page(module: &NamespaceModule, base_path: Option<&str>) -> String {
     let ns = &module.namespace;
     let mut body = format!(
         r#"<h1>{label}</h1>
@@ -205,6 +228,13 @@ pub fn render_namespace_page(module: &NamespaceModule) -> String {
         space = format!("{:?}", ns.space).to_lowercase(),
         comment = escape_html(ns.comment),
     );
+
+    // Documentation link
+    body.push_str(&format!(
+        "<p class=\"ns-docs-link\"><a href=\"{base_path}/docs/namespaces/{prefix}.html\">View documentation reference</a></p>\n",
+        base_path = base_path.unwrap_or(""),
+        prefix = escape_html(ns.prefix),
+    ));
 
     // Imports
     if !ns.imports.is_empty() {

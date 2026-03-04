@@ -142,7 +142,7 @@ pub fn generate(out_dir: &Path) -> Result<()> {
         let page_path = format!("/namespaces/{}/", prefix);
         let page_nav = render_nav(&nav, &format!("{}{}", base_path, page_path));
         let ns_breadcrumbs = namespace_breadcrumbs(module.namespace.label, base_path);
-        let body = render_namespace_page(module);
+        let body = render_namespace_page(module, Some(base_path));
         let html = render_page(
             module.namespace.label,
             &body,

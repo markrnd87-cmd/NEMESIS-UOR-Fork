@@ -77,3 +77,8 @@ Evaluation is the final resolver in the three-stage pipeline:
 1. {@class https://uor.foundation/resolver/DihedralFactorizationResolver} -- orbit decomposition
 2. {@class https://uor.foundation/resolver/CanonicalFormResolver} -- term normalization
 3. **EvaluationResolver** -- concrete classification
+
+Evaluation triggers state transitions: each classification step updates the
+{@class https://uor.foundation/state/Frame} and produces a
+{@class https://uor.foundation/state/Transition} — see
+[State Model](state-model.html) for the context/binding/frame lifecycle.
