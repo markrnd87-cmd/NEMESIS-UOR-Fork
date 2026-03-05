@@ -68,6 +68,22 @@ pub trait TermMetrics<P: Primitives> {
     fn term_size(&self) -> P::NonNegativeInteger;
 }
 
+/// A single step in the construction of a SynthesizedType: one constraint added to the synthesis candidate and the resulting change in the constraint nerve's topological signature. Ordered by derivation:stepIndex. Analogous to derivation:RewriteStep in the forward pipeline.
+pub trait SynthesisStep<P: Primitives> {
+    /// Zero-based sequential index of this step within the synthesis derivation.
+    fn step_index(&self) -> P::NonNegativeInteger;
+    /// Associated type for `Constraint`.
+    type Constraint: crate::user::type_::Constraint<P>;
+    /// The constraint added in this synthesis step.
+    fn added_constraint(&self) -> &Self::Constraint;
+    /// Associated type for `SynthesisSignature`.
+    type SynthesisSignature: crate::bridge::observable::SynthesisSignature<P>;
+    /// The constraint nerve signature before this synthesis step.
+    fn signature_before(&self) -> &Self::SynthesisSignature;
+    /// The constraint nerve signature after this synthesis step.
+    fn signature_after(&self) -> &Self::SynthesisSignature;
+}
+
 /// The rewrite rule applying the critical identity: neg(bnot(x)) → succ(x). Grounded in op:criticalIdentity.
 pub mod critical_identity_rule {
     /// `groundedIn` -> `criticalIdentity`

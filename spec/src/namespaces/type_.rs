@@ -197,6 +197,92 @@ fn classes() -> Vec<Class> {
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
+        // Amendment 28: ψ-Pipeline Inversion (Type Synthesis)
+        Class {
+            id: "https://uor.foundation/type/TypeSynthesisGoal",
+            label: "TypeSynthesisGoal",
+            comment: "A specification of the desired topological properties of a type to be \
+                      synthesised. Carries a target Euler characteristic \
+                      (targetEulerCharacteristic) and a target Betti profile (zero or more \
+                      targetBettiNumber assertions). The minimal goal for O(1) resolution is: \
+                      targetEulerCharacteristic = n and all targetBettiNumber = 0 — the IT_7d \
+                      profile.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/TypeSynthesisResult",
+            label: "TypeSynthesisResult",
+            comment: "The output of a TypeSynthesisResolver run. Contains the SynthesizedType, \
+                      the realised topological signature (as a SynthesisSignature), and the \
+                      SynthesisTrace recording the construction steps.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/SynthesizedType",
+            label: "SynthesizedType",
+            comment: "A ConstrainedType produced by the TypeSynthesisResolver. Distinguished \
+                      from a hand-authored ConstrainedType by the presence of a \
+                      type:synthesisResult link. May or may not be a CompleteType, depending \
+                      on the synthesis goal.",
+            subclass_of: &["https://uor.foundation/type/ConstrainedType"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/MinimalConstraintBasis",
+            label: "MinimalConstraintBasis",
+            comment: "The minimal set of constraints in the SynthesizedType's constraint set \
+                      that is sufficient to realise the target topological signature. The \
+                      minimality criterion is that removing any single member changes the \
+                      realised signature.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 29: Quantum Level Spectral Sequence
+        Class {
+            id: "https://uor.foundation/type/QuantumLift",
+            label: "QuantumLift",
+            comment: "A ConstrainedType T' over R_{n+1} obtained by extending a \
+                      ConstrainedType T over R_n. Carries a link to the base type (liftBase), \
+                      the quantum level it lifts to (liftTargetLevel), and the LiftObstruction \
+                      (if the lift fails to transfer completeness). A QuantumLift is a \
+                      CompleteType iff its LiftObstruction is trivial.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/LiftObstruction",
+            label: "LiftObstruction",
+            comment: "The algebraic obstruction to a QuantumLift inheriting the completeness \
+                      of its base type. Computed as the image of the spectral sequence \
+                      differential d_2. If trivial (zero), the base type's completeness lifts. \
+                      If non-trivial, at least one additional constraint is needed at the new \
+                      quantum level.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 30: Monodromy Observables
+        Class {
+            id: "https://uor.foundation/type/TwistedType",
+            label: "TwistedType",
+            comment: "A ConstrainedType whose HolonomyGroup is non-trivial — at least one \
+                      closed constraint path produces a non-identity dihedral element. A \
+                      TwistedType may still be a CompleteType (IT_7d is a homological, not \
+                      holonomic, criterion), but its resolution paths require tracking dihedral \
+                      accumulation.",
+            subclass_of: &["https://uor.foundation/type/ConstrainedType"],
+            disjoint_with: &["https://uor.foundation/type/FlatType"],
+        },
+        Class {
+            id: "https://uor.foundation/type/FlatType",
+            label: "FlatType",
+            comment: "A ConstrainedType whose HolonomyGroup is trivial — all closed constraint \
+                      paths have identity monodromy. The constraint configuration is \
+                      topologically flat: resolution is path-independent.",
+            subclass_of: &["https://uor.foundation/type/ConstrainedType"],
+            disjoint_with: &["https://uor.foundation/type/TwistedType"],
+        },
     ]
 }
 
@@ -416,6 +502,127 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/type/CompletenessWitness"),
             range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 28: TypeSynthesisGoal properties
+        Property {
+            id: "https://uor.foundation/type/targetEulerCharacteristic",
+            label: "targetEulerCharacteristic",
+            comment: "The target χ(N(C)) value. For O(1) resolution: set equal to n (the \
+                      quantum level).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/TypeSynthesisGoal"),
+            range: XSD_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/type/targetBettiNumber",
+            label: "targetBettiNumber",
+            comment: "Non-functional. Each assertion specifies a target Betti number value \
+                      for a given homological degree. Multiple assertions permitted, one per \
+                      degree.",
+            kind: PropertyKind::Datatype,
+            functional: false,
+            domain: Some("https://uor.foundation/type/TypeSynthesisGoal"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 28: SynthesizedType property
+        Property {
+            id: "https://uor.foundation/type/synthesisResult",
+            label: "synthesisResult",
+            comment: "Links a SynthesizedType back to the synthesis run that produced it.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/SynthesizedType"),
+            range: "https://uor.foundation/type/TypeSynthesisResult",
+        },
+        // Amendment 28: MinimalConstraintBasis properties
+        Property {
+            id: "https://uor.foundation/type/basisConstraint",
+            label: "basisConstraint",
+            comment: "Non-functional. One assertion per constraint in the minimal basis.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/type/MinimalConstraintBasis"),
+            range: "https://uor.foundation/type/Constraint",
+        },
+        Property {
+            id: "https://uor.foundation/type/basisSize",
+            label: "basisSize",
+            comment: "The cardinality of the minimal basis. The theoretical lower bound is \
+                      n (one constraint per fiber).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/MinimalConstraintBasis"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 29: QuantumLift properties
+        Property {
+            id: "https://uor.foundation/type/liftBase",
+            label: "liftBase",
+            comment: "The base type being lifted to the next quantum level.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/QuantumLift"),
+            range: "https://uor.foundation/type/ConstrainedType",
+        },
+        Property {
+            id: "https://uor.foundation/type/liftTargetLevel",
+            label: "liftTargetLevel",
+            comment: "The quantum level this lift targets.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/QuantumLift"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/type/liftObstruction",
+            label: "liftObstruction",
+            comment: "The LiftObstruction for this lift. Trivial (zero class) iff the lift \
+                      inherits completeness.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/QuantumLift"),
+            range: "https://uor.foundation/type/LiftObstruction",
+        },
+        // Amendment 29: LiftObstruction properties
+        Property {
+            id: "https://uor.foundation/type/obstructionTrivial",
+            label: "obstructionTrivial",
+            comment: "True iff the obstruction class is zero — the base type's completeness \
+                      transfers to the lifted quantum level without additional constraints.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/LiftObstruction"),
+            range: XSD_BOOLEAN,
+        },
+        Property {
+            id: "https://uor.foundation/type/obstructionFiber",
+            label: "obstructionFiber",
+            comment: "The fiber at the new quantum level where the obstruction is located. \
+                      Ranges over the new bit position introduced at Q_{n+1}.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/LiftObstruction"),
+            range: "https://uor.foundation/partition/FiberCoordinate",
+        },
+        // Amendment 30: ConstrainedType extensions
+        Property {
+            id: "https://uor.foundation/type/holonomyGroup",
+            label: "holonomyGroup",
+            comment: "The HolonomyGroup of this type. Computed by the MonodromyResolver.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ConstrainedType"),
+            range: "https://uor.foundation/observable/HolonomyGroup",
+        },
+        Property {
+            id: "https://uor.foundation/type/monodromyClass",
+            label: "monodromyClass",
+            comment: "The MonodromyClass classifying this type as flat or twisted.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ConstrainedType"),
+            range: "https://uor.foundation/observable/MonodromyClass",
         },
     ]
 }

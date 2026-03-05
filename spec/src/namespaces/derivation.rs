@@ -25,7 +25,7 @@ pub fn module() -> NamespaceModule {
             comment: "Computation witnesses recording term rewriting sequences from \
                       original terms to their canonical forms.",
             space: Space::Bridge,
-            imports: &[NS_SCHEMA, NS_OP, NS_TYPE],
+            imports: &[NS_OBSERVABLE, NS_OP, NS_SCHEMA, NS_TYPE],
         },
         classes: classes(),
         properties: properties(),
@@ -87,6 +87,17 @@ fn classes() -> Vec<Class> {
             id: "https://uor.foundation/derivation/TermMetrics",
             label: "TermMetrics",
             comment: "Metrics describing the size and complexity of a term.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 28: Type synthesis step
+        Class {
+            id: "https://uor.foundation/derivation/SynthesisStep",
+            label: "SynthesisStep",
+            comment: "A single step in the construction of a SynthesizedType: one constraint \
+                      added to the synthesis candidate and the resulting change in the constraint \
+                      nerve's topological signature. Ordered by derivation:stepIndex. Analogous \
+                      to derivation:RewriteStep in the forward pipeline.",
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
@@ -236,6 +247,43 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/derivation/RefinementStep"),
             range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 28: SynthesisStep properties
+        Property {
+            id: "https://uor.foundation/derivation/stepIndex",
+            label: "stepIndex",
+            comment: "Zero-based sequential index of this step within the synthesis derivation.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/derivation/SynthesisStep"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/derivation/addedConstraint",
+            label: "addedConstraint",
+            comment: "The constraint added in this synthesis step.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/derivation/SynthesisStep"),
+            range: "https://uor.foundation/type/Constraint",
+        },
+        Property {
+            id: "https://uor.foundation/derivation/signatureBefore",
+            label: "signatureBefore",
+            comment: "The constraint nerve signature before this synthesis step.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/derivation/SynthesisStep"),
+            range: "https://uor.foundation/observable/SynthesisSignature",
+        },
+        Property {
+            id: "https://uor.foundation/derivation/signatureAfter",
+            label: "signatureAfter",
+            comment: "The constraint nerve signature after this synthesis step.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/derivation/SynthesisStep"),
+            range: "https://uor.foundation/observable/SynthesisSignature",
         },
     ]
 }

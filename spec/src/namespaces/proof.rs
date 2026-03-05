@@ -5928,5 +5928,445 @@ fn individuals() -> Vec<Individual> {
                 ),
             ],
         },
+        // Amendment 28: ψ-Pipeline Inversion proof coverage
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_1",
+            comment: "Proof of nerve realisability: for any target profile with χ* ≤ n and \
+                      β₀* = 1, there exists a ConstrainedType whose constraint nerve realises \
+                      the target. Follows from the constructive synthesis algorithm.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_2",
+            comment: "Proof of minimal basis bound: the MinimalConstraintBasis for the IT_7d \
+                      target has size exactly n. Follows from the fiber-by-fiber construction \
+                      and the minimality criterion.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_3",
+            comment: "Proof of synthesis monotonicity: adding a constraint never decreases \
+                      the Euler characteristic of the constraint nerve. Follows from the \
+                      nerve inclusion principle.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_4",
+            comment: "Proof of synthesis convergence: the TypeSynthesisResolver terminates in \
+                      at most n steps. Follows from monotonicity (TS_3) and the finite fiber \
+                      budget bound.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_5",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_5",
+            comment: "Proof of synthesis-certification duality: a SynthesizedType achieves \
+                      IT_7d iff the CompletenessResolver certifies it as CompleteType. The \
+                      duality follows from the shared topological criterion.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_6",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_6",
+            comment: "Proof of Jacobian-guided synthesis efficiency: the Jacobian oracle reduces \
+                      expected steps from O(n²) to O(n log n). Follows from the information \
+                      content of the Jacobian at each synthesis step.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_TS_7",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_TS_7",
+            comment: "Proof of unreachable signatures: β₀ = 0 is unreachable by any non-empty \
+                      ConstrainedType. Follows from the nerve connectedness of non-empty \
+                      constraint sets.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/TS_7"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        // Amendment 29: Quantum Level Spectral Sequence proof coverage
+        Individual {
+            id: "https://uor.foundation/proof/prf_QLS_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QLS_1",
+            comment: "Proof of lift unobstructedness criterion: QuantumLift T' is CompleteType \
+                      iff the spectral sequence collapses at E_2. Follows from the Leray \
+                      spectral sequence of the quantum level extension.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QLS_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QLS_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QLS_2",
+            comment: "Proof of obstruction localisation: a non-trivial LiftObstruction is \
+                      localised to a specific fiber at bit position n+1. Follows from the \
+                      local-to-global structure of the constraint nerve.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QLS_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QLS_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QLS_3",
+            comment: "Proof of monotone lifting: basisSize(T') = basisSize(T) + 1 for trivially \
+                      obstructed lifts. Follows from the minimal basis construction at Q_{n+1}.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QLS_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QLS_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QLS_4",
+            comment: "Proof of spectral sequence convergence bound: the spectral sequence \
+                      converges by page E_{d+2} for depth-d configurations. Follows from \
+                      the filtration length of the constraint nerve chain complex.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QLS_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QLS_5",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QLS_5",
+            comment: "Proof of universal identity preservation under quantum lifts: every \
+                      universallyValid identity holds in the lifted ring. Follows from the \
+                      universal validity definition and ring extension properties.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QLS_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QLS_6",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QLS_6",
+            comment: "Proof of ψ-pipeline universality for quantum lifts: the ψ-pipeline \
+                      produces a valid ChainComplex for any QuantumLift. Follows from the \
+                      functorial construction of the chain complex.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QLS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        // Amendment 30: Monodromy Observables proof coverage
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_1",
+            comment: "Proof of holonomy group containment: HolonomyGroup(T) ≤ D_{2^n}. Follows \
+                      from the fact that all constraint applications are dihedral group elements.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_2",
+            comment: "Proof of additive flatness: additive constraints (ResidueConstraint, \
+                      DepthConstraint) generate only the identity in D_{2^n}. Follows from \
+                      the additive structure of the dihedral action.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_3",
+            comment: "Proof of dihedral generation: neg and bnot together generate D_{2^n}. \
+                      Follows from the standard presentation of the dihedral group by \
+                      involutions.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_4",
+            comment: "Proof of holonomy-Betti implication: non-trivial holonomy implies β₁ ≥ 1. \
+                      Follows from the fact that a non-trivial monodromy requires a topological \
+                      loop in the constraint nerve.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_5",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_5",
+            comment: "Proof of CompleteType holonomy: IT_7d (β₁ = 0) implies trivial holonomy \
+                      (FlatType). Follows from MN_4 contrapositive: trivial holonomy ← β₁ = 0.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_6",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_6",
+            comment: "Proof of monodromy composition: the monodromy map is a group homomorphism \
+                      from the loop space to D_{2^n}. Follows from the composition of dihedral \
+                      group elements.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MN_7",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MN_7",
+            comment: "Proof of TwistedType obstruction class: a TwistedType always contributes \
+                      a non-zero class to H²(N(C(T')); ℤ/2ℤ) for any QuantumLift T'. Follows \
+                      from MN_4 and the obstruction theory of dihedral torsors.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MN_7"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
     ]
 }

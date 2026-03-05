@@ -19,12 +19,13 @@ pub mod individuals;
 pub mod mapping;
 pub mod traits;
 
+use std::collections::HashMap;
 use std::fmt::Write as FmtWrite;
 use std::path::Path;
 
 use anyhow::Result;
 use uor_ontology::model::Space;
-use uor_ontology::Ontology;
+use uor_ontology::{Ontology, Property};
 
 use emit::RustFile;
 use mapping::namespace_mappings;
@@ -64,6 +65,19 @@ pub fn generate(ontology: &Ontology, out_dir: &Path) -> Result<GenerationReport>
     let mut bridge_modules = Vec::new();
     let mut user_modules = Vec::new();
 
+    // Build cross-namespace property-by-domain lookup for inherited associated type detection.
+    let all_props_by_domain: HashMap<&str, Vec<&Property>> = {
+        let mut map: HashMap<&str, Vec<&Property>> = HashMap::new();
+        for module in &ontology.namespaces {
+            for prop in &module.properties {
+                if let Some(domain) = prop.domain {
+                    map.entry(domain).or_default().push(prop);
+                }
+            }
+        }
+        map
+    };
+
     for module in &ontology.namespaces {
         let ns_iri = module.namespace.iri;
         let mapping = match ns_map.get(ns_iri) {
@@ -71,7 +85,7 @@ pub fn generate(ontology: &Ontology, out_dir: &Path) -> Result<GenerationReport>
             None => continue,
         };
 
-        let content = traits::generate_namespace_module(module, &ns_map);
+        let content = traits::generate_namespace_module(module, &ns_map, &all_props_by_domain);
 
         // Append PrimitiveOp impls to op.rs
         let content = if mapping.file_module == "op" {

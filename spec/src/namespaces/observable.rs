@@ -21,7 +21,7 @@ pub fn module() -> NamespaceModule {
                       Includes ring-metric, Hamming-metric, curvature, holonomy, \
                       and catastrophe-theoretic observables.",
             space: Space::Bridge,
-            imports: &[NS_SCHEMA, NS_PARTITION],
+            imports: &[NS_OP, NS_SCHEMA, NS_PARTITION, NS_TYPE],
         },
         classes: classes(),
         properties: properties(),
@@ -324,6 +324,69 @@ fn classes() -> Vec<Class> {
             subclass_of: &["https://uor.foundation/observable/ThermoObservable"],
             disjoint_with: &[],
         },
+        // Amendment 28: Type synthesis signature
+        Class {
+            id: "https://uor.foundation/observable/SynthesisSignature",
+            label: "SynthesisSignature",
+            comment: "A named topological signature: a pair (realised Euler characteristic, \
+                      realised Betti profile). Linked from TypeSynthesisResult. Allows \
+                      comparison between the goal signature and the actually achieved signature.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 29: Quantum level spectral sequence
+        Class {
+            id: "https://uor.foundation/observable/SpectralSequencePage",
+            label: "SpectralSequencePage",
+            comment:
+                "A single page E_r of the quantum level spectral sequence. Carries the \
+                      page index r and the differential d_r. The sequence converges when all \
+                      differentials vanish — typically by E_3 for simple constraint configurations.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/LiftObstructionClass",
+            label: "LiftObstructionClass",
+            comment: "The cohomology class in H^2(N(C(T))) representing the LiftObstruction \
+                      for a specific QuantumLift. The class is zero iff the obstruction is \
+                      trivial. When non-zero, it indexes the specific fiber pair at Q_{n+1} \
+                      that cannot be closed by the lifted constraint set alone.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 30: Monodromy observable machinery
+        Class {
+            id: "https://uor.foundation/observable/MonodromyClass",
+            label: "MonodromyClass",
+            comment: "A classification of a type's holonomy: the subgroup of D_{2^n} generated \
+                      by all Monodromy observables computed over closed paths in the type's \
+                      constraint nerve. Trivial iff every closed constraint path returns to its \
+                      starting fiber assignment without net dihedral transformation.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/HolonomyGroup",
+            label: "HolonomyGroup",
+            comment:
+                "The holonomy group of a ConstrainedType: the group of all Monodromy \
+                      elements achievable by closed paths in the constraint nerve. Always a \
+                      subgroup of D_{2^n}. Trivial iff the type has trivial monodromy everywhere; \
+                      equals D_{2^n} iff paths involving both neg and bnot involutions are present.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/ClosedConstraintPath",
+            label: "ClosedConstraintPath",
+            comment: "A sequence of constraint applications forming a closed loop in the \
+                      constraint nerve — beginning and ending at the same fiber assignment. \
+                      The Monodromy of the loop is the net DihedralElement accumulated \
+                      when traversing it.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -399,6 +462,168 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/observable/TopologicalObservable"),
             range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 28: SynthesisSignature properties
+        Property {
+            id: "https://uor.foundation/observable/realisedEuler",
+            label: "realisedEuler",
+            comment: "The Euler characteristic actually achieved by this synthesis signature.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/SynthesisSignature"),
+            range: XSD_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/observable/realisedBetti",
+            label: "realisedBetti",
+            comment: "Non-functional. Realised Betti number values, one assertion per \
+                      homological degree.",
+            kind: PropertyKind::Datatype,
+            functional: false,
+            domain: Some("https://uor.foundation/observable/SynthesisSignature"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 29: SpectralSequencePage properties
+        Property {
+            id: "https://uor.foundation/observable/pageIndex",
+            label: "pageIndex",
+            comment: "The page r of this spectral sequence page. r=1 is the initial page; \
+                      convergence is declared when all d_r are zero.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/SpectralSequencePage"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/observable/differentialIsZero",
+            label: "differentialIsZero",
+            comment: "True iff d_r = 0 on this page — no further corrections to the \
+                      lifted homology.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/SpectralSequencePage"),
+            range: XSD_BOOLEAN,
+        },
+        Property {
+            id: "https://uor.foundation/observable/convergedAt",
+            label: "convergedAt",
+            comment: "The page index r at which the spectral sequence converged \
+                      (all subsequent differentials zero).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/SpectralSequencePage"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 29: LiftObstructionClass property
+        Property {
+            id: "https://uor.foundation/observable/obstructionClass",
+            label: "obstructionClass",
+            comment: "The cohomology class in H^2(N(C(T))) representing this obstruction.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/LiftObstructionClass"),
+            range: "https://uor.foundation/cohomology/CohomologyGroup",
+        },
+        // Amendment 30: Monodromy extensions
+        Property {
+            id: "https://uor.foundation/observable/monodromyLoop",
+            label: "monodromyLoop",
+            comment: "The closed path that generates this monodromy value.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/Monodromy"),
+            range: "https://uor.foundation/observable/ClosedConstraintPath",
+        },
+        Property {
+            id: "https://uor.foundation/observable/monodromyElement",
+            label: "monodromyElement",
+            comment: "The dihedral element g in D_{2^n} accumulated when traversing the loop. \
+                      The monodromy is trivial iff this element is the group identity.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/Monodromy"),
+            range: "https://uor.foundation/observable/DihedralElement",
+        },
+        Property {
+            id: "https://uor.foundation/observable/isTrivialMonodromy",
+            label: "isTrivialMonodromy",
+            comment: "True iff the monodromyElement is the identity in D_{2^n}.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/Monodromy"),
+            range: XSD_BOOLEAN,
+        },
+        // Amendment 30: HolonomyGroup properties
+        Property {
+            id: "https://uor.foundation/observable/holonomyGroup",
+            label: "holonomyGroup",
+            comment: "Non-functional. The generators of the holonomy group: one DihedralElement \
+                      per generating monodromy.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/observable/HolonomyGroup"),
+            range: "https://uor.foundation/observable/DihedralElement",
+        },
+        Property {
+            id: "https://uor.foundation/observable/holonomyGroupOrder",
+            label: "holonomyGroupOrder",
+            comment: "The order of the holonomy group as a subgroup of D_{2^n}. \
+                      For a FlatType: 1. For full dihedral holonomy: 2^{n+1}.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/HolonomyGroup"),
+            range: XSD_POSITIVE_INTEGER,
+        },
+        // Amendment 30: ClosedConstraintPath properties
+        Property {
+            id: "https://uor.foundation/observable/pathLength",
+            label: "pathLength",
+            comment: "The number of constraint application steps in this closed path.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/ClosedConstraintPath"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/observable/pathConstraints",
+            label: "pathConstraints",
+            comment: "Non-functional. The ordered sequence of constraints traversed. \
+                      One assertion per step.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/observable/ClosedConstraintPath"),
+            range: "https://uor.foundation/type/Constraint",
+        },
+        // Amendment 30: DihedralElement extensions
+        Property {
+            id: "https://uor.foundation/observable/dihedralElementValue",
+            label: "dihedralElementValue",
+            comment: "Non-functional. One assertion per generator in the normal form of the \
+                      element — the sequence of neg and/or bnot operations that realises this \
+                      dihedral element when composed.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/observable/DihedralElement"),
+            range: "https://uor.foundation/op/Operation",
+        },
+        Property {
+            id: "https://uor.foundation/observable/isIdentityElement",
+            label: "isIdentityElement",
+            comment: "True iff this element is the group identity (the trivial monodromy value).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/DihedralElement"),
+            range: XSD_BOOLEAN,
+        },
+        Property {
+            id: "https://uor.foundation/observable/elementOrder",
+            label: "elementOrder",
+            comment: "The order of this element in D_{2^n}: the smallest k >= 1 such that \
+                      g^k = id. For neg and bnot: order 2.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/DihedralElement"),
+            range: XSD_POSITIVE_INTEGER,
         },
     ]
 }

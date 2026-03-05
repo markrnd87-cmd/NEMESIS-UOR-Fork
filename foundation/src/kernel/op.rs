@@ -3846,6 +3846,311 @@ pub mod sr_5 {
         "Binding contradiction → SessionBoundary → ContradictionBoundary";
 }
 
+/// Nerve realisability: for any target (χ*, β₀* = 1, β_k* = 0 for k ≥ 1) with χ* ≤ n, there exists a ConstrainedType T over R_n whose constraint nerve realises the target.
+pub mod ts_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "target: χ* ≤ n, β₀* = 1, β_k* = 0 for k ≥ 1";
+    /// `lhs`
+    pub const LHS: &str = "nerve(T, target)";
+    /// `rhs`
+    pub const RHS: &str = "∃ ConstrainedType T over R_n realising target";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "TypeSynthesisResolver → ConstraintNerve → target signature";
+}
+
+/// Minimal basis bound: for the IT_7d target (χ* = n, all β* = 0), the MinimalConstraintBasis has size exactly n (one constraint per fiber position). No redundant constraints exist in the minimal basis.
+pub mod ts_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "IT_7d target, n-fiber types";
+    /// `lhs`
+    pub const LHS: &str = "basisSize(T, IT_7d target)";
+    /// `rhs`
+    pub const RHS: &str = "n";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "MinimalConstraintBasis → basisSize = n for IT_7d";
+}
+
+/// Synthesis monotonicity: adding a constraint to a synthesis candidate never decreases the Euler characteristic of the resulting nerve (χ is monotone non-decreasing under constraint addition).
+pub mod ts_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "C: synthesis candidate constraint set";
+    /// `lhs`
+    pub const LHS: &str = "χ(N(C + constraint))";
+    /// `rhs`
+    pub const RHS: &str = "≥ χ(N(C))";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "ConstraintNerve monotonicity under constraint addition";
+}
+
+/// Synthesis convergence: the TypeSynthesisResolver terminates for any realisable target in at most n constraint additions (for n-fiber types).
+pub mod ts_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "target: realisable n-fiber type synthesis goal";
+    /// `lhs`
+    pub const LHS: &str = "steps(TypeSynthesisResolver, target)";
+    /// `rhs`
+    pub const RHS: &str = "≤ n";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "TypeSynthesisResolver terminates in ≤ n SynthesisStep additions";
+}
+
+/// Synthesis–certification duality: a SynthesizedType T achieves the IT_7d target if and only if the CompletenessResolver certifies T as a CompleteType. The forward ψ-pipeline and the inverse TypeSynthesisResolver are dual computations.
+pub mod ts_5 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: SynthesizedType";
+    /// `lhs`
+    pub const LHS: &str = "SynthesizedType achieves IT_7d";
+    /// `rhs`
+    pub const RHS: &str = "iff CompletenessResolver certifies CompleteType";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "TypeSynthesisResolver ↔ CompletenessResolver duality";
+}
+
+/// Jacobian-guided synthesis efficiency: using the Jacobian (DC_10) to select the next constraint reduces the expected number of synthesis steps from O(n²) (uninformed) to O(n log n) (Jacobian-guided).
+pub mod ts_6 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: n-fiber type synthesis goal";
+    /// `lhs`
+    pub const LHS: &str = "E[steps, Jacobian-guided synthesis]";
+    /// `rhs`
+    pub const RHS: &str = "O(n log n) vs O(n²) uninformed";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "Jacobian DC_10 → guided ConstraintSearchState exploration";
+}
+
+/// Unreachable signatures: a Betti profile with β₀ = 0 is unreachable by any non-empty ConstrainedType — the nerve of a non-empty constraint set is always connected (β₀ ≥ 1).
+pub mod ts_7 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "C: non-empty constraint set";
+    /// `lhs`
+    pub const LHS: &str = "β₀(N(C)) for non-empty C";
+    /// `rhs`
+    pub const RHS: &str = "≥ 1";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "non-empty ConstraintNerve → β₀ ≥ 1 (connected)";
+}
+
+/// Lift unobstructedness criterion: QuantumLift T' is a CompleteType iff the spectral sequence E_r^{p,q} collapses at E_2 (d_2 = 0 and all higher differentials zero).
+pub mod qls_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: CompleteType at Q_n, T': QuantumLift to Q_{n+1}";
+    /// `lhs`
+    pub const LHS: &str = "QuantumLift T' is CompleteType";
+    /// `rhs`
+    pub const RHS: &str = "iff spectral sequence collapses at E_2";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "SpectralSequencePage convergedAt = 2 → trivial LiftObstruction";
+}
+
+/// Obstruction localisation: a non-trivial LiftObstruction is localised to a specific fiber at bit position n+1. The obstruction class lives in H²(N(C(T))) and is killed by adding one constraint involving the new fiber.
+pub mod qls_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "non-trivial LiftObstruction";
+    /// `lhs`
+    pub const LHS: &str = "non-trivial LiftObstruction location";
+    /// `rhs`
+    pub const RHS: &str = "specific fiber at bit position n+1";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "LiftObstructionClass → obstructionFiber at Q_{n+1} position";
+}
+
+/// Monotone lifting for trivially obstructed types: if T is a CompleteType at Q_n and its constraint set is closed under the Q_{n+1} extension map, then T' is a CompleteType at Q_{n+1} with basisSize(T') = basisSize(T) + 1.
+pub mod qls_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: CompleteType at Q_n with closed constraint set";
+    /// `lhs`
+    pub const LHS: &str = "basisSize(T') for trivial lift";
+    /// `rhs`
+    pub const RHS: &str = "basisSize(T) + 1";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "obstructionTrivial = true → basisSize increases by exactly 1";
+}
+
+/// Spectral sequence convergence bound: for constraint configurations of homological depth d (H_k(N(C(T))) = 0 for k > d), the spectral sequence converges by page E_{d+2}.
+pub mod qls_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "depth-d constraint configuration";
+    /// `lhs`
+    pub const LHS: &str = "spectral sequence convergence page";
+    /// `rhs`
+    pub const RHS: &str = "≤ E_{d+2}";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "SpectralSequencePage convergedAt ≤ homological depth + 2";
+}
+
+/// Universal identity preservation: every op:universallyValid identity holds in ℤ/(2^{n+1})ℤ with the lifted constraint set. The lift does not invalidate any certified universal identity.
+pub mod qls_5 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "every op:universallyValid identity, QuantumLift T'";
+    /// `lhs`
+    pub const LHS: &str = "universallyValid identity in R_{n+1}";
+    /// `rhs`
+    pub const RHS: &str = "holds with lifted constraint set";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "universallyValid identities preserved under QuantumLift extension";
+}
+
+/// ψ-pipeline universality for quantum lifts: the ψ-pipeline produces a valid ChainComplex for any QuantumLift T' — the chain complex of T' restricts to the chain complex of T on the base nerve, and the extension is well-formed by construction.
+pub mod qls_6 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T': any QuantumLift of a CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "ψ-pipeline ChainComplex(T')";
+    /// `rhs`
+    pub const RHS: &str = "valid and restricts to ChainComplex(T) on base nerve";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "ψ-pipeline → valid ChainComplex for any QuantumLift";
+}
+
+/// Holonomy group containment: HolonomyGroup(T) ≤ D_{2^n} for all ConstrainedTypes T over R_n. The holonomy group is always a subgroup of the full dihedral group.
+pub mod mn_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: ConstrainedType over R_n";
+    /// `lhs`
+    pub const LHS: &str = "HolonomyGroup(T)";
+    /// `rhs`
+    pub const RHS: &str = "≤ D_{2^n}";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "HolonomyGroup subgroup containment in D_{2^n}";
+}
+
+/// Additive flatness (extends OB_H1): if all constraints in T are additive (ResidueConstraint or DepthConstraint type), then HolonomyGroup(T) = {id} — T is a FlatType.
+pub mod mn_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: all ResidueConstraint or DepthConstraint";
+    /// `lhs`
+    pub const LHS: &str = "HolonomyGroup(T) for additive constraints";
+    /// `rhs`
+    pub const RHS: &str = "{id} (trivial: T is FlatType)";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "additive constraints → trivial monodromy → FlatType";
+}
+
+/// Dihedral generation: if T contains both a neg-related and a bnot-related constraint in a common closed path, then HolonomyGroup(T) = D_{2^n} — T has full dihedral holonomy.
+pub mod mn_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str =
+        "T: ConstrainedType with neg-related and bnot-related constraints in closed path";
+    /// `lhs`
+    pub const LHS: &str = "HolonomyGroup(T) with neg + bnot in closed path";
+    /// `rhs`
+    pub const RHS: &str = "D_{2^n} (full dihedral holonomy)";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "neg + bnot generators in ClosedConstraintPath → full D_{2^n}";
+}
+
+/// Holonomy-Betti implication: HolonomyGroup(T) ≠ {id} ⟹ β₁(N(C(T))) ≥ 1. Non-trivial monodromy requires a topological loop. (Converse is false: β₁ ≥ 1 does not imply non-trivial holonomy.)
+pub mod mn_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: ConstrainedType";
+    /// `lhs`
+    pub const LHS: &str = "HolonomyGroup(T) ≠ {id}";
+    /// `rhs`
+    pub const RHS: &str = "⟹ β₁(N(C(T))) ≥ 1";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "non-trivial HolonomyGroup → β₁ ≥ 1 in ConstraintNerve";
+}
+
+/// CompleteType holonomy: a CompleteType (IT_7d: χ = n, all β = 0) has trivial holonomy. IT_7d implies FlatType because IT_7d requires β₁ = 0, which by MN_4 implies trivial monodromy.
+pub mod mn_5 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T: CompleteType";
+    /// `lhs`
+    pub const LHS: &str = "CompleteType (IT_7d) ⟹ β₁ = 0 ⟹ holonomy";
+    /// `rhs`
+    pub const RHS: &str = "trivial ⟹ FlatType";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "IT_7d → β₁ = 0 → trivial HolonomyGroup → FlatType";
+}
+
+/// Monodromy composition: if p₁ and p₂ are closed constraint paths, then monodromy(p₁ · p₂) = monodromy(p₁) · monodromy(p₂) in D_{2^n} (group homomorphism from loops to dihedral elements).
+pub mod mn_6 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "p₁, p₂: ClosedConstraintPath";
+    /// `lhs`
+    pub const LHS: &str = "monodromy(p₁ · p₂)";
+    /// `rhs`
+    pub const RHS: &str = "monodromy(p₁) · monodromy(p₂) in D_{2^n}";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Monodromy composition homomorphism: π₁ → D_{2^n}";
+}
+
+/// TwistedType obstruction class: the monodromy of a TwistedType contributes a non-zero class to H²(N(C(T')); ℤ/2ℤ) where T' is any QuantumLift of T. TwistedTypes always have non-trivial lift obstructions.
+pub mod mn_7 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T': any QuantumLift of TwistedType T";
+    /// `lhs`
+    pub const LHS: &str = "TwistedType T ⟹ H²(N(C(T')); ℤ/2ℤ)";
+    /// `rhs`
+    pub const RHS: &str = "non-zero class (non-trivial LiftObstruction)";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "TwistedType → non-trivial LiftObstruction at every quantum level";
+}
+
 use crate::enums::PrimitiveOp;
 
 impl PrimitiveOp {

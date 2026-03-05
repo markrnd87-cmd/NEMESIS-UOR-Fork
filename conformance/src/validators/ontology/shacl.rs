@@ -1,6 +1,6 @@
 //! SHACL validator.
 //!
-//! Validates the 39 OWL instance test graphs against the UOR SHACL shapes.
+//! Validates the 45 OWL instance test graphs against the UOR SHACL shapes.
 //! Each test graph is defined as a Turtle string in `tests/fixtures/`.
 //! Validation checks structural constraints without a full SHACL engine:
 //! - Required properties are present
@@ -10,7 +10,7 @@
 use crate::report::{ConformanceReport, TestResult};
 use crate::tests;
 
-/// Runs all 39 SHACL instance conformance tests.
+/// Runs all 45 SHACL instance conformance tests.
 pub fn validate() -> ConformanceReport {
     let mut report = ConformanceReport::new();
 
@@ -205,6 +205,36 @@ pub fn validate() -> ConformanceReport {
         tests::fixtures::TEST39_SESSION_BOUNDARY,
         &mut report,
     );
+    run_test(
+        "test40_type_synthesis_goal",
+        tests::fixtures::TEST40_TYPE_SYNTHESIS_GOAL,
+        &mut report,
+    );
+    run_test(
+        "test41_synthesis_result",
+        tests::fixtures::TEST41_SYNTHESIS_RESULT,
+        &mut report,
+    );
+    run_test(
+        "test42_quantum_lift",
+        tests::fixtures::TEST42_QUANTUM_LIFT,
+        &mut report,
+    );
+    run_test(
+        "test43_spectral_sequence",
+        tests::fixtures::TEST43_SPECTRAL_SEQUENCE,
+        &mut report,
+    );
+    run_test(
+        "test44_monodromy_flat",
+        tests::fixtures::TEST44_MONODROMY_FLAT,
+        &mut report,
+    );
+    run_test(
+        "test45_monodromy_twisted",
+        tests::fixtures::TEST45_MONODROMY_TWISTED,
+        &mut report,
+    );
 
     report
 }
@@ -271,6 +301,12 @@ fn run_test(name: &str, turtle_src: &str, report: &mut ConformanceReport) {
         "test37_quantum_level_binding" => validate_quantum_level_binding_shacl(turtle_src),
         "test38_session_lifecycle" => validate_session_lifecycle_shacl(turtle_src),
         "test39_session_boundary" => validate_session_boundary_shacl(turtle_src),
+        "test40_type_synthesis_goal" => validate_type_synthesis_goal_shacl(turtle_src),
+        "test41_synthesis_result" => validate_synthesis_result_shacl(turtle_src),
+        "test42_quantum_lift" => validate_quantum_lift_shacl(turtle_src),
+        "test43_spectral_sequence" => validate_spectral_sequence_shacl(turtle_src),
+        "test44_monodromy_flat" => validate_monodromy_flat_shacl(turtle_src),
+        "test45_monodromy_twisted" => validate_monodromy_twisted_shacl(turtle_src),
         _ => Ok(()),
     };
 
@@ -1066,6 +1102,186 @@ fn validate_session_boundary_shacl(src: &str) -> Result<(), String> {
     )?;
     check_contains(src, "state:priorContext", "Missing priorContext property")?;
     check_contains(src, "state:freshContext", "Missing freshContext property")?;
+    Ok(())
+}
+
+fn validate_type_synthesis_goal_shacl(src: &str) -> Result<(), String> {
+    check_contains(
+        src,
+        "type:TypeSynthesisGoal",
+        "Missing TypeSynthesisGoal type assertion",
+    )?;
+    check_contains(
+        src,
+        "type:targetEulerCharacteristic",
+        "Missing targetEulerCharacteristic property",
+    )?;
+    check_contains(
+        src,
+        "resolver:TypeSynthesisResolver",
+        "Missing TypeSynthesisResolver type assertion",
+    )?;
+    check_contains(
+        src,
+        "resolver:synthesisGoal",
+        "Missing synthesisGoal property",
+    )?;
+    Ok(())
+}
+
+fn validate_synthesis_result_shacl(src: &str) -> Result<(), String> {
+    check_contains(
+        src,
+        "type:TypeSynthesisResult",
+        "Missing TypeSynthesisResult type assertion",
+    )?;
+    check_contains(
+        src,
+        "type:SynthesizedType",
+        "Missing SynthesizedType type assertion",
+    )?;
+    check_contains(
+        src,
+        "type:MinimalConstraintBasis",
+        "Missing MinimalConstraintBasis type assertion",
+    )?;
+    check_contains(src, "type:basisSize", "Missing basisSize property")?;
+    check_contains(
+        src,
+        "observable:SynthesisSignature",
+        "Missing SynthesisSignature type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:realisedEuler",
+        "Missing realisedEuler property",
+    )?;
+    check_contains(
+        src,
+        "derivation:SynthesisStep",
+        "Missing SynthesisStep type assertion",
+    )?;
+    check_contains(src, "derivation:stepIndex", "Missing stepIndex property")?;
+    Ok(())
+}
+
+fn validate_quantum_lift_shacl(src: &str) -> Result<(), String> {
+    check_contains(
+        src,
+        "type:QuantumLift",
+        "Missing QuantumLift type assertion",
+    )?;
+    check_contains(src, "type:liftBase", "Missing liftBase property")?;
+    check_contains(
+        src,
+        "type:liftTargetLevel",
+        "Missing liftTargetLevel property",
+    )?;
+    check_contains(
+        src,
+        "type:LiftObstruction",
+        "Missing LiftObstruction type assertion",
+    )?;
+    check_contains(
+        src,
+        "type:obstructionTrivial",
+        "Missing obstructionTrivial property",
+    )?;
+    check_contains(
+        src,
+        "resolver:IncrementalCompletenessResolver",
+        "Missing IncrementalCompletenessResolver type assertion",
+    )?;
+    check_contains(src, "resolver:liftTarget", "Missing liftTarget property")?;
+    Ok(())
+}
+
+fn validate_spectral_sequence_shacl(src: &str) -> Result<(), String> {
+    check_contains(
+        src,
+        "observable:SpectralSequencePage",
+        "Missing SpectralSequencePage type assertion",
+    )?;
+    check_contains(src, "observable:pageIndex", "Missing pageIndex property")?;
+    check_contains(
+        src,
+        "observable:differentialIsZero",
+        "Missing differentialIsZero property",
+    )?;
+    check_contains(
+        src,
+        "observable:convergedAt",
+        "Missing convergedAt property",
+    )?;
+    Ok(())
+}
+
+fn validate_monodromy_flat_shacl(src: &str) -> Result<(), String> {
+    check_contains(src, "type:FlatType", "Missing FlatType type assertion")?;
+    check_contains(
+        src,
+        "observable:HolonomyGroup",
+        "Missing HolonomyGroup type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:holonomyGroupOrder",
+        "Missing holonomyGroupOrder property",
+    )?;
+    check_contains(
+        src,
+        "observable:Monodromy",
+        "Missing Monodromy type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:isTrivialMonodromy",
+        "Missing isTrivialMonodromy property",
+    )?;
+    check_contains(
+        src,
+        "observable:ClosedConstraintPath",
+        "Missing ClosedConstraintPath type assertion",
+    )?;
+    Ok(())
+}
+
+fn validate_monodromy_twisted_shacl(src: &str) -> Result<(), String> {
+    check_contains(
+        src,
+        "type:TwistedType",
+        "Missing TwistedType type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:HolonomyGroup",
+        "Missing HolonomyGroup type assertion",
+    )?;
+    check_contains(
+        src,
+        "type:LiftObstruction",
+        "Missing LiftObstruction type assertion",
+    )?;
+    check_contains(
+        src,
+        "type:obstructionTrivial",
+        "Missing obstructionTrivial property",
+    )?;
+    check_contains(
+        src,
+        "observable:LiftObstructionClass",
+        "Missing LiftObstructionClass type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:DihedralElement",
+        "Missing DihedralElement type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:isIdentityElement",
+        "Missing isIdentityElement property",
+    )?;
     Ok(())
 }
 

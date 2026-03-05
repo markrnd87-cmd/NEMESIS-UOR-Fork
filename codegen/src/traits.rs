@@ -52,12 +52,48 @@ fn object_property_enum_override(range_local: &str) -> Option<&'static str> {
     }
 }
 
+/// Collects associated type names that parent traits already declare,
+/// so that child traits do not re-declare them (which causes E0221 ambiguity).
+fn collect_inherited_assoc_types(
+    class: &Class,
+    all_props_by_domain: &HashMap<&str, Vec<&Property>>,
+) -> HashSet<String> {
+    let mut result = HashSet::new();
+    for parent_iri in class.subclass_of {
+        if *parent_iri == OWL_THING {
+            continue;
+        }
+        let parent_local = local_name(parent_iri);
+        if let Some(props) = all_props_by_domain.get(*parent_iri) {
+            for prop in props {
+                if prop.kind == PropertyKind::Object {
+                    let range_local = local_name(prop.range);
+                    if object_property_enum_override(range_local).is_none()
+                        && prop.range != OWL_THING
+                        && prop.range != OWL_CLASS
+                        && prop.range != RDF_LIST
+                    {
+                        let assoc_name = if range_local == parent_local {
+                            format!("{range_local}Target")
+                        } else {
+                            range_local.to_string()
+                        };
+                        result.insert(assoc_name);
+                    }
+                }
+            }
+        }
+    }
+    result
+}
+
 /// Generates a single namespace module file.
 ///
 /// Returns the Rust source code for the module.
 pub fn generate_namespace_module(
     module: &NamespaceModule,
     ns_map: &HashMap<&str, NamespaceMapping>,
+    all_props_by_domain: &HashMap<&str, Vec<&Property>>,
 ) -> String {
     let ns = &module.namespace;
     let space_str = format!("{:?}", ns.space);
@@ -127,7 +163,14 @@ pub fn generate_namespace_module(
         if skip_classes.contains(local_name(class.id)) {
             continue;
         }
-        generate_trait(&mut f, class, &props_by_domain, ns_map, ns.iri);
+        generate_trait(
+            &mut f,
+            class,
+            &props_by_domain,
+            all_props_by_domain,
+            ns_map,
+            ns.iri,
+        );
     }
 
     // Generate individual constants
@@ -152,6 +195,7 @@ fn generate_trait(
     f: &mut RustFile,
     class: &Class,
     props_by_domain: &HashMap<&str, Vec<&Property>>,
+    all_props_by_domain: &HashMap<&str, Vec<&Property>>,
     ns_map: &HashMap<&str, NamespaceMapping>,
     current_ns_iri: &str,
 ) {
@@ -196,7 +240,9 @@ fn generate_trait(
             f.buf.push_str("{}\n");
         }
     } else {
-        let mut associated_types: HashSet<String> = HashSet::new();
+        // Pre-populate with associated types already declared in parent traits
+        // to avoid E0221 ambiguous-associated-type errors.
+        let mut associated_types = collect_inherited_assoc_types(class, all_props_by_domain);
         for prop in &non_annotation_props {
             generate_property_method(
                 f,

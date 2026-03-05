@@ -128,6 +128,12 @@ pub fn generate(out_dir: &Path, readme_path: &Path) -> Result<()> {
 <li><a href="homology.html">Homology — Simplicial complexes and chain homology</a></li>
 <li><a href="cohomology.html">Cohomology — Sheaf cohomology and local-to-global</a></li>
 <li><a href="sheaf-semantics.html">Sheaf Semantics — Sheaf-theoretic view of resolution</a></li>
+<li><a href="type-completeness.html">Type Completeness — IT_7d: Euler characteristic and the completeness criterion</a></li>
+<li><a href="quantum-universality.html">Quantum Universality — Identities that hold for all n ≥ 1</a></li>
+<li><a href="session-resolution.html">Session Resolution — Multi-turn PRISM sessions with binding accumulation</a></li>
+<li><a href="type-synthesis.html">Type Synthesis — Inverse ψ-pipeline: synthesising types from topological targets</a></li>
+<li><a href="quantum-spectral-sequence.html">Quantum Spectral Sequence — Lifting CompleteTypes across quantum levels</a></li>
+<li><a href="monodromy.html">Monodromy — Holonomy groups and flat/twisted type classification</a></li>
 </ul>"#,
         &site_nav_html,
         &docs_nav_html,
@@ -161,6 +167,8 @@ pub fn generate(out_dir: &Path, readme_path: &Path) -> Result<()> {
 <li><a href="conformance.html">Conformance — Validate your implementation</a></li>
 <li><a href="contributing.html">Contributing — How to contribute to UOR</a></li>
 <li><a href="psi-pipeline.html">ψ Pipeline — Structural reasoning via homology and cohomology</a></li>
+<li><a href="type-synthesis.html">Type Synthesis — Construct CompleteTypes from topological goals</a></li>
+<li><a href="incremental-completeness.html">Incremental Completeness — Lift CompleteTypes across quantum levels</a></li>
 </ul>"#,
         &site_nav_html,
         &docs_nav_html,
@@ -289,6 +297,9 @@ fn build_docs_sidebar_html(base_path: &str) -> String {
 <li><a href="{base_path}/docs/concepts/type-completeness.html">Type Completeness</a></li>
 <li><a href="{base_path}/docs/concepts/quantum-universality.html">Quantum Universality</a></li>
 <li><a href="{base_path}/docs/concepts/session-resolution.html">Session Resolution</a></li>
+<li><a href="{base_path}/docs/concepts/type-synthesis.html">Type Synthesis</a></li>
+<li><a href="{base_path}/docs/concepts/quantum-spectral-sequence.html">Quantum Spectral Sequence</a></li>
+<li><a href="{base_path}/docs/concepts/monodromy.html">Monodromy</a></li>
 </ul>
 </li>
 <li class="nav-group"><span>Guides</span>
@@ -297,6 +308,8 @@ fn build_docs_sidebar_html(base_path: &str) -> String {
 <li><a href="{base_path}/docs/guides/conformance.html">Conformance</a></li>
 <li><a href="{base_path}/docs/guides/contributing.html">Contributing</a></li>
 <li><a href="{base_path}/docs/guides/psi-pipeline.html">ψ Pipeline</a></li>
+<li><a href="{base_path}/docs/guides/type-synthesis.html">Type Synthesis</a></li>
+<li><a href="{base_path}/docs/guides/incremental-completeness.html">Incremental Completeness</a></li>
 </ul>
 </li>
 <li><a href="{base_path}/search.html">Search</a></li>
@@ -649,9 +662,9 @@ mod tests {
     fn index_has_all_terms() {
         let index = OntologyIndex::from_spec();
         assert_eq!(index.modules.len(), 16);
-        assert_eq!(index.classes.len(), 155);
-        assert_eq!(index.properties.len(), 284);
-        assert_eq!(index.individuals.len(), 597);
+        assert_eq!(index.classes.len(), 175);
+        assert_eq!(index.properties.len(), 324);
+        assert_eq!(index.individuals.len(), 637);
     }
 
     #[test]

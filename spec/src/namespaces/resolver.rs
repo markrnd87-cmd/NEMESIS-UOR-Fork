@@ -165,6 +165,58 @@ fn classes() -> Vec<Class> {
             subclass_of: &["https://uor.foundation/resolver/Resolver"],
             disjoint_with: &[],
         },
+        // Amendment 28: ψ-Pipeline Inversion (Type Synthesis)
+        Class {
+            id: "https://uor.foundation/resolver/TypeSynthesisResolver",
+            label: "TypeSynthesisResolver",
+            comment: "A Resolver that runs the ψ-pipeline in inverse mode. Accepts a \
+                      TypeSynthesisGoal and returns a TypeSynthesisResult. Internally \
+                      maintains a ConstraintSearchState tracking which constraint \
+                      combinations have been explored and which Betti profiles they realise.",
+            subclass_of: &["https://uor.foundation/resolver/Resolver"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/resolver/ConstraintSearchState",
+            label: "ConstraintSearchState",
+            comment: "Internal resolver state tracking the boundary of explored constraint \
+                      combinations during synthesis. Carries exploredCount, currentCandidate, \
+                      and a link to the best SynthesisSignature achieved so far.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 29: Quantum Level Spectral Sequence
+        Class {
+            id: "https://uor.foundation/resolver/IncrementalCompletenessResolver",
+            label: "IncrementalCompletenessResolver",
+            comment: "A Resolver that determines whether a CompleteType T at Q_n lifts to a \
+                      CompleteType at Q_{n+1} without re-running the full ψ-pipeline from \
+                      scratch. It computes the SpectralSequencePage sequence, reads the \
+                      LiftObstruction, and either confirms the lift or returns a \
+                      LiftRefinementSuggestion.",
+            subclass_of: &["https://uor.foundation/resolver/Resolver"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/resolver/LiftRefinementSuggestion",
+            label: "LiftRefinementSuggestion",
+            comment: "A RefinementSuggestion produced when a QuantumLift has a non-trivial \
+                      LiftObstruction. Specialises RefinementSuggestion with liftFiberPosition \
+                      (the new bit position n+1) and obstructionClass.",
+            subclass_of: &["https://uor.foundation/resolver/RefinementSuggestion"],
+            disjoint_with: &[],
+        },
+        // Amendment 30: Monodromy Observables
+        Class {
+            id: "https://uor.foundation/resolver/MonodromyResolver",
+            label: "MonodromyResolver",
+            comment: "A Resolver that computes the HolonomyGroup of a ConstrainedType by \
+                      enumerating closed paths in the constraint nerve and accumulating \
+                      DihedralElement values. Outputs a MonodromyClass and classifies the \
+                      type as FlatType or TwistedType.",
+            subclass_of: &["https://uor.foundation/resolver/Resolver"],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -371,6 +423,82 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/resolver/SessionResolver"),
             range: "https://uor.foundation/state/BindingAccumulator",
+        },
+        // Amendment 28: TypeSynthesisResolver and ConstraintSearchState properties
+        Property {
+            id: "https://uor.foundation/resolver/synthesisGoal",
+            label: "synthesisGoal",
+            comment: "The goal this type synthesis resolver is working to achieve.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/TypeSynthesisResolver"),
+            range: "https://uor.foundation/type/TypeSynthesisGoal",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/exploredCount",
+            label: "exploredCount",
+            comment: "Number of constraint combinations evaluated so far during synthesis.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/ConstraintSearchState"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/resolver/currentCandidate",
+            label: "currentCandidate",
+            comment: "The type candidate currently being evaluated during synthesis.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/ConstraintSearchState"),
+            range: "https://uor.foundation/type/ConstrainedType",
+        },
+        // Amendment 29: IncrementalCompletenessResolver and LiftRefinementSuggestion properties
+        Property {
+            id: "https://uor.foundation/resolver/liftTarget",
+            label: "liftTarget",
+            comment: "The QuantumLift this incremental completeness resolver is evaluating.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/IncrementalCompletenessResolver"),
+            range: "https://uor.foundation/type/QuantumLift",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/liftFiberPosition",
+            label: "liftFiberPosition",
+            comment: "The new fiber position at Q_{n+1} that the lift refinement suggestion \
+                      targets.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/LiftRefinementSuggestion"),
+            range: "https://uor.foundation/partition/FiberCoordinate",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/obstructionClass",
+            label: "obstructionClass",
+            comment: "The obstruction class this lift refinement suggestion is designed to kill.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/LiftRefinementSuggestion"),
+            range: "https://uor.foundation/observable/LiftObstructionClass",
+        },
+        // Amendment 30: MonodromyResolver properties
+        Property {
+            id: "https://uor.foundation/resolver/monodromyTarget",
+            label: "monodromyTarget",
+            comment: "The type whose holonomy this monodromy resolver is computing.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/MonodromyResolver"),
+            range: "https://uor.foundation/type/ConstrainedType",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/holonomyResult",
+            label: "holonomyResult",
+            comment: "The HolonomyGroup produced by this monodromy resolver run.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/MonodromyResolver"),
+            range: "https://uor.foundation/observable/HolonomyGroup",
         },
     ]
 }

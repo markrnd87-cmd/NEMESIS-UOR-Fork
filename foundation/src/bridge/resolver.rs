@@ -104,6 +104,54 @@ pub trait SessionResolver<P: Primitives>: Resolver<P> {
     fn session_accumulator(&self) -> &Self::BindingAccumulator;
 }
 
+/// A Resolver that runs the ψ-pipeline in inverse mode. Accepts a TypeSynthesisGoal and returns a TypeSynthesisResult. Internally maintains a ConstraintSearchState tracking which constraint combinations have been explored and which Betti profiles they realise.
+pub trait TypeSynthesisResolver<P: Primitives>: Resolver<P> {
+    /// Associated type for `TypeSynthesisGoal`.
+    type TypeSynthesisGoal: crate::user::type_::TypeSynthesisGoal<P>;
+    /// The goal this type synthesis resolver is working to achieve.
+    fn synthesis_goal(&self) -> &Self::TypeSynthesisGoal;
+}
+
+/// Internal resolver state tracking the boundary of explored constraint combinations during synthesis. Carries exploredCount, currentCandidate, and a link to the best SynthesisSignature achieved so far.
+pub trait ConstraintSearchState<P: Primitives> {
+    /// Number of constraint combinations evaluated so far during synthesis.
+    fn explored_count(&self) -> P::NonNegativeInteger;
+    /// Associated type for `ConstrainedType`.
+    type ConstrainedType: crate::user::type_::ConstrainedType<P>;
+    /// The type candidate currently being evaluated during synthesis.
+    fn current_candidate(&self) -> &Self::ConstrainedType;
+}
+
+/// A Resolver that determines whether a CompleteType T at Q_n lifts to a CompleteType at Q_{n+1} without re-running the full ψ-pipeline from scratch. It computes the SpectralSequencePage sequence, reads the LiftObstruction, and either confirms the lift or returns a LiftRefinementSuggestion.
+pub trait IncrementalCompletenessResolver<P: Primitives>: Resolver<P> {
+    /// Associated type for `QuantumLift`.
+    type QuantumLift: crate::user::type_::QuantumLift<P>;
+    /// The QuantumLift this incremental completeness resolver is evaluating.
+    fn lift_target(&self) -> &Self::QuantumLift;
+}
+
+/// A RefinementSuggestion produced when a QuantumLift has a non-trivial LiftObstruction. Specialises RefinementSuggestion with liftFiberPosition (the new bit position n+1) and obstructionClass.
+pub trait LiftRefinementSuggestion<P: Primitives>: RefinementSuggestion<P> {
+    /// The new fiber position at Q_{n+1} that the lift refinement suggestion targets.
+    fn lift_fiber_position(&self) -> &Self::FiberCoordinate;
+    /// Associated type for `LiftObstructionClass`.
+    type LiftObstructionClass: crate::bridge::observable::LiftObstructionClass<P>;
+    /// The obstruction class this lift refinement suggestion is designed to kill.
+    fn obstruction_class(&self) -> &Self::LiftObstructionClass;
+}
+
+/// A Resolver that computes the HolonomyGroup of a ConstrainedType by enumerating closed paths in the constraint nerve and accumulating DihedralElement values. Outputs a MonodromyClass and classifies the type as FlatType or TwistedType.
+pub trait MonodromyResolver<P: Primitives>: Resolver<P> {
+    /// Associated type for `ConstrainedType`.
+    type ConstrainedType: crate::user::type_::ConstrainedType<P>;
+    /// The type whose holonomy this monodromy resolver is computing.
+    fn monodromy_target(&self) -> &Self::ConstrainedType;
+    /// Associated type for `HolonomyGroup`.
+    type HolonomyGroup: crate::bridge::observable::HolonomyGroup<P>;
+    /// The HolonomyGroup produced by this monodromy resolver run.
+    fn holonomy_result(&self) -> &Self::HolonomyGroup;
+}
+
 /// O(1) complexity — the resolver runs in constant time regardless of ring size.
 pub mod constant_time {}
 

@@ -5,6 +5,7 @@
 //! Space: User
 
 use crate::enums::MetricAxis;
+use crate::enums::QuantumLevel;
 use crate::Primitives;
 
 /// A runtime type declaration. The root class for all UOR types. Each TypeDefinition, when resolved, produces a partition of the ring at the specified quantum level.
@@ -45,6 +46,14 @@ pub trait ConstrainedType<P: Primitives>: TypeDefinition<P> {
     type Constraint: Constraint<P>;
     /// A typed constraint object applied to this constrained type. Replaces the deprecated string-based type:constraint property.
     fn has_constraint(&self) -> &[Self::Constraint];
+    /// Associated type for `HolonomyGroup`.
+    type HolonomyGroup: crate::bridge::observable::HolonomyGroup<P>;
+    /// The HolonomyGroup of this type. Computed by the MonodromyResolver.
+    fn holonomy_group(&self) -> &Self::HolonomyGroup;
+    /// Associated type for `MonodromyClass`.
+    type MonodromyClass: crate::bridge::observable::MonodromyClass<P>;
+    /// The MonodromyClass classifying this type as flat or twisted.
+    fn monodromy_class(&self) -> &Self::MonodromyClass;
 }
 
 /// A composable predicate that refines a type by pinning one or more fiber coordinates. Constraints are the parameterization mechanism for ConstrainedType.
@@ -119,3 +128,64 @@ pub trait CompletenessWitness<P: Primitives> {
     /// Number of fibers closed by this witness step.
     fn fibers_closed(&self) -> P::NonNegativeInteger;
 }
+
+/// A specification of the desired topological properties of a type to be synthesised. Carries a target Euler characteristic (targetEulerCharacteristic) and a target Betti profile (zero or more targetBettiNumber assertions). The minimal goal for O(1) resolution is: targetEulerCharacteristic = n and all targetBettiNumber = 0 — the IT_7d profile.
+pub trait TypeSynthesisGoal<P: Primitives> {
+    /// The target χ(N(C)) value. For O(1) resolution: set equal to n (the quantum level).
+    fn target_euler_characteristic(&self) -> P::Integer;
+    /// Non-functional. Each assertion specifies a target Betti number value for a given homological degree. Multiple assertions permitted, one per degree.
+    fn target_betti_number(&self) -> &[P::NonNegativeInteger];
+}
+
+/// The output of a TypeSynthesisResolver run. Contains the SynthesizedType, the realised topological signature (as a SynthesisSignature), and the SynthesisTrace recording the construction steps.
+pub trait TypeSynthesisResult<P: Primitives> {}
+
+/// A ConstrainedType produced by the TypeSynthesisResolver. Distinguished from a hand-authored ConstrainedType by the presence of a type:synthesisResult link. May or may not be a CompleteType, depending on the synthesis goal.
+pub trait SynthesizedType<P: Primitives>: ConstrainedType<P> {
+    /// Associated type for `TypeSynthesisResult`.
+    type TypeSynthesisResult: TypeSynthesisResult<P>;
+    /// Links a SynthesizedType back to the synthesis run that produced it.
+    fn synthesis_result(&self) -> &Self::TypeSynthesisResult;
+}
+
+/// The minimal set of constraints in the SynthesizedType's constraint set that is sufficient to realise the target topological signature. The minimality criterion is that removing any single member changes the realised signature.
+pub trait MinimalConstraintBasis<P: Primitives> {
+    /// Associated type for `Constraint`.
+    type Constraint: Constraint<P>;
+    /// Non-functional. One assertion per constraint in the minimal basis.
+    fn basis_constraint(&self) -> &[Self::Constraint];
+    /// The cardinality of the minimal basis. The theoretical lower bound is n (one constraint per fiber).
+    fn basis_size(&self) -> P::NonNegativeInteger;
+}
+
+/// A ConstrainedType T' over R_{n+1} obtained by extending a ConstrainedType T over R_n. Carries a link to the base type (liftBase), the quantum level it lifts to (liftTargetLevel), and the LiftObstruction (if the lift fails to transfer completeness). A QuantumLift is a CompleteType iff its LiftObstruction is trivial.
+pub trait QuantumLift<P: Primitives> {
+    /// Associated type for `ConstrainedType`.
+    type ConstrainedType: ConstrainedType<P>;
+    /// The base type being lifted to the next quantum level.
+    fn lift_base(&self) -> &Self::ConstrainedType;
+    /// The quantum level this lift targets.
+    fn lift_target_level(&self) -> QuantumLevel;
+    /// Associated type for `LiftObstruction`.
+    type LiftObstruction: LiftObstruction<P>;
+    /// The LiftObstruction for this lift. Trivial (zero class) iff the lift inherits completeness.
+    fn lift_obstruction(&self) -> &Self::LiftObstruction;
+}
+
+/// The algebraic obstruction to a QuantumLift inheriting the completeness of its base type. Computed as the image of the spectral sequence differential d_2. If trivial (zero), the base type's completeness lifts. If non-trivial, at least one additional constraint is needed at the new quantum level.
+pub trait LiftObstruction<P: Primitives> {
+    /// True iff the obstruction class is zero — the base type's completeness transfers to the lifted quantum level without additional constraints.
+    fn obstruction_trivial(&self) -> P::Boolean;
+    /// Associated type for `FiberCoordinate`.
+    type FiberCoordinate: crate::bridge::partition::FiberCoordinate<P>;
+    /// The fiber at the new quantum level where the obstruction is located. Ranges over the new bit position introduced at Q_{n+1}.
+    fn obstruction_fiber(&self) -> &Self::FiberCoordinate;
+}
+
+/// A ConstrainedType whose HolonomyGroup is non-trivial — at least one closed constraint path produces a non-identity dihedral element. A TwistedType may still be a CompleteType (IT_7d is a homological, not holonomic, criterion), but its resolution paths require tracking dihedral accumulation.
+/// Disjoint with: FlatType.
+pub trait TwistedType<P: Primitives>: ConstrainedType<P> {}
+
+/// A ConstrainedType whose HolonomyGroup is trivial — all closed constraint paths have identity monodromy. The constraint configuration is topologically flat: resolution is path-independent.
+/// Disjoint with: TwistedType.
+pub trait FlatType<P: Primitives>: ConstrainedType<P> {}

@@ -4363,5 +4363,395 @@ fn individuals() -> Vec<Individual> {
                  IndividualValue::Str("Binding contradiction → SessionBoundary → ContradictionBoundary")),
             ],
         },
+        // Amendment 28: ψ-Pipeline Inversion (Type Synthesis) identities
+        Individual {
+            id: "https://uor.foundation/op/TS_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_1",
+            comment: "Nerve realisability: for any target (χ*, β₀* = 1, β_k* = 0 for k ≥ 1) \
+                      with χ* ≤ n, there exists a ConstrainedType T over R_n whose constraint \
+                      nerve realises the target.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("nerve(T, target)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("∃ ConstrainedType T over R_n realising target")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("target: χ* ≤ n, β₀* = 1, β_k* = 0 for k ≥ 1")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("TypeSynthesisResolver → ConstraintNerve → target signature")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/TS_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_2",
+            comment: "Minimal basis bound: for the IT_7d target (χ* = n, all β* = 0), the \
+                      MinimalConstraintBasis has size exactly n (one constraint per fiber \
+                      position). No redundant constraints exist in the minimal basis.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("basisSize(T, IT_7d target)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("n")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("IT_7d target, n-fiber types")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("MinimalConstraintBasis → basisSize = n for IT_7d")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/TS_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_3",
+            comment: "Synthesis monotonicity: adding a constraint to a synthesis candidate \
+                      never decreases the Euler characteristic of the resulting nerve \
+                      (χ is monotone non-decreasing under constraint addition).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("χ(N(C + constraint))")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("≥ χ(N(C))")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("C: synthesis candidate constraint set")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("ConstraintNerve monotonicity under constraint addition")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/TS_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_4",
+            comment: "Synthesis convergence: the TypeSynthesisResolver terminates for any \
+                      realisable target in at most n constraint additions (for n-fiber types).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("steps(TypeSynthesisResolver, target)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("≤ n")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("target: realisable n-fiber type synthesis goal")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("TypeSynthesisResolver terminates in ≤ n SynthesisStep additions")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/TS_5",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_5",
+            comment: "Synthesis–certification duality: a SynthesizedType T achieves the \
+                      IT_7d target if and only if the CompletenessResolver certifies T as a \
+                      CompleteType. The forward ψ-pipeline and the inverse TypeSynthesisResolver \
+                      are dual computations.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("SynthesizedType achieves IT_7d")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("iff CompletenessResolver certifies CompleteType")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: SynthesizedType")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("TypeSynthesisResolver ↔ CompletenessResolver duality")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/TS_6",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_6",
+            comment: "Jacobian-guided synthesis efficiency: using the Jacobian (DC_10) to \
+                      select the next constraint reduces the expected number of synthesis \
+                      steps from O(n²) (uninformed) to O(n log n) (Jacobian-guided).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("E[steps, Jacobian-guided synthesis]")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("O(n log n) vs O(n²) uninformed")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: n-fiber type synthesis goal")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Jacobian DC_10 → guided ConstraintSearchState exploration")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/TS_7",
+            type_: "https://uor.foundation/op/Identity",
+            label: "TS_7",
+            comment: "Unreachable signatures: a Betti profile with β₀ = 0 is unreachable by \
+                      any non-empty ConstrainedType — the nerve of a non-empty constraint set \
+                      is always connected (β₀ ≥ 1).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("β₀(N(C)) for non-empty C")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("≥ 1")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("C: non-empty constraint set")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("non-empty ConstraintNerve → β₀ ≥ 1 (connected)")),
+            ],
+        },
+        // Amendment 29: Quantum Level Spectral Sequence identities
+        Individual {
+            id: "https://uor.foundation/op/QLS_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QLS_1",
+            comment: "Lift unobstructedness criterion: QuantumLift T' is a CompleteType iff the \
+                      spectral sequence E_r^{p,q} collapses at E_2 (d_2 = 0 and all higher \
+                      differentials zero).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("QuantumLift T' is CompleteType")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("iff spectral sequence collapses at E_2")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: CompleteType at Q_n, T': QuantumLift to Q_{n+1}")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("SpectralSequencePage convergedAt = 2 → trivial LiftObstruction")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QLS_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QLS_2",
+            comment: "Obstruction localisation: a non-trivial LiftObstruction is localised to \
+                      a specific fiber at bit position n+1. The obstruction class lives in \
+                      H²(N(C(T))) and is killed by adding one constraint involving the new fiber.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("non-trivial LiftObstruction location")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("specific fiber at bit position n+1")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("non-trivial LiftObstruction")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("LiftObstructionClass → obstructionFiber at Q_{n+1} position")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QLS_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QLS_3",
+            comment: "Monotone lifting for trivially obstructed types: if T is a CompleteType \
+                      at Q_n and its constraint set is closed under the Q_{n+1} extension map, \
+                      then T' is a CompleteType at Q_{n+1} with basisSize(T') = basisSize(T) + 1.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("basisSize(T') for trivial lift")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("basisSize(T) + 1")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: CompleteType at Q_n with closed constraint set")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("obstructionTrivial = true → basisSize increases by exactly 1")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QLS_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QLS_4",
+            comment: "Spectral sequence convergence bound: for constraint configurations of \
+                      homological depth d (H_k(N(C(T))) = 0 for k > d), the spectral sequence \
+                      converges by page E_{d+2}.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("spectral sequence convergence page")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("≤ E_{d+2}")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("depth-d constraint configuration")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("SpectralSequencePage convergedAt ≤ homological depth + 2")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QLS_5",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QLS_5",
+            comment: "Universal identity preservation: every op:universallyValid identity holds \
+                      in ℤ/(2^{n+1})ℤ with the lifted constraint set. The lift does not \
+                      invalidate any certified universal identity.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("universallyValid identity in R_{n+1}")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("holds with lifted constraint set")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("every op:universallyValid identity, QuantumLift T'")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("universallyValid identities preserved under QuantumLift extension")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QLS_6",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QLS_6",
+            comment: "ψ-pipeline universality for quantum lifts: the ψ-pipeline produces a \
+                      valid ChainComplex for any QuantumLift T' — the chain complex of T' \
+                      restricts to the chain complex of T on the base nerve, and the extension \
+                      is well-formed by construction.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("ψ-pipeline ChainComplex(T')")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("valid and restricts to ChainComplex(T) on base nerve")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T': any QuantumLift of a CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("ψ-pipeline → valid ChainComplex for any QuantumLift")),
+            ],
+        },
+        // Amendment 30: Monodromy Observables identities
+        Individual {
+            id: "https://uor.foundation/op/MN_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_1",
+            comment: "Holonomy group containment: HolonomyGroup(T) ≤ D_{2^n} for all \
+                      ConstrainedTypes T over R_n. The holonomy group is always a subgroup \
+                      of the full dihedral group.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("HolonomyGroup(T)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("≤ D_{2^n}")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: ConstrainedType over R_n")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("HolonomyGroup subgroup containment in D_{2^n}")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MN_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_2",
+            comment: "Additive flatness (extends OB_H1): if all constraints in T are additive \
+                      (ResidueConstraint or DepthConstraint type), then HolonomyGroup(T) = {id} \
+                      — T is a FlatType.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("HolonomyGroup(T) for additive constraints")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("{id} (trivial: T is FlatType)")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: all ResidueConstraint or DepthConstraint")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("additive constraints → trivial monodromy → FlatType")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MN_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_3",
+            comment: "Dihedral generation: if T contains both a neg-related and a bnot-related \
+                      constraint in a common closed path, then HolonomyGroup(T) = D_{2^n} — T \
+                      has full dihedral holonomy.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("HolonomyGroup(T) with neg + bnot in closed path")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("D_{2^n} (full dihedral holonomy)")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: ConstrainedType with neg-related and bnot-related constraints in closed path")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("neg + bnot generators in ClosedConstraintPath → full D_{2^n}")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MN_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_4",
+            comment: "Holonomy-Betti implication: HolonomyGroup(T) ≠ {id} ⟹ β₁(N(C(T))) ≥ 1. \
+                      Non-trivial monodromy requires a topological loop. (Converse is false: \
+                      β₁ ≥ 1 does not imply non-trivial holonomy.)",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("HolonomyGroup(T) ≠ {id}")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("⟹ β₁(N(C(T))) ≥ 1")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: ConstrainedType")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("non-trivial HolonomyGroup → β₁ ≥ 1 in ConstraintNerve")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MN_5",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_5",
+            comment: "CompleteType holonomy: a CompleteType (IT_7d: χ = n, all β = 0) has \
+                      trivial holonomy. IT_7d implies FlatType because IT_7d requires β₁ = 0, \
+                      which by MN_4 implies trivial monodromy.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("CompleteType (IT_7d) ⟹ β₁ = 0 ⟹ holonomy")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("trivial ⟹ FlatType")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T: CompleteType")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("IT_7d → β₁ = 0 → trivial HolonomyGroup → FlatType")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MN_6",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_6",
+            comment: "Monodromy composition: if p₁ and p₂ are closed constraint paths, then \
+                      monodromy(p₁ · p₂) = monodromy(p₁) · monodromy(p₂) in D_{2^n} (group \
+                      homomorphism from loops to dihedral elements).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("monodromy(p₁ · p₂)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("monodromy(p₁) · monodromy(p₂) in D_{2^n}")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("p₁, p₂: ClosedConstraintPath")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Monodromy composition homomorphism: π₁ → D_{2^n}")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MN_7",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MN_7",
+            comment: "TwistedType obstruction class: the monodromy of a TwistedType contributes \
+                      a non-zero class to H²(N(C(T')); ℤ/2ℤ) where T' is any QuantumLift of T. \
+                      TwistedTypes always have non-trivial lift obstructions.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("TwistedType T ⟹ H²(N(C(T')); ℤ/2ℤ)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("non-zero class (non-trivial LiftObstruction)")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T': any QuantumLift of TwistedType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("TwistedType → non-trivial LiftObstruction at every quantum level")),
+            ],
+        },
     ]
 }
