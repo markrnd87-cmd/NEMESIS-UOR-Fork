@@ -1,4 +1,5 @@
-//! `morphism/` namespace — Transforms and morphisms (Amendment 6).
+//! `morphism/` namespace — Transforms, morphisms, and the Surface Grounding Layer
+//! (Amendments 6, 12, 24).
 //!
 //! The morphism namespace defines the abstractions for maps between UOR objects.
 //! These are the things that `cert/` certificates attest to, that `trace/`
@@ -7,6 +8,12 @@
 //!
 //! Amendment 12 adds the composition primitive: the categorical backbone that
 //! turns transforms into a category with identity and associative composition.
+//!
+//! Amendment 24 adds the **Surface Grounding Layer**: `GroundingMap` (surface symbol
+//! to ring address), `ProjectionMap` (ring address neighbourhood to surface symbol
+//! sequence), and `GroundingCertificate` (round-trip attestation). Together these
+//! form the universal I/O boundary through which any typed surface representation
+//! enters or exits the ring address space.
 //!
 //! **Space classification:** `user` — transforms are instantiated by applications.
 
@@ -35,6 +42,9 @@ pub fn module() -> NamespaceModule {
                 NS_PARTITION,
                 NS_TRACE,
                 NS_HOMOLOGY,
+                NS_U,
+                NS_DERIVATION,
+                NS_CERT,
             ],
         },
         classes: classes(),
@@ -116,6 +126,39 @@ fn classes() -> Vec<Class> {
                       is the foundational instance.",
             subclass_of: &[OWL_THING],
             disjoint_with: &["https://uor.foundation/morphism/Transform"],
+        },
+        // Amendment 24: Surface Grounding Layer
+        Class {
+            id: "https://uor.foundation/morphism/GroundingMap",
+            label: "GroundingMap",
+            comment: "A Transform mapping a surface symbol (any schema:Literal) to its ring \
+                      datum (a schema:Datum) via the content-addressing bijection. Typed, \
+                      derivation-witnessed, constraint-preserving map from surface to coordinate. \
+                      Applies identically across NLP tokens, ARC-AGI grid cells, MIDI notes, \
+                      pixels, sensor readings, and logical propositions.",
+            subclass_of: &["https://uor.foundation/morphism/Transform"],
+            disjoint_with: &["https://uor.foundation/morphism/ProjectionMap"],
+        },
+        Class {
+            id: "https://uor.foundation/morphism/ProjectionMap",
+            label: "ProjectionMap",
+            comment: "A Transform mapping a resolved partition:Partition (address neighbourhood) \
+                      to an ordered sequence of surface symbols. Output ordering determined by \
+                      the active state:Frame — the same constraint frame that decomposed the \
+                      input symbol sequence.",
+            subclass_of: &["https://uor.foundation/morphism/Transform"],
+            disjoint_with: &["https://uor.foundation/morphism/GroundingMap"],
+        },
+        // Gap G: GroundingCertificate
+        Class {
+            id: "https://uor.foundation/morphism/GroundingCertificate",
+            label: "GroundingCertificate",
+            comment: "A certificate attesting that a specific grounding round-trip (P∘Π∘G) \
+                      satisfied the shared-frame condition and landed in the type-equivalent \
+                      neighbourhood of the source symbol. Witnesses the Surface Symmetry Theorem \
+                      (op:surfaceSymmetry) for one specific symbol instance.",
+            subclass_of: &["https://uor.foundation/cert/Certificate"],
+            disjoint_with: &[],
         },
         // Amendment 22: TopologicalDelta
         Class {
@@ -390,6 +433,126 @@ fn properties() -> Vec<Property> {
             kind: PropertyKind::Object,
             functional: true,
             range: "https://uor.foundation/homology/SimplicialComplex",
+        },
+        // Amendment 24: GroundingMap properties
+        Property {
+            id: "https://uor.foundation/morphism/surfaceSymbol",
+            label: "surfaceSymbol",
+            comment: "The surface symbol that is the source of this grounding.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingMap"),
+            range: "https://uor.foundation/schema/Literal",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/groundedAddress",
+            label: "groundedAddress",
+            comment: "The resolved ring address that is the target of this grounding.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingMap"),
+            range: "https://uor.foundation/u/Address",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/groundingDerivation",
+            label: "groundingDerivation",
+            comment: "The derivation witnessing the content-addressing computation \
+                      that produced the grounded address from the surface symbol.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingMap"),
+            range: "https://uor.foundation/derivation/Derivation",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/symbolConstraints",
+            label: "symbolConstraints",
+            comment: "A typed attribute preserved by this grounding. Non-functional: \
+                      one assertion per active constraint axis (vertical, horizontal, diagonal).",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/morphism/GroundingMap"),
+            range: "https://uor.foundation/type/Constraint",
+        },
+        // Amendment 24: ProjectionMap properties
+        Property {
+            id: "https://uor.foundation/morphism/projectionFrame",
+            label: "projectionFrame",
+            comment: "The active frame — shared with the grounding that produced the query. \
+                      The shared-frame condition (Surface Symmetry Theorem) requires G and P \
+                      to reference the same frame.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/ProjectionMap"),
+            range: "https://uor.foundation/state/Frame",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/projectionSource",
+            label: "projectionSource",
+            comment: "The resolved partition (address neighbourhood) that this map projects \
+                      back to surface symbols.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/ProjectionMap"),
+            range: "https://uor.foundation/partition/Partition",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/projectionOrder",
+            label: "projectionOrder",
+            comment: "Ordering constraint determining the output symbol sequence. \
+                      Domain-specific: syntactic position (NLP), row-major scan (ARC), \
+                      temporal sequence (music).",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/ProjectionMap"),
+            range: "https://uor.foundation/type/CompositeConstraint",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/roundTripCoherence",
+            label: "roundTripCoherence",
+            comment: "Completeness criterion: does projecting the grounded source address \
+                      recover a symbol in the same type class as the input? True iff the \
+                      shared-frame condition holds.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/ProjectionMap"),
+            range: XSD_BOOLEAN,
+        },
+        // Gap G: GroundingCertificate properties
+        Property {
+            id: "https://uor.foundation/morphism/groundingCertMap",
+            label: "groundingCertMap",
+            comment: "The GroundingMap used in this certified round-trip.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingCertificate"),
+            range: "https://uor.foundation/morphism/GroundingMap",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/groundingCertProjection",
+            label: "groundingCertProjection",
+            comment: "The ProjectionMap used in this certified round-trip.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingCertificate"),
+            range: "https://uor.foundation/morphism/ProjectionMap",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/groundingCertSourceSymbol",
+            label: "groundingCertSourceSymbol",
+            comment: "The surface symbol that entered the grounding boundary.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingCertificate"),
+            range: "https://uor.foundation/schema/Literal",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/groundingCertAddress",
+            label: "groundingCertAddress",
+            comment: "The ring address the symbol was grounded to.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/GroundingCertificate"),
+            range: "https://uor.foundation/u/Address",
         },
     ]
 }

@@ -2,9 +2,9 @@
 //!
 //! Verifies that the built ontology artifact contains the correct counts:
 //! - 16 namespaces (3 Kernel / 10 Bridge / 3 User)
-//! - 132 classes
-//! - 240 namespace-level properties + 1 global annotation = 241 via property_count()
-//! - 557 named individuals (each with required property assertions)
+//! - 142 classes
+//! - 261 namespace-level properties + 1 global annotation = 262 via property_count()
+//! - 560 named individuals (each with required property assertions)
 
 use std::path::Path;
 
@@ -16,9 +16,9 @@ use crate::report::{ConformanceReport, TestResult};
 
 /// Expected inventory counts for the UOR Foundation ontology.
 const EXPECTED_NAMESPACES: usize = 16;
-const EXPECTED_CLASSES: usize = 132;
-const EXPECTED_PROPERTIES: usize = 241;
-const EXPECTED_INDIVIDUALS: usize = 557;
+const EXPECTED_CLASSES: usize = 142;
+const EXPECTED_PROPERTIES: usize = 262;
+const EXPECTED_INDIVIDUALS: usize = 560;
 
 /// Validates the ontology inventory counts in the built JSON-LD artifact.
 ///
@@ -54,6 +54,7 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
     validate_rewrite_rule_individuals(&mut report);
     validate_measurement_unit_individuals(&mut report);
     validate_coordinate_kind_individuals(&mut report);
+    validate_surface_symmetry_identity(&mut report);
 
     // Validate the built JSON-LD artifact
     let json_path = artifacts.join("uor.foundation.json");
@@ -632,7 +633,7 @@ fn validate_rewrite_rule_individuals(report: &mut ConformanceReport) {
     }
 }
 
-/// Validates the 3 MeasurementUnit vocabulary individuals.
+/// Validates the 4 MeasurementUnit vocabulary individuals.
 fn validate_measurement_unit_individuals(report: &mut ConformanceReport) {
     let ontology = uor_ontology::Ontology::full();
     let validator = "ontology/inventory/measurement_unit";
@@ -641,6 +642,7 @@ fn validate_measurement_unit_individuals(report: &mut ConformanceReport) {
         "https://uor.foundation/observable/Bits",
         "https://uor.foundation/observable/RingSteps",
         "https://uor.foundation/observable/Dimensionless",
+        "https://uor.foundation/observable/Nats",
     ];
 
     let mut all_found = true;
@@ -657,7 +659,7 @@ fn validate_measurement_unit_individuals(report: &mut ConformanceReport) {
     if all_found {
         report.push(TestResult::pass(
             validator,
-            "All 3 MeasurementUnit individuals present",
+            "All 4 MeasurementUnit individuals present",
         ));
     }
 }
@@ -899,4 +901,38 @@ fn validate_json_inventory(value: &Value, report: &mut ConformanceReport) {
         EXPECTED_INDIVIDUALS,
         "ontology/inventory",
     );
+}
+
+/// Validates the Surface Symmetry identity and its proof individual.
+fn validate_surface_symmetry_identity(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/surface_symmetry";
+
+    let identity_iri = "https://uor.foundation/op/surfaceSymmetry";
+    let proof_iri = "https://uor.foundation/proof/prf_surfaceSymmetry";
+
+    let mut all_found = true;
+
+    if ontology.find_individual(identity_iri).is_none() {
+        report.push(TestResult::fail(
+            validator,
+            "op:surfaceSymmetry individual not found",
+        ));
+        all_found = false;
+    }
+
+    if ontology.find_individual(proof_iri).is_none() {
+        report.push(TestResult::fail(
+            validator,
+            "proof:prf_surfaceSymmetry individual not found",
+        ));
+        all_found = false;
+    }
+
+    if all_found {
+        report.push(TestResult::pass(
+            validator,
+            "op:surfaceSymmetry and proof:prf_surfaceSymmetry present",
+        ));
+    }
 }

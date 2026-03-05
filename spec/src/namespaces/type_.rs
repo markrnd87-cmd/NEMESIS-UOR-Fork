@@ -159,6 +159,19 @@ fn classes() -> Vec<Class> {
                 "https://uor.foundation/type/Constraint",
             ],
         },
+        // Gap D: CompleteType
+        Class {
+            id: "https://uor.foundation/type/CompleteType",
+            label: "CompleteType",
+            comment: "A TypeDefinition certified to satisfy the UOR completeness criterion \
+                      (IT_7d): its constraint nerve N(C) has Euler characteristic χ = n and \
+                      all Betti numbers β_k = 0. A CompleteType guarantees that resolution \
+                      closes the fiber budget in O(1) — no iterative refinement is required. \
+                      Completeness is attested by a cert:CompletenessCertificate linked via \
+                      cert:certifiedType.",
+            subclass_of: &["https://uor.foundation/type/TypeDefinition"],
+            disjoint_with: &[],
+        },
     ]
 }
 

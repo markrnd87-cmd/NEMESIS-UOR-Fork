@@ -61,6 +61,8 @@ pub trait ResolutionState<P: Primitives> {
     fn residual_entropy(&self) -> P::Decimal;
     /// Whether all Betti numbers of the constraint nerve are zero, indicating no topological obstructions to resolution.
     fn topologically_complete(&self) -> P::Boolean;
+    /// The Euler characteristic χ(N(C)) of the active constraint nerve at this resolution state. IT_7d requires this value to equal n (the quantum level) for resolution to be complete. Cached here to avoid recomputing the full ψ pipeline on each iteration check.
+    fn nerve_euler_characteristic(&self) -> P::Integer;
 }
 
 /// A suggestion from the resolver for how to refine an incomplete resolution: which metric axis to explore, which class to narrow to, and which fibers to target.

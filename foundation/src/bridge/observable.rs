@@ -114,6 +114,18 @@ pub trait BettiNumber<P: Primitives>: TopologicalObservable<P> {}
 /// The smallest positive eigenvalue of the constraint nerve Laplacian. Controls the convergence rate of iterative resolution: larger gap = faster convergence.
 pub trait SpectralGap<P: Primitives>: TopologicalObservable<P> {}
 
+/// An observable measuring thermodynamic properties of the resolution process: residual entropy, Landauer cost, and cascade distribution statistics.
+pub trait ThermoObservable<P: Primitives>: Observable<P> {}
+
+/// S_residual: the residual Shannon entropy of the fiber distribution after partial resolution. Computed as S = (Σ κ_k − χ(N(C))) × ln 2 (IT_7b). Unit: Nats.
+pub trait ResidualEntropy<P: Primitives>: ThermoObservable<P> {}
+
+/// The minimum thermodynamic cost (in units of k_B T ln 2) of erasing one bit of fiber uncertainty. The UOR ring operates at β* = ln 2 — the Landauer temperature.
+pub trait LandauerCost<P: Primitives>: ThermoObservable<P> {}
+
+/// The Shannon entropy of the cascade distribution P(j) = 2^{−j}. At the Landauer temperature, this equals ln 2 per cascade step — each step erases exactly one bit of fiber uncertainty.
+pub trait CascadeEntropy<P: Primitives>: ThermoObservable<P> {}
+
 /// Information-theoretic unit: the measurement is in bits (e.g., Hamming weight, entropy).
 pub mod bits {}
 
@@ -122,3 +134,6 @@ pub mod ring_steps {}
 
 /// Dimensionless unit: the measurement is a pure number (e.g., winding number, Betti number, spectral gap).
 pub mod dimensionless {}
+
+/// Natural information unit: entropy measured in nats (using natural logarithm). S_residual is expressed in nats when computed as (Σ κ_k − χ) × ln 2.
+pub mod nats {}

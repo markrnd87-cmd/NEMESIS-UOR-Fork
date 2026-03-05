@@ -3958,5 +3958,43 @@ fn individuals() -> Vec<Individual> {
                 ),
             ],
         },
+        // Gap C: Surface Symmetry Theorem
+        Individual {
+            id: "https://uor.foundation/op/surfaceSymmetry",
+            type_: "https://uor.foundation/op/Identity",
+            label: "Surface Symmetry",
+            comment: "The Surface Symmetry Theorem: the composite P∘Π∘G is a well-typed \
+                      morphism iff G and P share the same state:Frame F. When the \
+                      shared-frame condition holds, the output lands in the type-equivalent \
+                      neighbourhood of the source symbol.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("P(Π(G(s)))"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("s' where type(s') ≡ type(s) under F.constraint"),
+                ),
+                (
+                    "https://uor.foundation/op/forAll",
+                    IndividualValue::Str(
+                        "G: GroundingMap, P: ProjectionMap, F: Frame, s: Literal, \
+                         G.symbolConstraints = P.projectionOrder",
+                    ),
+                ),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str(
+                        "GroundingMap → ResolutionPipeline → ProjectionMap: shared-frame \
+                         condition guarantees type-equivalent neighbourhood",
+                    ),
+                ),
+            ],
+        },
     ]
 }

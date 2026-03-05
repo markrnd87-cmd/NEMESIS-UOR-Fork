@@ -5524,5 +5524,29 @@ fn individuals() -> Vec<Individual> {
                 ),
             ],
         },
+        // Gap C: Surface Symmetry proof
+        Individual {
+            id: "https://uor.foundation/proof/prf_surfaceSymmetry",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_surfaceSymmetry",
+            comment: "Axiomatic derivation of the Surface Symmetry Theorem. Holds at all \
+                      quantum levels: the composite P∘Π∘G is a well-typed morphism whenever \
+                      G and P share the same state:Frame. Follows from the definition of \
+                      the shared-frame condition and the type-equivalence algebra.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/surfaceSymmetry"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
     ]
 }

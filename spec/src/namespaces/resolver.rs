@@ -287,6 +287,19 @@ fn properties() -> Vec<Property> {
             domain: Some("https://uor.foundation/resolver/ResolutionState"),
             range: XSD_BOOLEAN,
         },
+        // Gap B: Euler characteristic cache
+        Property {
+            id: "https://uor.foundation/resolver/nerveEulerCharacteristic",
+            label: "nerveEulerCharacteristic",
+            comment: "The Euler characteristic χ(N(C)) of the active constraint nerve at this \
+                      resolution state. IT_7d requires this value to equal n (the quantum level) \
+                      for resolution to be complete. Cached here to avoid recomputing the full \
+                      ψ pipeline on each iteration check.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/ResolutionState"),
+            range: XSD_INTEGER,
+        },
     ]
 }
 

@@ -288,6 +288,42 @@ fn classes() -> Vec<Class> {
             subclass_of: &["https://uor.foundation/observable/TopologicalObservable"],
             disjoint_with: &[],
         },
+        // Gap E: Thermodynamic Observable branch
+        Class {
+            id: "https://uor.foundation/observable/ThermoObservable",
+            label: "ThermoObservable",
+            comment: "An observable measuring thermodynamic properties of the resolution process: \
+                      residual entropy, Landauer cost, and cascade distribution statistics.",
+            subclass_of: &["https://uor.foundation/observable/Observable"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/ResidualEntropy",
+            label: "ResidualEntropy",
+            comment: "S_residual: the residual Shannon entropy of the fiber distribution after \
+                      partial resolution. Computed as S = (Σ κ_k − χ(N(C))) × ln 2 (IT_7b). \
+                      Unit: Nats.",
+            subclass_of: &["https://uor.foundation/observable/ThermoObservable"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/LandauerCost",
+            label: "LandauerCost",
+            comment: "The minimum thermodynamic cost (in units of k_B T ln 2) of erasing one \
+                      bit of fiber uncertainty. The UOR ring operates at β* = ln 2 — the \
+                      Landauer temperature.",
+            subclass_of: &["https://uor.foundation/observable/ThermoObservable"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/CascadeEntropy",
+            label: "CascadeEntropy",
+            comment: "The Shannon entropy of the cascade distribution P(j) = 2^{−j}. At the \
+                      Landauer temperature, this equals ln 2 per cascade step — each step erases \
+                      exactly one bit of fiber uncertainty.",
+            subclass_of: &["https://uor.foundation/observable/ThermoObservable"],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -392,6 +428,15 @@ fn individuals() -> Vec<Individual> {
             label: "Dimensionless",
             comment: "Dimensionless unit: the measurement is a pure number \
                       (e.g., winding number, Betti number, spectral gap).",
+            properties: &[],
+        },
+        Individual {
+            id: "https://uor.foundation/observable/Nats",
+            type_: "https://uor.foundation/observable/MeasurementUnit",
+            label: "Nats",
+            comment: "Natural information unit: entropy measured in nats (using natural \
+                      logarithm). S_residual is expressed in nats when computed as \
+                      (Σ κ_k − χ) × ln 2.",
             properties: &[],
         },
     ]

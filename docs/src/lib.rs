@@ -646,9 +646,9 @@ mod tests {
     fn index_has_all_terms() {
         let index = OntologyIndex::from_spec();
         assert_eq!(index.modules.len(), 16);
-        assert_eq!(index.classes.len(), 132);
-        assert_eq!(index.properties.len(), 240);
-        assert_eq!(index.individuals.len(), 557);
+        assert_eq!(index.classes.len(), 142);
+        assert_eq!(index.properties.len(), 261);
+        assert_eq!(index.individuals.len(), 560);
     }
 
     #[test]

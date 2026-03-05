@@ -1,7 +1,13 @@
-//! `query/` namespace — Information extraction queries.
+//! `query/` namespace — Information extraction queries (Amendment 24).
 //!
 //! Queries are the user-initiated requests for information from the UOR kernel.
 //! They are kernel-executed: the user initiates a query, the kernel resolves it.
+//!
+//! Amendment 24 adds `RelationQuery`: a query with a grounded source address, a
+//! typed relation constraint (read from the observable coordinate triple
+//! `(d_R, d_H, d_I)`), and an open target `partition:FiberBudget`. This is the
+//! canonical form for all relational inference across NLP, ARC-AGI grids, music,
+//! images, sensor streams, and logical formulae.
 //!
 //! **Space classification:** `bridge` — user-initiated, kernel-executed.
 
@@ -19,7 +25,14 @@ pub fn module() -> NamespaceModule {
             comment: "Information extraction queries. Users initiate queries; \
                       the kernel resolves them against the ring substrate.",
             space: Space::Bridge,
-            imports: &[NS_SCHEMA, NS_U],
+            imports: &[
+                NS_SCHEMA,
+                NS_U,
+                NS_TYPE,
+                NS_PARTITION,
+                NS_MORPHISM,
+                NS_STATE,
+            ],
         },
         classes: classes(),
         properties: properties(),
@@ -58,6 +71,19 @@ fn classes() -> Vec<Class> {
             label: "RepresentationQuery",
             comment: "A query for the canonical representation of a datum or term: \
                       its normal form under the active resolver strategy.",
+            subclass_of: &["https://uor.foundation/query/Query"],
+            disjoint_with: &[],
+        },
+        // Amendment 24: Surface Grounding Layer
+        Class {
+            id: "https://uor.foundation/query/RelationQuery",
+            label: "RelationQuery",
+            comment: "A Query with a known source address, a typed relation constraint, and an open \
+                      target partition:FiberBudget. Represents any question of the form: given this \
+                      source symbol and relation type, what is the target? The relation type is read \
+                      from the observable coordinate triple (d_R, d_H, d_I) — not externally supplied. \
+                      Applies across NLP, ARC-AGI grids, music, images, sensor streams, and \
+                      logical formulae.",
             subclass_of: &["https://uor.foundation/query/Query"],
             disjoint_with: &[],
         },
@@ -107,6 +133,69 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/query/CoordinateQuery"),
             range: "https://uor.foundation/query/CoordinateKind",
+        },
+        // Amendment 24: RelationQuery properties
+        Property {
+            id: "https://uor.foundation/query/sourceAddress",
+            label: "sourceAddress",
+            comment: "The ring address of the grounded source symbol.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/query/RelationQuery"),
+            range: "https://uor.foundation/u/Address",
+        },
+        Property {
+            id: "https://uor.foundation/query/relationType",
+            label: "relationType",
+            comment: "The transformation type, expressed as a type:CompositeConstraint composed \
+                      from the primitive basis. At inference time this is the output of an observable \
+                      coordinate read on example pairs — computed from (d_R, d_H, d_I). Not an \
+                      externally supplied input; read from the representation space.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/query/RelationQuery"),
+            range: "https://uor.foundation/type/Constraint",
+        },
+        Property {
+            id: "https://uor.foundation/query/targetFiber",
+            label: "targetFiber",
+            comment: "The open fiber budget for the unknown target. Begins fully free; \
+                      closes to isClosed = true upon resolution.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/query/RelationQuery"),
+            range: "https://uor.foundation/partition/FiberBudget",
+        },
+        Property {
+            id: "https://uor.foundation/query/groundingMap",
+            label: "groundingMap",
+            comment: "The GroundingMap that resolved the source symbol to its ring address.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/query/RelationQuery"),
+            range: "https://uor.foundation/morphism/GroundingMap",
+        },
+        Property {
+            id: "https://uor.foundation/query/projectionMap",
+            label: "projectionMap",
+            comment: "The ProjectionMap that will render the resolved address neighbourhood \
+                      back to surface symbols.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/query/RelationQuery"),
+            range: "https://uor.foundation/morphism/ProjectionMap",
+        },
+        Property {
+            id: "https://uor.foundation/query/sessionContext",
+            label: "sessionContext",
+            comment: "Accumulated session state carrying all state:Binding instances produced \
+                      by prior queries. Each binding records a resolved address, its datum, and \
+                      the type under which it was resolved. Prior bindings monotonically reduce \
+                      the free fiber space for subsequent queries.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/query/RelationQuery"),
+            range: "https://uor.foundation/state/Context",
         },
     ]
 }

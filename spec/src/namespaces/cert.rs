@@ -21,7 +21,7 @@ pub fn module() -> NamespaceModule {
                       isometries, and involutions. Each certificate verifies that \
                       a specific structural property holds.",
             space: Space::Bridge,
-            imports: &[NS_OP, NS_PROOF],
+            imports: &[NS_OP, NS_PROOF, NS_TYPE],
         },
         classes: classes(),
         properties: properties(),
@@ -61,6 +61,17 @@ fn classes() -> Vec<Class> {
             label: "InvolutionCertificate",
             comment: "A certificate attesting that an operation is an involution: \
                       f(f(x)) = x for all x in R_n.",
+            subclass_of: &["https://uor.foundation/cert/Certificate"],
+            disjoint_with: &[],
+        },
+        // Gap D: CompletenessCertificate
+        Class {
+            id: "https://uor.foundation/cert/CompletenessCertificate",
+            label: "CompletenessCertificate",
+            comment: "A certificate attesting that a type:CompleteType satisfies IT_7d: \
+                      its constraint nerve has χ = n and all Betti numbers β_k = 0. \
+                      Issued by the kernel after running the full ψ pipeline on the \
+                      type's constraint set.",
             subclass_of: &["https://uor.foundation/cert/Certificate"],
             disjoint_with: &[],
         },
@@ -134,6 +145,18 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/cert/Certificate"),
             range: OWL_THING,
+        },
+        // Gap D: CompletenessCertificate property
+        Property {
+            id: "https://uor.foundation/cert/certifiedType",
+            label: "certifiedType",
+            comment: "The TypeDefinition whose completeness this certificate attests. \
+                      The kernel issues this certificate after running the ψ pipeline \
+                      on the type's constraint set and confirming IT_7d.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/cert/CompletenessCertificate"),
+            range: "https://uor.foundation/type/CompleteType",
         },
     ]
 }

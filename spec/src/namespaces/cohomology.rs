@@ -276,6 +276,19 @@ fn properties() -> Vec<Property> {
             domain: Some("https://uor.foundation/cohomology/GluingObstruction"),
             range: "https://uor.foundation/cohomology/CohomologyGroup",
         },
+        // Gap B: GluingObstruction feedback to resolver
+        Property {
+            id: "https://uor.foundation/cohomology/addressesSuggestion",
+            label: "addressesSuggestion",
+            comment: "The refinement suggestion that, if applied, would resolve this gluing \
+                      obstruction. Computed by the kernel when ψ₆ detects H^1 ≠ 0: the \
+                      obstruction class indexes the fiber pair that is incompatible, and \
+                      the suggestion targets that pair with a new bridging constraint.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/cohomology/GluingObstruction"),
+            range: "https://uor.foundation/resolver/RefinementSuggestion",
+        },
         // Cross-NS bridge property
         Property {
             id: "https://uor.foundation/cohomology/sheafAnalysis",

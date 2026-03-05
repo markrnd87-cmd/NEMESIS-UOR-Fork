@@ -165,6 +165,16 @@ pub fn validate() -> ConformanceReport {
         tests::fixtures::TEST31_QUANTUM_LEVEL,
         &mut report,
     );
+    run_test(
+        "test32_arc_grounding",
+        tests::fixtures::TEST32_ARC_GROUNDING,
+        &mut report,
+    );
+    run_test(
+        "test33_graph_gaps",
+        tests::fixtures::TEST33_GRAPH_GAPS,
+        &mut report,
+    );
 
     report
 }
@@ -223,6 +233,8 @@ fn run_test(name: &str, turtle_src: &str, report: &mut ConformanceReport) {
         "test29_coordinate_kind" => validate_coordinate_kind_shacl(turtle_src),
         "test30_proof_coverage" => validate_proof_coverage_shacl(turtle_src),
         "test31_quantum_level" => validate_quantum_level_shacl(turtle_src),
+        "test32_arc_grounding" => validate_arc_grounding_shacl(turtle_src),
+        "test33_graph_gaps" => validate_graph_gaps_shacl(turtle_src),
         _ => Ok(()),
     };
 
@@ -762,6 +774,105 @@ fn validate_quantum_level_shacl(src: &str) -> Result<(), String> {
     check_contains(src, "schema:nextLevel", "Missing nextLevel property")?;
     check_contains(src, "schema:Q0", "Missing Q0 individual")?;
     check_contains(src, "schema:Q1", "Missing Q1 individual")?;
+    Ok(())
+}
+
+fn validate_arc_grounding_shacl(src: &str) -> Result<(), String> {
+    check_contains(
+        src,
+        "morphism:GroundingMap",
+        "Missing GroundingMap type assertion",
+    )?;
+    check_contains(
+        src,
+        "morphism:groundedAddress",
+        "Missing groundedAddress property",
+    )?;
+    check_contains(
+        src,
+        "morphism:symbolConstraints",
+        "Missing symbolConstraints property",
+    )?;
+    check_contains(
+        src,
+        "morphism:ProjectionMap",
+        "Missing ProjectionMap type assertion",
+    )?;
+    check_contains(
+        src,
+        "morphism:projectionFrame",
+        "Missing projectionFrame property",
+    )?;
+    check_contains(
+        src,
+        "morphism:projectionSource",
+        "Missing projectionSource property",
+    )?;
+    check_contains(
+        src,
+        "morphism:roundTripCoherence",
+        "Missing roundTripCoherence property",
+    )?;
+    check_contains(
+        src,
+        "query:RelationQuery",
+        "Missing RelationQuery type assertion",
+    )?;
+    check_contains(src, "query:sourceAddress", "Missing sourceAddress property")?;
+    check_contains(src, "query:relationType", "Missing relationType property")?;
+    check_contains(src, "query:targetFiber", "Missing targetFiber property")?;
+    check_contains(src, "query:groundingMap", "Missing groundingMap property")?;
+    check_contains(src, "query:projectionMap", "Missing projectionMap property")?;
+    Ok(())
+}
+
+fn validate_graph_gaps_shacl(src: &str) -> Result<(), String> {
+    // Gap B
+    check_contains(
+        src,
+        "resolver:nerveEulerCharacteristic",
+        "Missing nerveEulerCharacteristic property",
+    )?;
+    check_contains(
+        src,
+        "cohomology:addressesSuggestion",
+        "Missing addressesSuggestion property",
+    )?;
+    // Gap D
+    check_contains(
+        src,
+        "type:CompleteType",
+        "Missing CompleteType type assertion",
+    )?;
+    check_contains(
+        src,
+        "cert:CompletenessCertificate",
+        "Missing CompletenessCertificate type assertion",
+    )?;
+    check_contains(src, "cert:certifiedType", "Missing certifiedType property")?;
+    // Gap E
+    check_contains(
+        src,
+        "observable:ThermoObservable",
+        "Missing ThermoObservable type assertion",
+    )?;
+    check_contains(
+        src,
+        "observable:ResidualEntropy",
+        "Missing ResidualEntropy type assertion",
+    )?;
+    check_contains(src, "observable:Nats", "Missing Nats individual")?;
+    // Gap G
+    check_contains(
+        src,
+        "morphism:GroundingCertificate",
+        "Missing GroundingCertificate type assertion",
+    )?;
+    check_contains(
+        src,
+        "morphism:groundingCertMap",
+        "Missing groundingCertMap property",
+    )?;
     Ok(())
 }
 

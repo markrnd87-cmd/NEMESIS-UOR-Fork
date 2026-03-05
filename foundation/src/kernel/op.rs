@@ -3556,6 +3556,22 @@ pub mod d2n {
     pub const PRESENTATION: &str = "⟨r, s | r^{2^n} = s² = e, srs = r⁻¹⟩";
 }
 
+/// The Surface Symmetry Theorem: the composite P∘Π∘G is a well-typed morphism iff G and P share the same state:Frame F. When the shared-frame condition holds, the output lands in the type-equivalent neighbourhood of the source symbol.
+pub mod surface_symmetry {
+    /// `forAll`
+    pub const FOR_ALL: &str =
+        "G: GroundingMap, P: ProjectionMap, F: Frame, s: Literal, G.symbolConstraints = P.projectionOrder";
+    /// `lhs`
+    pub const LHS: &str = "P(Π(G(s)))";
+    /// `rhs`
+    pub const RHS: &str = "s' where type(s') ≡ type(s) under F.constraint";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "GroundingMap → ResolutionPipeline → ProjectionMap: shared-frame condition guarantees type-equivalent neighbourhood";
+}
+
 use crate::enums::PrimitiveOp;
 
 impl PrimitiveOp {

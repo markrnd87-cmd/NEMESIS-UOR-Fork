@@ -244,6 +244,8 @@ pub enum MeasurementUnit {
     RingSteps,
     /// Dimensionless unit: the measurement is a pure number (e.g., winding number, Betti number, spectral gap).
     Dimensionless,
+    /// Natural information unit: entropy measured in nats (using natural logarithm). S_residual is expressed in nats when computed as (Σ κ_k − χ) × ln 2.
+    Nats,
 }
 
 impl fmt::Display for MeasurementUnit {
@@ -252,6 +254,7 @@ impl fmt::Display for MeasurementUnit {
             Self::Bits => f.write_str("bits"),
             Self::RingSteps => f.write_str("ring_steps"),
             Self::Dimensionless => f.write_str("dimensionless"),
+            Self::Nats => f.write_str("nats"),
         }
     }
 }

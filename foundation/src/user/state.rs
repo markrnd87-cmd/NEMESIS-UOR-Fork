@@ -51,8 +51,10 @@ pub trait Frame<P: Primitives> {
     type Context: Context<P>;
     /// The context this frame is a view of.
     fn context(&self) -> &Self::Context;
-    /// The constraint determining which bindings from the context are visible in this frame.
-    fn constraint_count(&self) -> usize;
+    /// Associated type for `Constraint`.
+    type Constraint: crate::user::type_::Constraint<P>;
+    /// The type:Constraint determining which bindings from the context are visible in this frame. The resolver applies this constraint to filter the context's binding set, producing the frame's active bindings. An absent constraint means all bindings are visible.
+    fn constraint(&self) -> &Self::Constraint;
 }
 
 /// A state change: the transformation of one context into another through binding or unbinding. The sequence of transitions is the application's computation history.

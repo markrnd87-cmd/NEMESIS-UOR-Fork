@@ -36,3 +36,11 @@ pub trait InvolutionCertificate<P: Primitives>: Certificate<P> {
     /// The operation this certificate applies to.
     fn operation(&self) -> &Self::Operation;
 }
+
+/// A certificate attesting that a type:CompleteType satisfies IT_7d: its constraint nerve has χ = n and all Betti numbers β_k = 0. Issued by the kernel after running the full ψ pipeline on the type's constraint set.
+pub trait CompletenessCertificate<P: Primitives>: Certificate<P> {
+    /// Associated type for `CompleteType`.
+    type CompleteType: crate::user::type_::CompleteType<P>;
+    /// The TypeDefinition whose completeness this certificate attests. The kernel issues this certificate after running the ψ pipeline on the type's constraint set and confirming IT_7d.
+    fn certified_type(&self) -> &Self::CompleteType;
+}

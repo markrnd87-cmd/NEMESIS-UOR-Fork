@@ -185,12 +185,14 @@ fn properties() -> Vec<Property> {
         Property {
             id: "https://uor.foundation/state/constraint",
             label: "constraint",
-            comment: "The constraint determining which bindings from the context \
-                      are visible in this frame.",
-            kind: PropertyKind::Datatype,
-            functional: false,
+            comment: "The type:Constraint determining which bindings from the context are \
+                      visible in this frame. The resolver applies this constraint to filter \
+                      the context's binding set, producing the frame's active bindings. \
+                      An absent constraint means all bindings are visible.",
+            kind: PropertyKind::Object,
+            functional: true,
             domain: Some("https://uor.foundation/state/Frame"),
-            range: XSD_STRING,
+            range: "https://uor.foundation/type/Constraint",
         },
         // Transition properties
         Property {

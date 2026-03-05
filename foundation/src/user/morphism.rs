@@ -96,6 +96,66 @@ pub trait CompositionLaw<P: Primitives> {
     fn law_result(&self) -> &Self::Operation;
 }
 
+/// A Transform mapping a surface symbol (any schema:Literal) to its ring datum (a schema:Datum) via the content-addressing bijection. Typed, derivation-witnessed, constraint-preserving map from surface to coordinate. Applies identically across NLP tokens, ARC-AGI grid cells, MIDI notes, pixels, sensor readings, and logical propositions.
+/// Disjoint with: ProjectionMap.
+pub trait GroundingMap<P: Primitives>: Transform<P> {
+    /// Associated type for `Literal`.
+    type Literal: crate::kernel::schema::Literal<P>;
+    /// The surface symbol that is the source of this grounding.
+    fn surface_symbol(&self) -> &Self::Literal;
+    /// Associated type for `Address`.
+    type Address: crate::kernel::address::Address<P>;
+    /// The resolved ring address that is the target of this grounding.
+    fn grounded_address(&self) -> &Self::Address;
+    /// Associated type for `Derivation`.
+    type Derivation: crate::bridge::derivation::Derivation<P>;
+    /// The derivation witnessing the content-addressing computation that produced the grounded address from the surface symbol.
+    fn grounding_derivation(&self) -> &Self::Derivation;
+    /// Associated type for `Constraint`.
+    type Constraint: crate::user::type_::Constraint<P>;
+    /// A typed attribute preserved by this grounding. Non-functional: one assertion per active constraint axis (vertical, horizontal, diagonal).
+    fn symbol_constraints(&self) -> &[Self::Constraint];
+}
+
+/// A Transform mapping a resolved partition:Partition (address neighbourhood) to an ordered sequence of surface symbols. Output ordering determined by the active state:Frame — the same constraint frame that decomposed the input symbol sequence.
+/// Disjoint with: GroundingMap.
+pub trait ProjectionMap<P: Primitives>: Transform<P> {
+    /// Associated type for `Frame`.
+    type Frame: crate::user::state::Frame<P>;
+    /// The active frame — shared with the grounding that produced the query. The shared-frame condition (Surface Symmetry Theorem) requires G and P to reference the same frame.
+    fn projection_frame(&self) -> &Self::Frame;
+    /// Associated type for `Partition`.
+    type Partition: crate::bridge::partition::Partition<P>;
+    /// The resolved partition (address neighbourhood) that this map projects back to surface symbols.
+    fn projection_source(&self) -> &Self::Partition;
+    /// Associated type for `CompositeConstraint`.
+    type CompositeConstraint: crate::user::type_::CompositeConstraint<P>;
+    /// Ordering constraint determining the output symbol sequence. Domain-specific: syntactic position (NLP), row-major scan (ARC), temporal sequence (music).
+    fn projection_order(&self) -> &Self::CompositeConstraint;
+    /// Completeness criterion: does projecting the grounded source address recover a symbol in the same type class as the input? True iff the shared-frame condition holds.
+    fn round_trip_coherence(&self) -> P::Boolean;
+}
+
+/// A certificate attesting that a specific grounding round-trip (P∘Π∘G) satisfied the shared-frame condition and landed in the type-equivalent neighbourhood of the source symbol. Witnesses the Surface Symmetry Theorem (op:surfaceSymmetry) for one specific symbol instance.
+pub trait GroundingCertificate<P: Primitives>: crate::bridge::cert::Certificate<P> {
+    /// Associated type for `GroundingMap`.
+    type GroundingMap: GroundingMap<P>;
+    /// The GroundingMap used in this certified round-trip.
+    fn grounding_cert_map(&self) -> &Self::GroundingMap;
+    /// Associated type for `ProjectionMap`.
+    type ProjectionMap: ProjectionMap<P>;
+    /// The ProjectionMap used in this certified round-trip.
+    fn grounding_cert_projection(&self) -> &Self::ProjectionMap;
+    /// Associated type for `Literal`.
+    type Literal: crate::kernel::schema::Literal<P>;
+    /// The surface symbol that entered the grounding boundary.
+    fn grounding_cert_source_symbol(&self) -> &Self::Literal;
+    /// Associated type for `Address`.
+    type Address: crate::kernel::address::Address<P>;
+    /// The ring address the symbol was grounded to.
+    fn grounding_cert_address(&self) -> &Self::Address;
+}
+
 /// A topological delta: records changes in topological invariants (Betti numbers, Euler characteristic, nerve structure) before and after a morphism.
 pub trait TopologicalDelta<P: Primitives> {
     /// Associated type for `BettiNumber`.

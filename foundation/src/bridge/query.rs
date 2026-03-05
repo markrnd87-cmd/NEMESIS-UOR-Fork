@@ -27,6 +27,34 @@ pub trait MetricQuery<P: Primitives>: Query<P> {}
 /// A query for the canonical representation of a datum or term: its normal form under the active resolver strategy.
 pub trait RepresentationQuery<P: Primitives>: Query<P> {}
 
+/// A Query with a known source address, a typed relation constraint, and an open target partition:FiberBudget. Represents any question of the form: given this source symbol and relation type, what is the target? The relation type is read from the observable coordinate triple (d_R, d_H, d_I) — not externally supplied. Applies across NLP, ARC-AGI grids, music, images, sensor streams, and logical formulae.
+pub trait RelationQuery<P: Primitives>: Query<P> {
+    /// Associated type for `Address`.
+    type Address: crate::kernel::address::Address<P>;
+    /// The ring address of the grounded source symbol.
+    fn source_address(&self) -> &Self::Address;
+    /// Associated type for `Constraint`.
+    type Constraint: crate::user::type_::Constraint<P>;
+    /// The transformation type, expressed as a type:CompositeConstraint composed from the primitive basis. At inference time this is the output of an observable coordinate read on example pairs — computed from (d_R, d_H, d_I). Not an externally supplied input; read from the representation space.
+    fn relation_type(&self) -> &Self::Constraint;
+    /// Associated type for `FiberBudget`.
+    type FiberBudget: crate::bridge::partition::FiberBudget<P>;
+    /// The open fiber budget for the unknown target. Begins fully free; closes to isClosed = true upon resolution.
+    fn target_fiber(&self) -> &Self::FiberBudget;
+    /// Associated type for `GroundingMap`.
+    type GroundingMap: crate::user::morphism::GroundingMap<P>;
+    /// The GroundingMap that resolved the source symbol to its ring address.
+    fn grounding_map(&self) -> &Self::GroundingMap;
+    /// Associated type for `ProjectionMap`.
+    type ProjectionMap: crate::user::morphism::ProjectionMap<P>;
+    /// The ProjectionMap that will render the resolved address neighbourhood back to surface symbols.
+    fn projection_map(&self) -> &Self::ProjectionMap;
+    /// Associated type for `Context`.
+    type Context: crate::user::state::Context<P>;
+    /// Accumulated session state carrying all state:Binding instances produced by prior queries. Each binding records a resolved address, its datum, and the type under which it was resolved. Prior bindings monotonically reduce the free fiber space for subsequent queries.
+    fn session_context(&self) -> &Self::Context;
+}
+
 /// The stratum coordinate: the layer position of a datum within the ring's stratification.
 pub mod stratum_coordinate {}
 

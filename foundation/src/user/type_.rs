@@ -93,3 +93,6 @@ pub trait CompositeConstraint<P: Primitives>: Constraint<P> {
     /// A component constraint of this composite constraint.
     fn composed_from(&self) -> &[Self::Constraint];
 }
+
+/// A TypeDefinition certified to satisfy the UOR completeness criterion (IT_7d): its constraint nerve N(C) has Euler characteristic χ = n and all Betti numbers β_k = 0. A CompleteType guarantees that resolution closes the fiber budget in O(1) — no iterative refinement is required. Completeness is attested by a cert:CompletenessCertificate linked via cert:certifiedType.
+pub trait CompleteType<P: Primitives>: TypeDefinition<P> {}

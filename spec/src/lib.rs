@@ -1,7 +1,7 @@
 //! UOR Foundation ontology encoded as typed Rust data.
 //!
 //! The `uor-ontology` crate provides the complete UOR Foundation ontology —
-//! 16 namespaces, 132 classes, 241 properties, and 557 named individuals —
+//! 16 namespaces, 142 classes, 262 properties, and 560 named individuals —
 //! as static Rust data structures, along with serializers that produce
 //! JSON-LD, Turtle, and N-Triples output.
 //!
@@ -63,7 +63,7 @@ impl Ontology {
     pub fn full() -> &'static Ontology {
         static ONTOLOGY: std::sync::OnceLock<Ontology> = std::sync::OnceLock::new();
         ONTOLOGY.get_or_init(|| Ontology {
-            version: "3.2.0",
+            version: "3.3.0",
             base_iri: "https://uor.foundation/",
             namespaces: vec![
                 namespaces::u::module(),
@@ -118,14 +118,16 @@ mod tests {
             .iter()
             .map(|m| m.classes.len())
             .sum();
-        // 132 classes: 130 v3.1.0 - 1 VerificationStatus + 1 QuantumLevel + 2 proof classes.
-        assert_eq!(total, 132);
+        // 142 classes: 132 v3.2.0 + 10 Amdt24+Gaps (GroundingMap, ProjectionMap, GroundingCertificate,
+        // RelationQuery, CompleteType, CompletenessCertificate, ThermoObservable, ResidualEntropy,
+        // LandauerCost, CascadeEntropy).
+        assert_eq!(total, 142);
     }
 
     #[test]
     fn property_count() {
-        // 241 = 234 v3.1.0 - 1 hasVerificationStatus - 1 proof:quantum + 4 proof new + 5 schema new.
-        assert_eq!(Ontology::full().property_count(), 241);
+        // 262 = 241 v3.2.0 + 21 Amdt24+Gaps (12 morphism + 6 query + 1 resolver + 1 cohomology + 1 cert).
+        assert_eq!(Ontology::full().property_count(), 262);
     }
 
     #[test]
@@ -135,8 +137,8 @@ mod tests {
             .iter()
             .map(|m| m.individuals.len())
             .sum();
-        // 557 individuals: 304 v3.1.0 - 2 status + 4 Q-levels + 251 proof individuals.
-        assert_eq!(total, 557);
+        // 560 individuals: 557 v3.2.0 + 3 Amdt24+Gaps (surfaceSymmetry, prf_surfaceSymmetry, Nats).
+        assert_eq!(total, 560);
     }
 
     #[test]
