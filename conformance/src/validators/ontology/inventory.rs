@@ -360,10 +360,10 @@ fn validate_identity_completeness(report: &mut ConformanceReport) {
         "OB_H", "OB_P", "CT_", "CF_", "HG_", "T_C", "T_I", "T_E", "T_A", "AU_", "EF_", "AD_",
         "AA_", "AM_", "TH_", "AR_", "PD_", "RC_", "DC_", "HA_", "IT_", "phi_", "psi_",
         // Amendment 25: Completeness Certification
-        "CC_", // Amendment 26: Quantum Level Scaling
-        "QL_", // Amendment 27: Session-Scoped Resolution
-        "SR_", // Amendment 28: Type Synthesis
-        "TS_", // Amendment 29: Quantum Level Spectral Sequence
+        "CC_",  // Amendment 26: Quantum Level Scaling
+        "QL_",  // Amendment 27: Session-Scoped Resolution
+        "SR_",  // Amendment 28: Type Synthesis
+        "TS_",  // Amendment 29: Quantum Level Spectral Sequence
         "QLS_", // Amendment 30: Monodromy Observables
         "MN_",
     ];
