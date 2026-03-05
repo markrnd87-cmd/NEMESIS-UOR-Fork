@@ -360,10 +360,8 @@ fn validate_identity_completeness(report: &mut ConformanceReport) {
         "OB_H", "OB_P", "CT_", "CF_", "HG_", "T_C", "T_I", "T_E", "T_A", "AU_", "EF_", "AD_",
         "AA_", "AM_", "TH_", "AR_", "PD_", "RC_", "DC_", "HA_", "IT_", "phi_", "psi_",
         // Amendment 25: Completeness Certification
-        "CC_",
-        // Amendment 26: Quantum Level Scaling
-        "QL_",
-        // Amendment 27: Session-Scoped Resolution
+        "CC_", // Amendment 26: Quantum Level Scaling
+        "QL_", // Amendment 27: Session-Scoped Resolution
         "SR_",
     ];
     for prefix in &expected_prefixes {
