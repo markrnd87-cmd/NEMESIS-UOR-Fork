@@ -107,6 +107,7 @@ pub fn generate_namespace_module(
     }
 
     // Emit imports in alphabetical order (enum imports before Primitives)
+    enum_imports.sort_unstable();
     for imp in &enum_imports {
         let _ = writeln!(f.buf, "use crate::enums::{imp};");
     }
