@@ -17,7 +17,7 @@ cargo run --bin uor-conformance
 |----------|----------|-----------|
 | `public/uor.foundation.json` | JSON-LD 1.1 | `validators/ontology/jsonld.rs` |
 | `public/uor.foundation.json` | OWL 2 DL | `validators/ontology/owl.rs` |
-| Inventory counts | 16/206/412/740 | `validators/ontology/inventory.rs` |
+| Inventory counts | 16/213/436/758 | `validators/ontology/inventory.rs` |
 | `public/uor.foundation.ttl` | RDF 1.1 / Turtle 1.1 | `validators/ontology/rdf.rs` |
 | {@count:shacl_tests} test instance graphs | SHACL | `validators/ontology/shacl.rs` |
 
@@ -25,7 +25,7 @@ cargo run --bin uor-conformance
 
 | Check | Validator |
 |-------|-----------|
-| All 206 classes documented | `validators/docs/completeness.rs` |
+| All 213 classes documented | `validators/docs/completeness.rs` |
 | Namespace pages accurate | `validators/docs/accuracy.rs` |
 | Diataxis structure present | `validators/docs/structure.rs` |
 | No broken internal links | `validators/docs/links.rs` |
@@ -126,6 +126,21 @@ cargo run --bin uor-conformance
 | test98 | GeodesicEvidenceBundle with isDC10Selected (Amendment 40) |
 | test99 | MeasurementCertificate with BornRuleVerification at Q1 (Amendment 40) |
 | test100 | Full normative chain — Trace → Certificate → EvidenceBundle (Amendment 40) |
+
+### SHACL Tests 101–110 (v5.1.0)
+
+| Test | What It Validates |
+|------|-------------------|
+| test101 | Flat LiftChain Q0→Q3 with trivial ObstructionChain (Amendment 41) |
+| test102 | Twisted LiftChain Q0→Q2 with non-trivial LiftObstruction (Amendment 41) |
+| test103 | ObstructionChain with obstructionCount=0 and isFlat=true (Amendment 41) |
+| test104 | ObstructionChain with 2 obstructionAt assertions, isFlat=false (Amendment 41) |
+| test105 | LiftChainCertificate with certifiedChain, chainAuditTrail, levels (Amendment 41) |
+| test106 | ChainAuditTrail with chainStepCount matching chain (Amendment 41) |
+| test107 | TowerCompletenessResolver with Q0 source, Q47 target (Amendment 41) |
+| test108 | InductiveProof with baseCase, inductiveStep, validForKAtLeast (Amendment 41) |
+| test109 | Identity with validityKind=ParametricLower, validKMin=3 (Amendment 41) |
+| test110 | Full tower round-trip: Q0 → LiftChain → LiftChainCertificate → Q\_k (Amendment 41) |
 
 ## Adding a New SHACL Test
 

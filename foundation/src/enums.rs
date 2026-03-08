@@ -364,6 +364,30 @@ impl fmt::Display for AchievabilityStatus {
     }
 }
 
+/// The scope of validity for an identity across quantum levels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ValidityScopeKind {
+    /// Holds for all k in N. No minimum k constraint.
+    Universal,
+    /// Holds for all k >= k_min, where k_min is given by validKMin.
+    ParametricLower,
+    /// Holds for k_min <= k <= k_max. Both validKMin and validKMax required.
+    ParametricRange,
+    /// Holds only at exactly one level, given by a QuantumLevelBinding.
+    LevelSpecific,
+}
+
+impl fmt::Display for ValidityScopeKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Universal => f.write_str("universal"),
+            Self::ParametricLower => f.write_str("parametric_lower"),
+            Self::ParametricRange => f.write_str("parametric_range"),
+            Self::LevelSpecific => f.write_str("level_specific"),
+        }
+    }
+}
+
 /// The modality of a proof: computation (exhaustive verification at a specific quantum level) or axiomatic (derivation from ring axioms).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ProofModality {
@@ -373,6 +397,8 @@ pub enum ProofModality {
     Axiomatic,
     /// A proof verified empirically across a bounded range of quantum levels.
     Empirical,
+    /// A proof by structural induction on the quantum level parameter k.
+    Inductive,
 }
 
 impl fmt::Display for ProofModality {
@@ -381,6 +407,7 @@ impl fmt::Display for ProofModality {
             Self::Computation => f.write_str("computation"),
             Self::Axiomatic => f.write_str("axiomatic"),
             Self::Empirical => f.write_str("empirical"),
+            Self::Inductive => f.write_str("inductive"),
         }
     }
 }

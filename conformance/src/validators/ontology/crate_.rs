@@ -116,6 +116,7 @@ fn validate_trait_completeness(
         "PhaseBoundaryType",
         "SaturationPhase",
         "AchievabilityStatus",
+        "ValidityScopeKind",
     ];
 
     // Read all generated source files
@@ -183,6 +184,7 @@ fn validate_method_completeness(
         "PhaseBoundaryType",
         "SaturationPhase",
         "AchievabilityStatus",
+        "ValidityScopeKind",
     ];
 
     let mut missing = Vec::new();
@@ -268,6 +270,7 @@ fn validate_individual_completeness(
         "PhaseBoundaryType",
         "SaturationPhase",
         "AchievabilityStatus",
+        "ValidityScopeKind",
     ];
 
     let mut missing = Vec::new();

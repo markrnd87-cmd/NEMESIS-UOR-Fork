@@ -313,6 +313,25 @@ fn classes() -> Vec<Class> {
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
+        // Amendment 41: LiftChain and ObstructionChain
+        Class {
+            id: "https://uor.foundation/type/LiftChain",
+            label: "LiftChain",
+            comment: "An ordered composition of QuantumLift steps from liftSourceLevel \
+                      (Q_j) to liftTargetLevel (Q_k) for any j < k. The canonical \
+                      object certifying type completeness at arbitrary Q_k.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/ObstructionChain",
+            label: "ObstructionChain",
+            comment: "The complete ordered sequence of LiftObstruction records \
+                      encountered and resolved along a LiftChain. An empty \
+                      ObstructionChain means the tower is flat.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -720,6 +739,80 @@ fn properties() -> Vec<Property> {
             kind: PropertyKind::Datatype,
             functional: true,
             domain: Some("https://uor.foundation/type/ConstrainedType"),
+            range: XSD_BOOLEAN,
+        },
+        // Amendment 41: LiftChain properties
+        Property {
+            id: "https://uor.foundation/type/liftSourceLevel",
+            label: "liftSourceLevel",
+            comment: "The quantum level at the base of the chain.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/LiftChain"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/type/chainLength",
+            label: "chainLength",
+            comment: "The number of QuantumLift steps in the chain (k - j).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/LiftChain"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/type/chainStep",
+            label: "chainStep",
+            comment: "A QuantumLift step in this chain. Non-functional: one per step.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/type/LiftChain"),
+            range: "https://uor.foundation/type/QuantumLift",
+        },
+        Property {
+            id: "https://uor.foundation/type/chainObstructionProfile",
+            label: "chainObstructionProfile",
+            comment: "The full obstruction history of this chain.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/LiftChain"),
+            range: "https://uor.foundation/type/ObstructionChain",
+        },
+        Property {
+            id: "https://uor.foundation/type/resolvedBasisSize",
+            label: "resolvedBasisSize",
+            comment: "The basis size of the CompleteType at the chain target level.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/LiftChain"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 41: ObstructionChain properties
+        Property {
+            id: "https://uor.foundation/type/obstructionAt",
+            label: "obstructionAt",
+            comment: "A non-trivial LiftObstruction in this chain. Non-functional.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/type/ObstructionChain"),
+            range: "https://uor.foundation/type/LiftObstruction",
+        },
+        Property {
+            id: "https://uor.foundation/type/obstructionCount",
+            label: "obstructionCount",
+            comment: "Total number of non-trivial LiftObstruction records.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ObstructionChain"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/type/isFlat",
+            label: "isFlat",
+            comment: "True iff obstructionCount = 0 (flat tower).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ObstructionChain"),
             range: XSD_BOOLEAN,
         },
     ]

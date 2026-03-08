@@ -25,7 +25,7 @@ pub fn module() -> NamespaceModule {
                       isometries, and involutions. Each certificate verifies that \
                       a specific structural property holds.",
             space: Space::Bridge,
-            imports: &[NS_OP, NS_PROOF, NS_TYPE],
+            imports: &[NS_OP, NS_PROOF, NS_SCHEMA, NS_TYPE],
         },
         classes: classes(),
         properties: properties(),
@@ -141,6 +141,23 @@ fn classes() -> Vec<Class> {
                       (QM_5). Linked from MeasurementCertificate to provide \
                       probability distribution verification.",
             subclass_of: &["https://uor.foundation/cert/Certificate"],
+            disjoint_with: &[],
+        },
+        // Amendment 41: LiftChainCertificate and ChainAuditTrail
+        Class {
+            id: "https://uor.foundation/cert/LiftChainCertificate",
+            label: "LiftChainCertificate",
+            comment: "A kernel-issued certificate attesting that a LiftChain from \
+                      liftSourceLevel to liftTargetLevel is complete.",
+            subclass_of: &["https://uor.foundation/cert/Certificate"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/cert/ChainAuditTrail",
+            label: "ChainAuditTrail",
+            comment: "An ordered collection of per-step evidence records for a \
+                      LiftChainCertificate.",
+            subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
     ]
@@ -345,6 +362,55 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/cert/BornRuleVerification"),
             range: XSD_BOOLEAN,
+        },
+        // Amendment 41: LiftChainCertificate properties
+        Property {
+            id: "https://uor.foundation/cert/certifiedChain",
+            label: "certifiedChain",
+            comment: "The LiftChain this certificate attests to.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/cert/LiftChainCertificate"),
+            range: "https://uor.foundation/type/LiftChain",
+        },
+        Property {
+            id: "https://uor.foundation/cert/chainAuditTrail",
+            label: "chainAuditTrail",
+            comment: "The ordered per-step evidence for this certificate.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/cert/LiftChainCertificate"),
+            range: "https://uor.foundation/cert/ChainAuditTrail",
+        },
+        Property {
+            id: "https://uor.foundation/cert/targetLevel",
+            label: "targetLevel",
+            comment: "The quantum level Q_k at which the certificate was issued.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/cert/LiftChainCertificate"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/cert/sourceLevel",
+            label: "sourceLevel",
+            comment: "The quantum level Q_j from which the tower was started.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/cert/LiftChainCertificate"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        // Amendment 41: ChainAuditTrail property
+        Property {
+            id: "https://uor.foundation/cert/chainStepCount",
+            label: "chainStepCount",
+            comment: "Number of lift steps in this ChainAuditTrail. Must equal \
+                      chainLength of the certified LiftChain. Distinct from \
+                      witnessCount (domain-locked to CompletenessAuditTrail).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/cert/ChainAuditTrail"),
+            range: XSD_NON_NEGATIVE_INTEGER,
         },
         // Amendment 38: GeodesicEvidenceBundle sub-predicate properties
         Property {

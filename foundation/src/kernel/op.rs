@@ -6,6 +6,7 @@
 
 use crate::enums::GeometricCharacter;
 use crate::enums::QuantumLevel;
+use crate::enums::ValidityScopeKind;
 use crate::enums::VerificationDomain;
 use crate::Primitives;
 
@@ -57,6 +58,12 @@ pub trait Identity<P: Primitives> {
     fn verified_at_level(&self) -> &[Self::QuantumLevelBinding];
     /// True iff this identity holds for all n ≥ 1 (proved symbolically by induction on the ring axioms, not just exhaustively at Q0). Identities that reference 8-bit-specific constants receive universallyValid = false.
     fn universally_valid(&self) -> P::Boolean;
+    /// The structured validity scope of this identity, replacing the binary universallyValid flag. Required on all new Identity individuals.
+    fn validity_kind(&self) -> ValidityScopeKind;
+    /// Minimum quantum level index k for ParametricLower and ParametricRange scopes.
+    fn valid_kmin(&self) -> P::NonNegativeInteger;
+    /// Maximum quantum level index k (inclusive) for ParametricRange scope.
+    fn valid_kmax(&self) -> P::NonNegativeInteger;
 }
 
 /// A group: a set with an associative binary operation, an identity element, and inverses for every element.
@@ -141,6 +148,30 @@ pub mod quantum_thermodynamic {
     pub const ENUM_VARIANT: &str = "QuantumThermodynamic";
 }
 
+/// Holds for all k in N. No minimum k constraint.
+pub mod universal {
+    /// `enumVariant`
+    pub const ENUM_VARIANT: &str = "Universal";
+}
+
+/// Holds for all k >= k_min, where k_min is given by validKMin.
+pub mod parametric_lower {
+    /// `enumVariant`
+    pub const ENUM_VARIANT: &str = "ParametricLower";
+}
+
+/// Holds for k_min <= k <= k_max. Both validKMin and validKMax required.
+pub mod parametric_range {
+    /// `enumVariant`
+    pub const ENUM_VARIANT: &str = "ParametricRange";
+}
+
+/// Holds only at exactly one level, given by a QuantumLevelBinding.
+pub mod level_specific {
+    /// `enumVariant`
+    pub const ENUM_VARIANT: &str = "LevelSpecific";
+}
+
 /// Reflection through the origin of the additive ring: neg(x) = -x mod 2^n. One of the two generators of D_{2^n}.
 pub mod ring_reflection {}
 
@@ -181,6 +212,8 @@ pub mod critical_identity {
     ];
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Enumerative`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Enumerative";
     /// `verificationPathNote`
@@ -3708,6 +3741,8 @@ pub mod ql_1 {
     pub const RHS: &str = "succ(x) in Z/(2ⁿ)Z";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -3724,6 +3759,8 @@ pub mod ql_2 {
     pub const RHS: &str = "2ⁿ⁺¹ for all n ≥ 1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -3740,6 +3777,8 @@ pub mod ql_3 {
     pub const RHS: &str = "Boltzmann distribution at β* = ln 2, all n ≥ 1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Thermodynamic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Thermodynamic";
     /// `verificationPathNote`
@@ -3757,6 +3796,8 @@ pub mod ql_4 {
     pub const RHS: &str = "= n (one fiber per bit)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -3773,6 +3814,8 @@ pub mod ql_5 {
     pub const RHS: &str = "O(1) for all n ≥ 1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Pipeline`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
     /// `verificationPathNote`
@@ -3790,6 +3833,8 @@ pub mod ql_6 {
     pub const RHS: &str = "bijection for all n ≥ 1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -3806,6 +3851,8 @@ pub mod ql_7 {
     pub const RHS: &str = "valid ChainComplex for all n ≥ 1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Topological`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
     /// `verificationPathNote`
@@ -3997,6 +4044,8 @@ pub mod qls_1 {
     pub const RHS: &str = "iff spectral sequence collapses at E_2";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `IndexTheoretic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
     /// `verificationPathNote`
@@ -4014,6 +4063,8 @@ pub mod qls_2 {
     pub const RHS: &str = "specific fiber at bit position n+1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `IndexTheoretic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
     /// `verificationPathNote`
@@ -4031,6 +4082,8 @@ pub mod qls_3 {
     pub const RHS: &str = "basisSize(T) + 1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `IndexTheoretic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
     /// `verificationPathNote`
@@ -4048,6 +4101,8 @@ pub mod qls_4 {
     pub const RHS: &str = "≤ E_{d+2}";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `IndexTheoretic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
     /// `verificationPathNote`
@@ -4065,6 +4120,8 @@ pub mod qls_5 {
     pub const RHS: &str = "holds with lifted constraint set";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `IndexTheoretic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
     /// `verificationPathNote`
@@ -4082,6 +4139,8 @@ pub mod qls_6 {
     pub const RHS: &str = "valid and restricts to ChainComplex(T) on base nerve";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `IndexTheoretic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
     /// `verificationPathNote`
@@ -4592,6 +4651,8 @@ pub mod qm_5 {
     pub const RHS: &str = "1";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `QuantumThermodynamic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/QuantumThermodynamic";
     /// `verificationPathNote`
@@ -4608,6 +4669,8 @@ pub mod rc_6 {
     pub const RHS: &str = "ψ / sqrt(Σ |αᵢ|²)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `SuperpositionDomain`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/SuperpositionDomain";
     /// `verificationPathNote`
@@ -4624,6 +4687,8 @@ pub mod fpm_8 {
     pub const RHS: &str = "2ⁿ";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Enumerative`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Enumerative";
     /// `verificationPathNote`
@@ -4640,6 +4705,8 @@ pub mod fpm_9 {
     pub const RHS: &str = "x ∉ carrier(T)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -4656,6 +4723,8 @@ pub mod mn_8 {
     pub const RHS: &str = "isFlatType(T) xor isTwistedType(T)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Topological`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
     /// `verificationPathNote`
@@ -4673,6 +4742,8 @@ pub mod ql_8 {
     pub const RHS: &str = "Q_k";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -4689,6 +4760,8 @@ pub mod d_7 {
     pub const RHS: &str = "r^((a + (-1)ᵖ b) mod 2ⁿ) s^(p xor q)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Geometric`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Geometric";
     /// `verificationPathNote`
@@ -4706,6 +4779,8 @@ pub mod sp_1 {
     pub const RHS: &str = "resolve_classical(x)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `SuperpositionDomain`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/SuperpositionDomain";
     /// `verificationPathNote`
@@ -4723,6 +4798,8 @@ pub mod sp_2 {
     pub const RHS: &str = "resolve_classical(collapse(ψ))";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `QuantumThermodynamic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/QuantumThermodynamic";
     /// `verificationPathNote`
@@ -4740,6 +4817,8 @@ pub mod sp_3 {
     pub const RHS: &str = "normalized";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `SuperpositionDomain`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/SuperpositionDomain";
     /// `verificationPathNote`
@@ -4757,6 +4836,8 @@ pub mod sp_4 {
     pub const RHS: &str = "|α_k|²";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `QuantumThermodynamic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/QuantumThermodynamic";
     /// `verificationPathNote`
@@ -4773,6 +4854,8 @@ pub mod pt_2a {
     pub const RHS: &str = "PartitionProduct(Π(A), Π(B))";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -4790,6 +4873,8 @@ pub mod pt_2b {
     pub const RHS: &str = "PartitionCoproduct(Π(A), Π(B))";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Algebraic`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
     /// `verificationPathNote`
@@ -4807,11 +4892,143 @@ pub mod gd_6 {
     pub const RHS: &str = "isAR1Ordered(trace) ∧ isDC10Selected(trace)";
     /// `universallyValid`
     pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
     /// `verificationDomain` -> `Analytical`
     pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Analytical";
     /// `verificationPathNote`
     pub const VERIFICATION_PATH_NOTE: &str =
         "Geodesic condition → AR_1 ordering + DC_10 selection → conjunction";
+}
+
+/// LiftChain(Q_j, Q_k) is valid CompleteType tower iff every chainStep QuantumLift has trivial or resolved LiftObstruction.
+pub mod qt_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "LiftChain from Q_j to Q_k";
+    /// `lhs`
+    pub const LHS: &str = "LiftChain(Q_j, Q_k) valid";
+    /// `rhs`
+    pub const RHS: &str = "every chainStep has trivial or resolved LiftObstruction";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "LiftChain → chainStep → LiftObstruction resolution";
+}
+
+/// Obstruction count bound: the number of non-trivial LiftObstructions in a chain is at most the chain length.
+pub mod qt_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "LiftChain";
+    /// `lhs`
+    pub const LHS: &str = "obstructionCount(chain)";
+    /// `rhs`
+    pub const RHS: &str = "<= chainLength(chain)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "LiftChain → ObstructionChain → obstructionCount ≤ chainLength";
+}
+
+/// Resolved basis size formula: the basis size at Q_k equals basisSize(Q_j) + chainLength + obstructionResolutionCost.
+pub mod qt_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "LiftChain with source Q_j, target Q_k";
+    /// `lhs`
+    pub const LHS: &str = "resolvedBasisSize(Q_k)";
+    /// `rhs`
+    pub const RHS: &str = "basisSize(Q_j) + chainLength + obstructionResolutionCost";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "LiftChain → resolvedBasisSize accumulation formula";
+}
+
+/// Flat tower characterization: isFlat(chain) iff obstructionCount = 0 iff HolonomyGroup trivial at every step.
+pub mod qt_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "LiftChain";
+    /// `lhs`
+    pub const LHS: &str = "isFlat(chain)";
+    /// `rhs`
+    pub const RHS: &str = "obstructionCount = 0 iff HolonomyGroup trivial at every step";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "LiftChain → ObstructionChain → isFlat ↔ trivial holonomy";
+}
+
+/// LiftChainCertificate existence: a CompleteType at Q_k satisfies IT_7d with a witness chain.
+pub mod qt_5 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "Q_k for arbitrary k";
+    /// `lhs`
+    pub const LHS: &str = "LiftChainCertificate exists";
+    /// `rhs`
+    pub const RHS: &str = "CompleteType at Q_k satisfies IT_7d with witness chain";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "LiftChainCertificate → certifiedChain → IT_7d compliance";
+}
+
+/// Single-step reduction: QT_3 with chainLength=1 and cost=0 reduces to QLS_3.
+pub mod qt_6 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "Single-step chains";
+    /// `lhs`
+    pub const LHS: &str = "QT_3 with chainLength=1, cost=0";
+    /// `rhs`
+    pub const RHS: &str = "reduces to QLS_3";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "QT_3 specialization → chainLength=1 → QLS_3 identity";
+}
+
+/// Flat chain basis size: for flat chains, resolvedBasisSize(Q_k) = basisSize(Q_j) + (k - j).
+pub mod qt_7 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "LiftChain with isFlat = true";
+    /// `lhs`
+    pub const LHS: &str = "flat chain resolvedBasisSize(Q_k)";
+    /// `rhs`
+    pub const RHS: &str = "basisSize(Q_j) + (k - j)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "Flat LiftChain → zero obstruction cost → linear basis growth";
 }
 
 use crate::enums::PrimitiveOp;

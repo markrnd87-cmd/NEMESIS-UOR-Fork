@@ -2,9 +2,9 @@
 //!
 //! Verifies that the built ontology artifact contains the correct counts:
 //! - 16 namespaces (3 Kernel / 10 Bridge / 3 User)
-//! - 206 classes
-//! - 411 namespace-level properties + 1 global annotation = 412 via property_count()
-//! - 740 named individuals (each with required property assertions)
+//! - 213 classes
+//! - 435 namespace-level properties + 1 global annotation = 436 via property_count()
+//! - 758 named individuals (each with required property assertions)
 
 use std::path::Path;
 
@@ -16,9 +16,9 @@ use crate::report::{ConformanceReport, TestResult};
 
 /// Expected inventory counts for the UOR Foundation ontology.
 const EXPECTED_NAMESPACES: usize = 16;
-const EXPECTED_CLASSES: usize = 206;
-const EXPECTED_PROPERTIES: usize = 412;
-const EXPECTED_INDIVIDUALS: usize = 740;
+const EXPECTED_CLASSES: usize = 213;
+const EXPECTED_PROPERTIES: usize = 436;
+const EXPECTED_INDIVIDUALS: usize = 758;
 
 /// Validates the ontology inventory counts in the built JSON-LD artifact.
 ///
@@ -69,6 +69,9 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
     validate_synthesis_q1_coverage(&mut report);
     validate_evidence_bundle_properties(&mut report);
     validate_normative_chain_integrity(&mut report);
+    // Amendment 41: Tower chain vocabulary validators
+    validate_validity_scope_individuals(&mut report);
+    validate_tower_chain_vocabulary(&mut report);
 
     // Validate the built JSON-LD artifact
     let json_path = artifacts.join("uor.foundation.json");
@@ -386,7 +389,8 @@ fn validate_identity_completeness(report: &mut ConformanceReport) {
         "MS_",  // Amendment 35: Computational Geodesic
         "GD_",  // Amendment 36: Measurement Boundary
         "QM_",  // Amendment 37: SuperpositionResolver identities
-        "SP_",
+        "SP_",  // Amendment 41: Tower identities
+        "QT_",
     ];
     for prefix in &expected_prefixes {
         let has = identities.iter().any(|i| i.label.starts_with(prefix));
@@ -795,17 +799,20 @@ fn validate_quantum_scope(report: &mut ConformanceReport) {
     let cert_type = "https://uor.foundation/proof/ComputationCertificate";
     let crit_type = "https://uor.foundation/proof/CriticalIdentityProof";
     let axiomatic_type = "https://uor.foundation/proof/AxiomaticDerivation";
+    let inductive_type = "https://uor.foundation/proof/InductiveProof";
     let at_ql_prop = "https://uor.foundation/proof/atQuantumLevel";
     let univ_prop = "https://uor.foundation/proof/universalScope";
 
     let mut all_valid = true;
     let mut cert_count = 0usize;
     let mut axiomatic_count = 0usize;
+    let mut inductive_count = 0usize;
 
     if let Some(proof_module) = ontology.find_namespace("proof") {
         for ind in &proof_module.individuals {
             let is_cert = ind.type_ == cert_type || ind.type_ == crit_type;
             let is_axiomatic = ind.type_ == axiomatic_type;
+            let is_inductive = ind.type_ == inductive_type;
 
             if is_cert {
                 cert_count += 1;
@@ -852,15 +859,36 @@ fn validate_quantum_scope(report: &mut ConformanceReport) {
                     all_valid = false;
                 }
             }
+
+            if is_inductive {
+                inductive_count += 1;
+                let has_univ = ind.properties.iter().any(|(k, _)| *k == univ_prop);
+                let has_ql = ind.properties.iter().any(|(k, _)| *k == at_ql_prop);
+                if !has_univ {
+                    report.push(TestResult::fail(
+                        validator,
+                        format!("InductiveProof {} missing universalScope", ind.id),
+                    ));
+                    all_valid = false;
+                }
+                if has_ql {
+                    report.push(TestResult::fail(
+                        validator,
+                        format!("InductiveProof {} should not have atQuantumLevel", ind.id),
+                    ));
+                    all_valid = false;
+                }
+            }
         }
     }
 
-    if all_valid && (cert_count + axiomatic_count) > 0 {
+    if all_valid && (cert_count + axiomatic_count + inductive_count) > 0 {
         report.push(TestResult::pass(
             validator,
             format!(
-                "Quantum scope valid: {} computation certificates, {} axiomatic derivations",
-                cert_count, axiomatic_count
+                "Quantum scope valid: {} computation certificates, \
+                 {} axiomatic derivations, {} inductive proofs",
+                cert_count, axiomatic_count, inductive_count
             ),
         ));
     }
@@ -1279,6 +1307,107 @@ fn validate_normative_chain_integrity(report: &mut ConformanceReport) {
 ///
 /// Currently checks that the SHACL shapes file has exactly one NodeShape per class.
 ///
+/// Validates that the 4 ValidityScopeKind individuals exist (Amendment 41).
+fn validate_validity_scope_individuals(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/validity_scope_individuals";
+    let scope_type = "https://uor.foundation/op/ValidityScopeKind";
+    let expected = [
+        "Universal",
+        "ParametricLower",
+        "ParametricRange",
+        "LevelSpecific",
+    ];
+
+    if let Some(op_module) = ontology.find_namespace("op") {
+        let scope_inds: Vec<&str> = op_module
+            .individuals
+            .iter()
+            .filter(|i| i.type_ == scope_type)
+            .map(|i| i.label)
+            .collect();
+        let mut all_found = true;
+        for name in &expected {
+            if !scope_inds.contains(name) {
+                report.push(TestResult::fail(
+                    validator,
+                    format!("Missing ValidityScopeKind individual: {}", name),
+                ));
+                all_found = false;
+            }
+        }
+        if all_found {
+            report.push(TestResult::pass(
+                validator,
+                format!(
+                    "All {} ValidityScopeKind individuals present",
+                    expected.len()
+                ),
+            ));
+        }
+    } else {
+        report.push(TestResult::fail(validator, "op/ namespace not found"));
+    }
+}
+
+/// Validates Amendment 41 tower chain vocabulary exists.
+fn validate_tower_chain_vocabulary(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/tower_chain_vocabulary";
+
+    let expected_classes = [
+        "https://uor.foundation/type/LiftChain",
+        "https://uor.foundation/type/ObstructionChain",
+        "https://uor.foundation/cert/LiftChainCertificate",
+        "https://uor.foundation/cert/ChainAuditTrail",
+        "https://uor.foundation/resolver/TowerCompletenessResolver",
+        "https://uor.foundation/proof/InductiveProof",
+        "https://uor.foundation/op/ValidityScopeKind",
+    ];
+
+    let all_classes: Vec<&str> = ontology
+        .namespaces
+        .iter()
+        .flat_map(|m| m.classes.iter().map(|c| c.id))
+        .collect();
+
+    let mut all_found = true;
+    for cls in &expected_classes {
+        if !all_classes.contains(cls) {
+            report.push(TestResult::fail(
+                validator,
+                format!("Missing Amendment 41 class: {}", cls),
+            ));
+            all_found = false;
+        }
+    }
+
+    // Check QT_1 through QT_7 identities exist
+    if let Some(op_module) = ontology.find_namespace("op") {
+        for i in 1..=7 {
+            let label = format!("QT_{}", i);
+            let has = op_module
+                .individuals
+                .iter()
+                .any(|ind| ind.label == label.as_str());
+            if !has {
+                report.push(TestResult::fail(
+                    validator,
+                    format!("Missing tower identity: {}", label),
+                ));
+                all_found = false;
+            }
+        }
+    }
+
+    if all_found {
+        report.push(TestResult::pass(
+            validator,
+            "All Amendment 41 tower chain vocabulary present (7 classes, 7 QT_ identities)",
+        ));
+    }
+}
+
 /// # Errors
 ///
 /// Returns an error if the shapes file cannot be read.

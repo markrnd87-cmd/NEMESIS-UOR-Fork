@@ -268,6 +268,16 @@ fn classes() -> Vec<Class> {
             subclass_of: &["https://uor.foundation/resolver/Resolver"],
             disjoint_with: &[],
         },
+        // Amendment 41: Tower Completeness Resolver
+        Class {
+            id: "https://uor.foundation/resolver/TowerCompletenessResolver",
+            label: "TowerCompletenessResolver",
+            comment: "A Resolver that constructs a LiftChain from liftSourceLevel \
+                      to an arbitrary liftTargetLevel Q_k by iterating \
+                      IncrementalCompletenessResolver step by step.",
+            subclass_of: &["https://uor.foundation/resolver/Resolver"],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -638,6 +648,44 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/resolver/MeasurementResolver"),
             range: XSD_STRING,
+        },
+        // Amendment 41: TowerCompletenessResolver properties
+        Property {
+            id: "https://uor.foundation/resolver/towerSourceLevel",
+            label: "towerSourceLevel",
+            comment: "The level at which the tower starts.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/TowerCompletenessResolver"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/towerTargetLevel",
+            label: "towerTargetLevel",
+            comment: "The level to which the tower is being built.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/TowerCompletenessResolver"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/currentChain",
+            label: "currentChain",
+            comment: "The LiftChain under construction.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/TowerCompletenessResolver"),
+            range: "https://uor.foundation/type/LiftChain",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/towerStepResolver",
+            label: "towerStepResolver",
+            comment: "The IncrementalCompletenessResolver used for each single-step \
+                      lift.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/TowerCompletenessResolver"),
+            range: "https://uor.foundation/resolver/IncrementalCompletenessResolver",
         },
     ]
 }

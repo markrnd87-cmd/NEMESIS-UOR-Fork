@@ -4,7 +4,17 @@
 //! instance of UOR ontology terms, used to verify SHACL shape constraints.
 
 mod test100_normative_chain;
+mod test101_lift_chain_flat;
+mod test102_lift_chain_twisted;
+mod test103_obstruction_chain_empty;
+mod test104_obstruction_chain_nontrivial;
+mod test105_lift_chain_certificate;
+mod test106_chain_audit_trail;
+mod test107_tower_resolver;
+mod test108_inductive_proof;
+mod test109_validity_scope;
 mod test10_iterative_resolution;
+mod test110_tower_roundtrip;
 mod test11_composition;
 mod test12_factorization;
 mod test13_canonical_form;
@@ -105,7 +115,17 @@ mod test99_measurement_born_q1;
 mod test9_constraint_algebra;
 
 pub use test100_normative_chain::TEST100_NORMATIVE_CHAIN;
+pub use test101_lift_chain_flat::TEST101_LIFT_CHAIN_FLAT;
+pub use test102_lift_chain_twisted::TEST102_LIFT_CHAIN_TWISTED;
+pub use test103_obstruction_chain_empty::TEST103_OBSTRUCTION_CHAIN_EMPTY;
+pub use test104_obstruction_chain_nontrivial::TEST104_OBSTRUCTION_CHAIN_NONTRIVIAL;
+pub use test105_lift_chain_certificate::TEST105_LIFT_CHAIN_CERTIFICATE;
+pub use test106_chain_audit_trail::TEST106_CHAIN_AUDIT_TRAIL;
+pub use test107_tower_resolver::TEST107_TOWER_RESOLVER;
+pub use test108_inductive_proof::TEST108_INDUCTIVE_PROOF;
+pub use test109_validity_scope::TEST109_VALIDITY_SCOPE;
 pub use test10_iterative_resolution::TEST10_ITERATIVE_RESOLUTION;
+pub use test110_tower_roundtrip::TEST110_TOWER_ROUNDTRIP;
 pub use test11_composition::TEST11_COMPOSITION;
 pub use test12_factorization::TEST12_FACTORIZATION;
 pub use test13_canonical_form::TEST13_CANONICAL_FORM;

@@ -34,6 +34,7 @@ fn enum_class_names() -> HashSet<&'static str> {
         "PhaseBoundaryType",
         "SaturationPhase",
         "AchievabilityStatus",
+        "ValidityScopeKind",
     ]
     .into_iter()
     .collect()
@@ -56,6 +57,7 @@ fn object_property_enum_override(range_local: &str) -> Option<&'static str> {
         "PhaseBoundaryType" => Some("PhaseBoundaryType"),
         "SaturationPhase" => Some("SaturationPhase"),
         "AchievabilityStatus" => Some("AchievabilityStatus"),
+        "ValidityScopeKind" => Some("ValidityScopeKind"),
         _ => None,
     }
 }

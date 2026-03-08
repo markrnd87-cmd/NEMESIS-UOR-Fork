@@ -11,7 +11,7 @@ Rust workspace encoding the UOR Foundation ontology as typed data structures, a 
 | `uor-ontology` | `spec/` | no | Ontology source of truth (classes, properties, individuals, serializers) |
 | `uor-codegen` | `codegen/` | no | Ontology-to-Rust trait generator |
 | `uor-foundation` | `foundation/` | **crates.io** | Generated `#![no_std]` trait library — never edit manually |
-| `uor-conformance` | `conformance/` | no | 181-check conformance suite (OWL, SHACL, RDF, Rust API, docs, website) |
+| `uor-conformance` | `conformance/` | no | 193-check conformance suite (OWL, SHACL, RDF, Rust API, docs, website) |
 | `uor-docs` | `docs/` | no | Documentation generator |
 | `uor-website` | `website/` | no | Static site generator |
 | `uor-clients` | `clients/` | no | CLI binaries: `uor-build`, `uor-crate`, `uor-docs`, `uor-website`, `uor-conformance` |
@@ -22,7 +22,7 @@ Rust workspace encoding the UOR Foundation ontology as typed data structures, a 
 - **All clippy warnings are errors.** CI runs `cargo clippy --all-targets -- -D warnings`.
 - **Every crate denies:** `clippy::unwrap_used`, `clippy::expect_used`, `clippy::panic`, `missing_docs`, `clippy::missing_errors_doc`.
 - **Formatting is enforced.** CI runs `cargo fmt --check`.
-- **The conformance suite must pass.** `cargo run --bin uor-conformance` — 181 checks, zero failures allowed.
+- **The conformance suite must pass.** `cargo run --bin uor-conformance` — 193 checks, zero failures allowed.
 - **No `unsafe` code.** The `uor-foundation` crate is `#![no_std]` with zero dependencies.
 - **Bracket-escape doc comments.** Use `normalize_comment()` to prevent rustdoc intra-doc link warnings on `[text]` in comments.
 
@@ -49,16 +49,16 @@ Docs/website/conformance binaries accept `PUBLIC_BASE_PATH` env var for URL pref
 
 - **16 namespaces**, assembly order: `u → schema → op → query → resolver → type → partition → observable → homology → cohomology → proof → derivation → trace → cert → morphism → state`
 - **Space classification:** Kernel (`u`, `schema`, `op`), Bridge (10 namespaces), User (`type`, `morphism`, `state`)
-- **206 classes** → 194 traits + 11 enum classes + 1 struct (QuantumLevel)
-- **412 properties** → trait methods (generic over `P: Primitives`)
-- **740 named individuals** → constant modules
-- **11 enum classes:** `MetricAxis`, `GeometricCharacter`, `VerificationDomain`, `ComplexityClass`, `RewriteRule`, `MeasurementUnit`, `CoordinateKind`, `SessionBoundaryType`, `PhaseBoundaryType`, `SaturationPhase`, `AchievabilityStatus`
+- **213 classes** → 193 traits + 12 enum classes + 1 struct (QuantumLevel)
+- **436 properties** → trait methods (generic over `P: Primitives`)
+- **758 named individuals** → constant modules
+- **12 enum classes:** `MetricAxis`, `GeometricCharacter`, `VerificationDomain`, `ComplexityClass`, `RewriteRule`, `MeasurementUnit`, `CoordinateKind`, `SessionBoundaryType`, `PhaseBoundaryType`, `SaturationPhase`, `AchievabilityStatus`, `ValidityScopeKind`
 
 ## Code generation patterns
 
 - All traits are generic over `P: Primitives` (no hardcoded XSD types)
 - Enum classes are detected by `detect_vocabulary_enum()` and skip trait generation; QuantumLevel is a struct (not enum) but also skips trait generation
-- `object_property_enum_override()` maps 12 ObjectProperties to enum/struct return types
+- `object_property_enum_override()` maps 13 ObjectProperties to enum/struct return types
 - Multi-value IriRef properties on individuals → `&[&str]` slices via `BTreeMap` grouping
 - `RustFile::finish()` trims trailing whitespace to match `cargo fmt`
 - Module declarations in `mod.rs` are sorted alphabetically
@@ -71,7 +71,7 @@ Docs/website/conformance binaries accept `PUBLIC_BASE_PATH` env var for URL pref
 3. **JSON-LD 1.1** — `@context`, `@graph`, non-functional property arrays
 4. **OWL 2 DL** — disjointness, functionality, domain/range constraints
 5. **RDF / Turtle** — serialization format, prefixes, IRIs
-6. **SHACL** — 206 shapes (1:1 with classes), 100 instance test graphs
+6. **SHACL** — 213 shapes (1:1 with classes), 110 instance test graphs
 7. **Generated crate** — trait/method/enum/constant counts, `#![no_std]` build
 8. **Documentation + Website** — completeness, accessibility, broken links
 
@@ -91,7 +91,7 @@ When adding classes, properties, or individuals, update counts in **all** of the
 4. Run `cargo fmt`
 5. Run `cargo clippy --all-targets -- -D warnings`
 6. Run `cargo test`
-7. Run `cargo run --bin uor-conformance` (full validation, 181 checks)
+7. Run `cargo run --bin uor-conformance` (full validation, 193 checks)
 
 ## Release process
 

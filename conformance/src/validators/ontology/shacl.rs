@@ -11,9 +11,9 @@ use crate::report::{ConformanceReport, TestResult};
 use crate::tests;
 
 /// Expected number of SHACL test fixtures.
-const EXPECTED_SHACL_TESTS: usize = 100;
+const EXPECTED_SHACL_TESTS: usize = 110;
 
-/// Runs all 100 SHACL instance conformance tests.
+/// Runs all 110 SHACL instance conformance tests.
 pub fn validate() -> ConformanceReport {
     let mut report = ConformanceReport::new();
     let before_tests = report.results.len();
@@ -518,6 +518,57 @@ pub fn validate() -> ConformanceReport {
         tests::fixtures::TEST100_NORMATIVE_CHAIN,
         &mut report,
     );
+    // Amendment 41: Tower chain test fixtures
+    run_test(
+        "test101_lift_chain_flat",
+        tests::fixtures::TEST101_LIFT_CHAIN_FLAT,
+        &mut report,
+    );
+    run_test(
+        "test102_lift_chain_twisted",
+        tests::fixtures::TEST102_LIFT_CHAIN_TWISTED,
+        &mut report,
+    );
+    run_test(
+        "test103_obstruction_chain_empty",
+        tests::fixtures::TEST103_OBSTRUCTION_CHAIN_EMPTY,
+        &mut report,
+    );
+    run_test(
+        "test104_obstruction_chain_nontrivial",
+        tests::fixtures::TEST104_OBSTRUCTION_CHAIN_NONTRIVIAL,
+        &mut report,
+    );
+    run_test(
+        "test105_lift_chain_certificate",
+        tests::fixtures::TEST105_LIFT_CHAIN_CERTIFICATE,
+        &mut report,
+    );
+    run_test(
+        "test106_chain_audit_trail",
+        tests::fixtures::TEST106_CHAIN_AUDIT_TRAIL,
+        &mut report,
+    );
+    run_test(
+        "test107_tower_resolver",
+        tests::fixtures::TEST107_TOWER_RESOLVER,
+        &mut report,
+    );
+    run_test(
+        "test108_inductive_proof",
+        tests::fixtures::TEST108_INDUCTIVE_PROOF,
+        &mut report,
+    );
+    run_test(
+        "test109_validity_scope",
+        tests::fixtures::TEST109_VALIDITY_SCOPE,
+        &mut report,
+    );
+    run_test(
+        "test110_tower_roundtrip",
+        tests::fixtures::TEST110_TOWER_ROUNDTRIP,
+        &mut report,
+    );
 
     // Verify test fixture count matches expected
     let test_count = report.results.len() - before_tests;
@@ -665,6 +716,16 @@ fn run_test(name: &str, turtle_src: &str, report: &mut ConformanceReport) {
         "test98_evidence_bundle_dc10" => validate_basic_turtle(turtle_src),
         "test99_measurement_born_q1" => validate_basic_turtle(turtle_src),
         "test100_normative_chain" => validate_basic_turtle(turtle_src),
+        "test101_lift_chain_flat" => validate_basic_turtle(turtle_src),
+        "test102_lift_chain_twisted" => validate_basic_turtle(turtle_src),
+        "test103_obstruction_chain_empty" => validate_basic_turtle(turtle_src),
+        "test104_obstruction_chain_nontrivial" => validate_basic_turtle(turtle_src),
+        "test105_lift_chain_certificate" => validate_basic_turtle(turtle_src),
+        "test106_chain_audit_trail" => validate_basic_turtle(turtle_src),
+        "test107_tower_resolver" => validate_basic_turtle(turtle_src),
+        "test108_inductive_proof" => validate_basic_turtle(turtle_src),
+        "test109_validity_scope" => validate_basic_turtle(turtle_src),
+        "test110_tower_roundtrip" => validate_basic_turtle(turtle_src),
         _ => Ok(()),
     };
 

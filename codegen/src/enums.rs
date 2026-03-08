@@ -202,7 +202,16 @@ pub fn detect_enums(ontology: &Ontology) -> Vec<DetectedEnum> {
         &mut enums,
     );
 
-    // 16. ProofModality enum (hardcoded — codegen enum, not an OWL class)
+    // 16. ValidityScopeKind enum — Amendment 41: Arbitrary Qn Scaling
+    detect_vocabulary_enum(
+        ontology,
+        "op",
+        "ValidityScopeKind",
+        "The scope of validity for an identity across quantum levels.",
+        &mut enums,
+    );
+
+    // 17. ProofModality enum (hardcoded — codegen enum, not an OWL class)
     enums.push(DetectedEnum {
         name: "ProofModality",
         comment: "The modality of a proof: computation (exhaustive verification at a \
@@ -222,6 +231,10 @@ pub fn detect_enums(ontology: &Ontology) -> Vec<DetectedEnum> {
                 "Empirical".to_string(),
                 "A proof verified empirically across a bounded range of quantum levels."
                     .to_string(),
+            ),
+            (
+                "Inductive".to_string(),
+                "A proof by structural induction on the quantum level parameter k.".to_string(),
             ),
         ],
         non_exhaustive: false,

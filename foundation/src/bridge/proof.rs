@@ -101,6 +101,18 @@ pub trait MorphospaceBoundary<P: Primitives> {
     fn morphospace_record(&self) -> &[Self::MorphospaceRecord];
 }
 
+/// A proof by structural induction on the quantum level index k. Carries a base case proof, an inductive step proof, and the minimum k for which the induction holds.
+pub trait InductiveProof<P: Primitives>: Proof<P> {
+    /// Associated type for `Proof`.
+    type Proof: Proof<P>;
+    /// The proof that the claim holds at the base level k_0.
+    fn base_case(&self) -> &Self::Proof;
+    /// The proof that if the claim holds at Q_k, it holds at Q_{k+1}.
+    fn inductive_step(&self) -> &Self::Proof;
+    /// The minimum k for which the induction is valid.
+    fn valid_for_kat_least(&self) -> P::NonNegativeInteger;
+}
+
 /// Computation certificate for the critical identity neg(bnot(x)) = succ(x) at Q0.
 pub mod prf_critical_identity {
     /// `atQuantumLevel` -> `Q0`
@@ -2865,60 +2877,96 @@ pub mod prf_ts_7 {
 
 /// Proof of lift unobstructedness criterion: QuantumLift T' is CompleteType iff the spectral sequence collapses at E_2. Follows from the Leray spectral sequence of the quantum level extension.
 pub mod prf_qls_1 {
+    /// `baseCase` -> `prf_QLS_1`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_1";
+    /// `inductiveStep` -> `prf_QLS_6`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_6";
     /// `provesIdentity` -> `QLS_1`
     pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QLS_1";
     /// `universalScope`
     pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
     /// `verified`
     pub const VERIFIED: bool = true;
 }
 
 /// Proof of obstruction localisation: a non-trivial LiftObstruction is localised to a specific fiber at bit position n+1. Follows from the local-to-global structure of the constraint nerve.
 pub mod prf_qls_2 {
+    /// `baseCase` -> `prf_QLS_2`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_2";
+    /// `inductiveStep` -> `prf_QLS_2`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_2";
     /// `provesIdentity` -> `QLS_2`
     pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QLS_2";
     /// `universalScope`
     pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
     /// `verified`
     pub const VERIFIED: bool = true;
 }
 
 /// Proof of monotone lifting: basisSize(T') = basisSize(T) + 1 for trivially obstructed lifts. Follows from the minimal basis construction at Q_{n+1}.
 pub mod prf_qls_3 {
+    /// `baseCase` -> `prf_QLS_3`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_3";
+    /// `inductiveStep` -> `prf_QLS_3`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_3";
     /// `provesIdentity` -> `QLS_3`
     pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QLS_3";
     /// `universalScope`
     pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
     /// `verified`
     pub const VERIFIED: bool = true;
 }
 
 /// Proof of spectral sequence convergence bound: the spectral sequence converges by page E_{d+2} for depth-d configurations. Follows from the filtration length of the constraint nerve chain complex.
 pub mod prf_qls_4 {
+    /// `baseCase` -> `prf_QLS_4`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_4";
+    /// `inductiveStep` -> `prf_QLS_4`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_4";
     /// `provesIdentity` -> `QLS_4`
     pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QLS_4";
     /// `universalScope`
     pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
     /// `verified`
     pub const VERIFIED: bool = true;
 }
 
 /// Proof of universal identity preservation under quantum lifts: every universallyValid identity holds in the lifted ring. Follows from the universal validity definition and ring extension properties.
 pub mod prf_qls_5 {
+    /// `baseCase` -> `prf_QLS_5`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_5";
+    /// `inductiveStep` -> `prf_QLS_6`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_6";
     /// `provesIdentity` -> `QLS_5`
     pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QLS_5";
     /// `universalScope`
     pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
     /// `verified`
     pub const VERIFIED: bool = true;
 }
 
 /// Proof of ψ-pipeline universality for quantum lifts: the ψ-pipeline produces a valid ChainComplex for any QuantumLift. Follows from the functorial construction of the chain complex.
 pub mod prf_qls_6 {
+    /// `baseCase` -> `prf_QLS_6`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_6";
+    /// `inductiveStep` -> `prf_QLS_6`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_6";
     /// `provesIdentity` -> `QLS_6`
     pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QLS_6";
     /// `universalScope`
     pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
     /// `verified`
     pub const VERIFIED: bool = true;
 }
@@ -3441,6 +3489,94 @@ pub mod mr_completeness_target {
 pub mod mr_connectivity_lower {
     /// `boundaryType` -> `Forbidden`
     pub const BOUNDARY_TYPE: &str = "https://uor.foundation/observable/Forbidden";
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of tower chain validity by induction on chain length.
+pub mod prf_qt_1 {
+    /// `baseCase` -> `prf_QLS_1`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QLS_1";
+    /// `inductiveStep` -> `prf_QLS_6`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_6";
+    /// `provesIdentity` -> `QT_1`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_1";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of obstruction count bound: direct from QLS_2 localization.
+pub mod prf_qt_2 {
+    /// `provesIdentity` -> `QT_2`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_2";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of resolved basis size formula by induction on chain length.
+pub mod prf_qt_3 {
+    /// `baseCase` -> `prf_QT_3`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QT_3";
+    /// `inductiveStep` -> `prf_QLS_3`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QLS_3";
+    /// `provesIdentity` -> `QT_3`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_3";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of flat tower characterization: isFlat iff trivial holonomy at every step.
+pub mod prf_qt_4 {
+    /// `provesIdentity` -> `QT_4`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_4";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of LiftChainCertificate existence by induction on tower height.
+pub mod prf_qt_5 {
+    /// `baseCase` -> `prf_QT_5`
+    pub const BASE_CASE: &str = "https://uor.foundation/proof/prf_QT_5";
+    /// `inductiveStep` -> `prf_QT_1`
+    pub const INDUCTIVE_STEP: &str = "https://uor.foundation/proof/prf_QT_1";
+    /// `provesIdentity` -> `QT_5`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_5";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `validForKAtLeast`
+    pub const VALID_FOR_KAT_LEAST: i64 = 0;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of single-step reduction: QT_3 with chainLength=1 reduces to QLS_3.
+pub mod prf_qt_6 {
+    /// `provesIdentity` -> `QT_6`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_6";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Proof of flat chain basis size formula.
+pub mod prf_qt_7 {
+    /// `provesIdentity` -> `QT_7`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/QT_7";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
     /// `verified`
     pub const VERIFIED: bool = true;
 }

@@ -47,9 +47,9 @@ W3C JSON-LD 1.1 specification.
 
 | Type | Minimum |
 |------|---------|
-| owl:Class | 206 |
-| owl:DatatypeProperty + owl:ObjectProperty + owl:AnnotationProperty | 412 |
-| owl:NamedIndividual | 740 |
+| owl:Class | 213 |
+| owl:DatatypeProperty + owl:ObjectProperty + owl:AnnotationProperty | 436 |
+| owl:NamedIndividual | 758 |
 
 ## References
 

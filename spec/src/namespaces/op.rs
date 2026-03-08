@@ -17,6 +17,8 @@
 //!   4 `QM_` identity individuals (measurement boundary algebra)
 //! - **Amendment 37**: `enumVariant` annotation property, 14 gap-closure identity individuals
 //!   (QM_5, RC_6, FPM_8–9, MN_8, QL_8, D_7, SP_1–4, PT_2a–2b, GD_6)
+//! - **Amendment 41**: `ValidityScopeKind` class and 4 scope individuals,
+//!   `validityKind`/`validKMin`/`validKMax` properties, 7 `QT_` tower identity individuals
 //!
 //! **Critical identity:** `neg(bnot(x)) = succ(x)` for all x in R_n.
 //!
@@ -150,6 +152,16 @@ fn classes() -> Vec<Class> {
                       superposition and classical thermodynamics. Identities in \
                       this domain require both SuperpositionDomain and \
                       Thermodynamic reasoning simultaneously.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 41: ValidityScopeKind
+        Class {
+            id: "https://uor.foundation/op/ValidityScopeKind",
+            label: "ValidityScopeKind",
+            comment: "Root class for validity scope individuals. Instances are the \
+                      four named scope kinds: Universal, ParametricLower, \
+                      ParametricRange, and LevelSpecific.",
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
@@ -372,6 +384,38 @@ fn properties() -> Vec<Property> {
             domain: Some("https://uor.foundation/op/VerificationDomain"),
             range: XSD_STRING,
         },
+        // Amendment 41: Validity scope properties
+        Property {
+            id: "https://uor.foundation/op/validityKind",
+            label: "validityKind",
+            comment: "The structured validity scope of this identity, replacing the \
+                      binary universallyValid flag. Required on all new Identity \
+                      individuals.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/op/Identity"),
+            range: "https://uor.foundation/op/ValidityScopeKind",
+        },
+        Property {
+            id: "https://uor.foundation/op/validKMin",
+            label: "validKMin",
+            comment: "Minimum quantum level index k for ParametricLower and \
+                      ParametricRange scopes.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/op/Identity"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/op/validKMax",
+            label: "validKMax",
+            comment: "Maximum quantum level index k (inclusive) for ParametricRange \
+                      scope.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/op/Identity"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
     ]
 }
 
@@ -488,6 +532,44 @@ fn individuals() -> Vec<Individual> {
                       states to Landauer costs of projective collapse (QM_).",
             properties: &[
                 ("https://uor.foundation/op/enumVariant", IndividualValue::Str("QuantumThermodynamic")),
+            ],
+        },
+        // Amendment 41: ValidityScopeKind individuals (4)
+        Individual {
+            id: "https://uor.foundation/op/Universal",
+            type_: "https://uor.foundation/op/ValidityScopeKind",
+            label: "Universal",
+            comment: "Holds for all k in N. No minimum k constraint.",
+            properties: &[
+                ("https://uor.foundation/op/enumVariant", IndividualValue::Str("Universal")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/ParametricLower",
+            type_: "https://uor.foundation/op/ValidityScopeKind",
+            label: "ParametricLower",
+            comment: "Holds for all k >= k_min, where k_min is given by validKMin.",
+            properties: &[
+                ("https://uor.foundation/op/enumVariant", IndividualValue::Str("ParametricLower")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/ParametricRange",
+            type_: "https://uor.foundation/op/ValidityScopeKind",
+            label: "ParametricRange",
+            comment: "Holds for k_min <= k <= k_max. Both validKMin and validKMax \
+                      required.",
+            properties: &[
+                ("https://uor.foundation/op/enumVariant", IndividualValue::Str("ParametricRange")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/LevelSpecific",
+            type_: "https://uor.foundation/op/ValidityScopeKind",
+            label: "LevelSpecific",
+            comment: "Holds only at exactly one level, given by a QuantumLevelBinding.",
+            properties: &[
+                ("https://uor.foundation/op/enumVariant", IndividualValue::Str("LevelSpecific")),
             ],
         },
         // Amendment 23: GeometricCharacter individuals (9)
@@ -819,6 +901,7 @@ fn individuals() -> Vec<Individual> {
                 ("https://uor.foundation/op/verificationPathNote", IndividualValue::Str("exhaustive_enumeration(R_n)")),
                 // Amendment 26: universally valid across all quantum levels
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
             ],
         },
         // Amendment 13: Address Resolution identities
@@ -4225,6 +4308,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Ring axioms → induction on n → universality")),
             ],
@@ -4244,6 +4328,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("DihedralGroup → group order formula → universality")),
             ],
@@ -4263,6 +4348,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Thermodynamic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("CascadeEntropy → Boltzmann distribution → universality")),
             ],
@@ -4282,6 +4368,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("FiberBudget → PrimitiveType → bit-fiber bijection")),
             ],
@@ -4300,6 +4387,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("CompleteType → O(1) resolution → quantum-level-agnostic")),
             ],
@@ -4319,6 +4407,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("AD_1/AD_2 → bijection → all quantum levels")),
             ],
@@ -4338,6 +4427,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Topological"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("ψ-pipeline → ChainComplex → quantum-level-agnostic")),
             ],
@@ -4588,6 +4678,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("SpectralSequencePage convergedAt = 2 → trivial LiftObstruction")),
             ],
@@ -4608,6 +4699,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("LiftObstructionClass → obstructionFiber at Q_{n+1} position")),
             ],
@@ -4628,6 +4720,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("obstructionTrivial = true → basisSize increases by exactly 1")),
             ],
@@ -4648,6 +4741,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("SpectralSequencePage convergedAt ≤ homological depth + 2")),
             ],
@@ -4668,6 +4762,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("universallyValid identities preserved under QuantumLift extension")),
             ],
@@ -4689,6 +4784,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("ψ-pipeline → valid ChainComplex for any QuantumLift")),
             ],
@@ -5329,6 +5425,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/QuantumThermodynamic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Born rule → probability axioms → normalization")),
             ],
@@ -5348,6 +5445,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/SuperpositionDomain"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Division by norm → idempotent normalization")),
             ],
@@ -5367,6 +5465,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Enumerative"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Exhaustive partition → cardinality sum → ring size")),
             ],
@@ -5386,6 +5485,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Carrier complement → context-dependent exterior")),
             ],
@@ -5405,6 +5505,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Topological"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Holonomy group → flat iff trivial → bivalent classification")),
             ],
@@ -5424,6 +5525,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Chain successor → left inverse → Q_k recovery")),
             ],
@@ -5443,6 +5545,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Geometric"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Dihedral presentation → semidirect product → composition formula")),
             ],
@@ -5462,6 +5565,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/SuperpositionDomain"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Classical datum → single fiber with amplitude 1 → classical path")),
             ],
@@ -5481,6 +5585,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/QuantumThermodynamic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Projective collapse → classical fiber → resolution commutativity")),
             ],
@@ -5500,6 +5605,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/SuperpositionDomain"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("ψ-pipeline → amplitude tracking → normalization invariant")),
             ],
@@ -5519,6 +5625,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/QuantumThermodynamic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Born rule → squared amplitude → outcome probability")),
             ],
@@ -5538,6 +5645,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Product type → component-wise partition → tensor product")),
             ],
@@ -5557,6 +5665,7 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Sum type → variant partition → disjoint union coproduct")),
             ],
@@ -5576,8 +5685,150 @@ fn individuals() -> Vec<Individual> {
                     IndividualValue::IriRef("https://uor.foundation/op/Analytical"),
                 ),
                 ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("Geodesic condition → AR_1 ordering + DC_10 selection → conjunction")),
+            ],
+        },
+        // Amendment 41: Tower identities (QT_ series)
+        Individual {
+            id: "https://uor.foundation/op/QT_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_1",
+            comment: "LiftChain(Q_j, Q_k) is valid CompleteType tower iff every \
+                      chainStep QuantumLift has trivial or resolved LiftObstruction.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("LiftChain(Q_j, Q_k) valid")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("every chainStep has trivial or resolved LiftObstruction")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("LiftChain from Q_j to Q_k")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("LiftChain → chainStep → LiftObstruction resolution")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QT_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_2",
+            comment: "Obstruction count bound: the number of non-trivial \
+                      LiftObstructions in a chain is at most the chain length.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("obstructionCount(chain)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("<= chainLength(chain)")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("LiftChain")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("LiftChain → ObstructionChain → obstructionCount ≤ chainLength")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QT_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_3",
+            comment: "Resolved basis size formula: the basis size at Q_k equals \
+                      basisSize(Q_j) + chainLength + obstructionResolutionCost.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("resolvedBasisSize(Q_k)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("basisSize(Q_j) + chainLength + obstructionResolutionCost")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("LiftChain with source Q_j, target Q_k")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("LiftChain → resolvedBasisSize accumulation formula")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QT_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_4",
+            comment: "Flat tower characterization: isFlat(chain) iff \
+                      obstructionCount = 0 iff HolonomyGroup trivial at every step.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("isFlat(chain)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("obstructionCount = 0 iff HolonomyGroup trivial at every step")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("LiftChain")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("LiftChain → ObstructionChain → isFlat ↔ trivial holonomy")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QT_5",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_5",
+            comment: "LiftChainCertificate existence: a CompleteType at Q_k \
+                      satisfies IT_7d with a witness chain.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("LiftChainCertificate exists")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("CompleteType at Q_k satisfies IT_7d with witness chain")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("Q_k for arbitrary k")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("LiftChainCertificate → certifiedChain → IT_7d compliance")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QT_6",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_6",
+            comment: "Single-step reduction: QT_3 with chainLength=1 and cost=0 \
+                      reduces to QLS_3.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("QT_3 with chainLength=1, cost=0")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("reduces to QLS_3")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("Single-step chains")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("QT_3 specialization → chainLength=1 → QLS_3 identity")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/QT_7",
+            type_: "https://uor.foundation/op/Identity",
+            label: "QT_7",
+            comment: "Flat chain basis size: for flat chains, resolvedBasisSize(Q_k) = \
+                      basisSize(Q_j) + (k - j).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("flat chain resolvedBasisSize(Q_k)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("basisSize(Q_j) + (k - j)")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("LiftChain with isFlat = true")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind", IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Flat LiftChain → zero obstruction cost → linear basis growth")),
             ],
         },
     ]

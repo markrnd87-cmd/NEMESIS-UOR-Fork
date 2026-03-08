@@ -317,6 +317,18 @@ fn properties() -> Vec<Property> {
             domain: Some("https://uor.foundation/derivation/SynthesisCheckpoint"),
             range: "https://uor.foundation/resolver/ConstraintSearchState",
         },
+        // Amendment 41: Bridge property — domain is resolver:TowerCompletenessResolver
+        Property {
+            id: "https://uor.foundation/derivation/towerCheckpoint",
+            label: "towerCheckpoint",
+            comment: "Links a TowerCompletenessResolver to a SynthesisCheckpoint \
+                      issued at each completed step. Cross-namespace bridge \
+                      property: domain is resolver:TowerCompletenessResolver.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/resolver/TowerCompletenessResolver"),
+            range: "https://uor.foundation/derivation/SynthesisCheckpoint",
+        },
     ]
 }
 

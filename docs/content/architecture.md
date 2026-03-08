@@ -46,7 +46,7 @@ This crate is the single source of truth. It is internal (`publish = false`).
 
 - **`mapping.rs`**: Namespace → module, XSD → Rust type, class IRI → path tables
 - **`traits.rs`**: Class → trait, property → method generation
-- **`enums.rs`**: Enum detection (PrimitiveOp, MetricAxis, Space, FiberState, GeometricCharacter, VerificationDomain, ComplexityClass, RewriteRule, MeasurementUnit, CoordinateKind, SessionBoundaryType, PhaseBoundaryType, SaturationPhase, AchievabilityStatus, ProofModality) and QuantumLevel newtype struct generation
+- **`enums.rs`**: Enum detection (PrimitiveOp, MetricAxis, Space, FiberState, GeometricCharacter, VerificationDomain, ComplexityClass, RewriteRule, MeasurementUnit, CoordinateKind, SessionBoundaryType, PhaseBoundaryType, SaturationPhase, AchievabilityStatus, ValidityScopeKind, ProofModality) and QuantumLevel newtype struct generation
 - **`individuals.rs`**: Named individual → const module / PrimitiveOp impl generation
 - **`emit.rs`**: Rust source code writer
 
@@ -57,7 +57,7 @@ is produced by `uor-crate` — never hand-edited.
 
 - **{@count:traits} traits** (one per OWL class, generic over `Primitives`)
 - **365 methods** (one per property with a domain)
-- **15 enums** (Space, PrimitiveOp, MetricAxis, FiberState, GeometricCharacter, VerificationDomain, ComplexityClass, RewriteRule, MeasurementUnit, CoordinateKind, SessionBoundaryType, PhaseBoundaryType, SaturationPhase, AchievabilityStatus, ProofModality) **+ 1 struct** (QuantumLevel)
+- **16 enums** (Space, PrimitiveOp, MetricAxis, FiberState, GeometricCharacter, VerificationDomain, ComplexityClass, RewriteRule, MeasurementUnit, CoordinateKind, SessionBoundaryType, PhaseBoundaryType, SaturationPhase, AchievabilityStatus, ValidityScopeKind, ProofModality) **+ 1 struct** (QuantumLevel)
 - **699 constant modules** (for named individuals)
 - **Zero mandatory dependencies** — pure traits
 
@@ -90,7 +90,7 @@ The conformance suite is the **single gate** — all components must pass before
 
 - Templates use the Tera template engine
 - Namespace pages are auto-generated (no hand-written HTML for spec terms)
-- Search index is generated from all 206 classes, 412 properties, 740 individuals
+- Search index is generated from all 213 classes, 436 properties, 758 individuals
 - No external dependencies (no CDN, no tracking, no third-party scripts)
 
 ## Build Pipeline
@@ -105,7 +105,7 @@ cargo run --bin uor-conformance → validates all of the above
 
 ## Amendment History
 
-The spec crate implements all 40 amendments from the UOR Foundation completion plan:
+The spec crate implements all 41 amendments from the UOR Foundation completion plan:
 
 | Amendment | Namespace | Key Additions |
 |-----------|-----------|---------------|
@@ -149,3 +149,4 @@ The spec crate implements all 40 amendments from the UOR Foundation completion p
 | 38 | cert/, derivation/ | Q1 Vocabulary: SynthesisCheckpoint, isAR1Ordered, isDC10Selected, checkpointStep, checkpointState |
 | 39 | (SHACL only) | Q1 Lift + Inverse Pipeline Coverage: test85–test95 |
 | 40 | (SHACL only) | Q1 Normative Certification Coverage: test96–test100 |
+| 41 | op/, type/, proof/, resolver/, derivation/, cert/ | Arbitrary Qₙ Scaling: ValidityScopeKind enum, LiftChain, ObstructionChain, InductiveProof, TowerCompletenessResolver, LiftChainCertificate, QT\_1–QT\_7 |

@@ -4,6 +4,7 @@
 //!
 //! Space: Bridge
 
+use crate::enums::QuantumLevel;
 use crate::Primitives;
 
 /// A kernel-produced attestation. The root class for all certificate types.
@@ -105,4 +106,26 @@ pub trait GeodesicEvidenceBundle<P: Primitives> {
 pub trait BornRuleVerification<P: Primitives>: Certificate<P> {
     /// Whether this BornRuleVerification certificate confirms that all outcome probabilities match the Born rule (QM_5): P(k) = |α_k|² for every fiber k.
     fn born_rule_verified(&self) -> P::Boolean;
+}
+
+/// A kernel-issued certificate attesting that a LiftChain from liftSourceLevel to liftTargetLevel is complete.
+pub trait LiftChainCertificate<P: Primitives>: Certificate<P> {
+    /// Associated type for `LiftChain`.
+    type LiftChain: crate::user::type_::LiftChain<P>;
+    /// The LiftChain this certificate attests to.
+    fn certified_chain(&self) -> &Self::LiftChain;
+    /// Associated type for `ChainAuditTrail`.
+    type ChainAuditTrail: ChainAuditTrail<P>;
+    /// The ordered per-step evidence for this certificate.
+    fn chain_audit_trail(&self) -> &Self::ChainAuditTrail;
+    /// The quantum level Q_k at which the certificate was issued.
+    fn target_level(&self) -> QuantumLevel;
+    /// The quantum level Q_j from which the tower was started.
+    fn source_level(&self) -> QuantumLevel;
+}
+
+/// An ordered collection of per-step evidence records for a LiftChainCertificate.
+pub trait ChainAuditTrail<P: Primitives> {
+    /// Number of lift steps in this ChainAuditTrail. Must equal chainLength of the certified LiftChain. Distinct from witnessCount (domain-locked to CompletenessAuditTrail).
+    fn chain_step_count(&self) -> P::NonNegativeInteger;
 }

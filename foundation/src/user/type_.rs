@@ -214,3 +214,33 @@ pub trait CollapsedFiberState<P: Primitives> {
     /// The amplitude of the surviving branch after projective collapse. |α|² is the probability of this outcome under the Born rule.
     fn surviving_amplitude(&self) -> P::Decimal;
 }
+
+/// An ordered composition of QuantumLift steps from liftSourceLevel (Q_j) to liftTargetLevel (Q_k) for any j < k. The canonical object certifying type completeness at arbitrary Q_k.
+pub trait LiftChain<P: Primitives> {
+    /// The quantum level at the base of the chain.
+    fn lift_source_level(&self) -> QuantumLevel;
+    /// The number of QuantumLift steps in the chain (k - j).
+    fn chain_length(&self) -> P::NonNegativeInteger;
+    /// Associated type for `QuantumLift`.
+    type QuantumLift: QuantumLift<P>;
+    /// A QuantumLift step in this chain. Non-functional: one per step.
+    fn chain_step(&self) -> &[Self::QuantumLift];
+    /// Associated type for `ObstructionChain`.
+    type ObstructionChain: ObstructionChain<P>;
+    /// The full obstruction history of this chain.
+    fn chain_obstruction_profile(&self) -> &Self::ObstructionChain;
+    /// The basis size of the CompleteType at the chain target level.
+    fn resolved_basis_size(&self) -> P::NonNegativeInteger;
+}
+
+/// The complete ordered sequence of LiftObstruction records encountered and resolved along a LiftChain. An empty ObstructionChain means the tower is flat.
+pub trait ObstructionChain<P: Primitives> {
+    /// Associated type for `LiftObstruction`.
+    type LiftObstruction: LiftObstruction<P>;
+    /// A non-trivial LiftObstruction in this chain. Non-functional.
+    fn obstruction_at(&self) -> &[Self::LiftObstruction];
+    /// Total number of non-trivial LiftObstruction records.
+    fn obstruction_count(&self) -> P::NonNegativeInteger;
+    /// True iff obstructionCount = 0 (flat tower).
+    fn is_flat(&self) -> P::Boolean;
+}

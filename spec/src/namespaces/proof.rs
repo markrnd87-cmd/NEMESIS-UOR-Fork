@@ -128,6 +128,16 @@ fn classes() -> Vec<Class> {
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
+        // Amendment 41: InductiveProof
+        Class {
+            id: "https://uor.foundation/proof/InductiveProof",
+            label: "InductiveProof",
+            comment: "A proof by structural induction on the quantum level index k. \
+                      Carries a base case proof, an inductive step proof, and the \
+                      minimum k for which the induction holds.",
+            subclass_of: &["https://uor.foundation/proof/Proof"],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -382,6 +392,34 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/proof/MorphospaceRecord"),
             range: "https://uor.foundation/observable/AchievabilityStatus",
+        },
+        // Amendment 41: InductiveProof properties
+        Property {
+            id: "https://uor.foundation/proof/baseCase",
+            label: "baseCase",
+            comment: "The proof that the claim holds at the base level k_0.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/proof/InductiveProof"),
+            range: "https://uor.foundation/proof/Proof",
+        },
+        Property {
+            id: "https://uor.foundation/proof/inductiveStep",
+            label: "inductiveStep",
+            comment: "The proof that if the claim holds at Q_k, it holds at Q_{k+1}.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/proof/InductiveProof"),
+            range: "https://uor.foundation/proof/Proof",
+        },
+        Property {
+            id: "https://uor.foundation/proof/validForKAtLeast",
+            label: "validForKAtLeast",
+            comment: "The minimum k for which the induction is valid.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/proof/InductiveProof"),
+            range: XSD_NON_NEGATIVE_INTEGER,
         },
     ]
 }
@@ -6231,10 +6269,11 @@ fn individuals() -> Vec<Individual> {
                 ),
             ],
         },
-        // Amendment 29: Quantum Level Spectral Sequence proof coverage
+        // Amendment 29/41: Quantum Level Spectral Sequence proof coverage
+        // (reclassified from AxiomaticDerivation to InductiveProof in Amendment 41)
         Individual {
             id: "https://uor.foundation/proof/prf_QLS_1",
-            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            type_: "https://uor.foundation/proof/InductiveProof",
             label: "prf_QLS_1",
             comment: "Proof of lift unobstructedness criterion: QuantumLift T' is CompleteType \
                       iff the spectral sequence collapses at E_2. Follows from the Leray \
@@ -6252,11 +6291,23 @@ fn individuals() -> Vec<Individual> {
                     "https://uor.foundation/proof/verified",
                     IndividualValue::Bool(true),
                 ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
             ],
         },
         Individual {
             id: "https://uor.foundation/proof/prf_QLS_2",
-            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            type_: "https://uor.foundation/proof/InductiveProof",
             label: "prf_QLS_2",
             comment: "Proof of obstruction localisation: a non-trivial LiftObstruction is \
                       localised to a specific fiber at bit position n+1. Follows from the \
@@ -6274,11 +6325,23 @@ fn individuals() -> Vec<Individual> {
                     "https://uor.foundation/proof/verified",
                     IndividualValue::Bool(true),
                 ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
             ],
         },
         Individual {
             id: "https://uor.foundation/proof/prf_QLS_3",
-            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            type_: "https://uor.foundation/proof/InductiveProof",
             label: "prf_QLS_3",
             comment: "Proof of monotone lifting: basisSize(T') = basisSize(T) + 1 for trivially \
                       obstructed lifts. Follows from the minimal basis construction at Q_{n+1}.",
@@ -6295,11 +6358,23 @@ fn individuals() -> Vec<Individual> {
                     "https://uor.foundation/proof/verified",
                     IndividualValue::Bool(true),
                 ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
             ],
         },
         Individual {
             id: "https://uor.foundation/proof/prf_QLS_4",
-            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            type_: "https://uor.foundation/proof/InductiveProof",
             label: "prf_QLS_4",
             comment: "Proof of spectral sequence convergence bound: the spectral sequence \
                       converges by page E_{d+2} for depth-d configurations. Follows from \
@@ -6317,11 +6392,23 @@ fn individuals() -> Vec<Individual> {
                     "https://uor.foundation/proof/verified",
                     IndividualValue::Bool(true),
                 ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
             ],
         },
         Individual {
             id: "https://uor.foundation/proof/prf_QLS_5",
-            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            type_: "https://uor.foundation/proof/InductiveProof",
             label: "prf_QLS_5",
             comment: "Proof of universal identity preservation under quantum lifts: every \
                       universallyValid identity holds in the lifted ring. Follows from the \
@@ -6339,11 +6426,23 @@ fn individuals() -> Vec<Individual> {
                     "https://uor.foundation/proof/verified",
                     IndividualValue::Bool(true),
                 ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
             ],
         },
         Individual {
             id: "https://uor.foundation/proof/prf_QLS_6",
-            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            type_: "https://uor.foundation/proof/InductiveProof",
             label: "prf_QLS_6",
             comment: "Proof of ψ-pipeline universality for quantum lifts: the ψ-pipeline \
                       produces a valid ChainComplex for any QuantumLift. Follows from the \
@@ -6360,6 +6459,18 @@ fn individuals() -> Vec<Individual> {
                 (
                     "https://uor.foundation/proof/verified",
                     IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
                 ),
             ],
         },
@@ -7475,6 +7586,187 @@ fn individuals() -> Vec<Individual> {
                 (
                     "https://uor.foundation/proof/boundaryType",
                     IndividualValue::IriRef("https://uor.foundation/observable/Forbidden"),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        // Amendment 41: QT_ tower identity proofs
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_1",
+            type_: "https://uor.foundation/proof/InductiveProof",
+            label: "prf_QT_1",
+            comment: "Proof of tower chain validity by induction on chain length.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QT_2",
+            comment: "Proof of obstruction count bound: direct from QLS_2 localization.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_3",
+            type_: "https://uor.foundation/proof/InductiveProof",
+            label: "prf_QT_3",
+            comment: "Proof of resolved basis size formula by induction on chain \
+                      length.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QT_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QLS_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QT_4",
+            comment: "Proof of flat tower characterization: isFlat iff trivial \
+                      holonomy at every step.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_5",
+            type_: "https://uor.foundation/proof/InductiveProof",
+            label: "prf_QT_5",
+            comment: "Proof of LiftChainCertificate existence by induction on \
+                      tower height.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/baseCase",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QT_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/inductiveStep",
+                    IndividualValue::IriRef("https://uor.foundation/proof/prf_QT_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/validForKAtLeast",
+                    IndividualValue::Int(0),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_6",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QT_6",
+            comment: "Proof of single-step reduction: QT_3 with chainLength=1 \
+                      reduces to QLS_3.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_QT_7",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_QT_7",
+            comment: "Proof of flat chain basis size formula.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/QT_7"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
                 ),
                 (
                     "https://uor.foundation/proof/verified",

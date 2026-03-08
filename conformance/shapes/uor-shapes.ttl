@@ -1,5 +1,5 @@
 # UOR Foundation SHACL Shapes
-# One NodeShape per class — 200 total.
+# One NodeShape per class — 213 total.
 # Defines cardinality and type constraints validated by the conformance suite.
 
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -1750,3 +1750,57 @@ uor-sh:MeasurementOutcomeShape
     rdfs:label      "MeasurementOutcomeShape" ;
     sh:property [ sh:path trace:outcomeValue ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] ;
     sh:property [ sh:path trace:outcomeProbability ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:decimal ] .
+
+# ── Amendment 41: Arbitrary Qn Scaling ──────────────────────────────────────
+
+uor-sh:ValidityScopeKindShape
+    a               sh:NodeShape ;
+    sh:targetClass  op:ValidityScopeKind ;
+    rdfs:label      "ValidityScopeKindShape" .
+
+uor-sh:LiftChainShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:LiftChain ;
+    rdfs:label      "LiftChainShape" ;
+    sh:property [ sh:path type:liftSourceLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] ;
+    sh:property [ sh:path type:chainLength ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] ;
+    sh:property [ sh:path type:chainStep ; sh:minCount 1 ; sh:class type:QuantumLift ] ;
+    sh:property [ sh:path type:chainObstructionProfile ; sh:minCount 1 ; sh:maxCount 1 ; sh:class type:ObstructionChain ] ;
+    sh:property [ sh:path type:resolvedBasisSize ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:ObstructionChainShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:ObstructionChain ;
+    rdfs:label      "ObstructionChainShape" ;
+    sh:property [ sh:path type:obstructionCount ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] ;
+    sh:property [ sh:path type:isFlat ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+uor-sh:LiftChainCertificateShape
+    a               sh:NodeShape ;
+    sh:targetClass  cert:LiftChainCertificate ;
+    rdfs:label      "LiftChainCertificateShape" ;
+    sh:property [ sh:path cert:certifiedChain ; sh:minCount 1 ; sh:maxCount 1 ; sh:class type:LiftChain ] ;
+    sh:property [ sh:path cert:chainAuditTrail ; sh:minCount 1 ; sh:maxCount 1 ; sh:class cert:ChainAuditTrail ] ;
+    sh:property [ sh:path cert:targetLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] ;
+    sh:property [ sh:path cert:sourceLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] .
+
+uor-sh:ChainAuditTrailShape
+    a               sh:NodeShape ;
+    sh:targetClass  cert:ChainAuditTrail ;
+    rdfs:label      "ChainAuditTrailShape" ;
+    sh:property [ sh:path cert:chainStepCount ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:InductiveProofShape
+    a               sh:NodeShape ;
+    sh:targetClass  proof:InductiveProof ;
+    rdfs:label      "InductiveProofShape" ;
+    sh:property [ sh:path proof:baseCase ; sh:minCount 1 ; sh:maxCount 1 ; sh:class proof:Proof ] ;
+    sh:property [ sh:path proof:inductiveStep ; sh:minCount 1 ; sh:maxCount 1 ; sh:class proof:Proof ] ;
+    sh:property [ sh:path proof:validForKAtLeast ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:TowerCompletenessResolverShape
+    a               sh:NodeShape ;
+    sh:targetClass  resolver:TowerCompletenessResolver ;
+    rdfs:label      "TowerCompletenessResolverShape" ;
+    sh:property [ sh:path resolver:towerSourceLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] ;
+    sh:property [ sh:path resolver:towerTargetLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] .

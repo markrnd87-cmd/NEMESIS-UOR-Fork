@@ -191,6 +191,22 @@ pub trait MeasurementResolver<P: Primitives>: Resolver<P> {
     fn prior_amplitude_vector(&self) -> &P::String;
 }
 
+/// A Resolver that constructs a LiftChain from liftSourceLevel to an arbitrary liftTargetLevel Q_k by iterating IncrementalCompletenessResolver step by step.
+pub trait TowerCompletenessResolver<P: Primitives>: Resolver<P> {
+    /// The level at which the tower starts.
+    fn tower_source_level(&self) -> QuantumLevel;
+    /// The level to which the tower is being built.
+    fn tower_target_level(&self) -> QuantumLevel;
+    /// Associated type for `LiftChain`.
+    type LiftChain: crate::user::type_::LiftChain<P>;
+    /// The LiftChain under construction.
+    fn current_chain(&self) -> &Self::LiftChain;
+    /// Associated type for `IncrementalCompletenessResolver`.
+    type IncrementalCompletenessResolver: IncrementalCompletenessResolver<P>;
+    /// The IncrementalCompletenessResolver used for each single-step lift.
+    fn tower_step_resolver(&self) -> &Self::IncrementalCompletenessResolver;
+}
+
 /// O(1) complexity — the resolver runs in constant time regardless of ring size.
 pub mod constant_time {}
 
