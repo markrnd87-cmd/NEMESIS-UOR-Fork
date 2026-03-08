@@ -1,24 +1,16 @@
 //! Ontology inventory validator.
 //!
-//! Verifies that the built ontology artifact contains the correct counts:
-//! - 16 namespaces (3 Kernel / 10 Bridge / 3 User)
-//! - 213 classes
-//! - 435 namespace-level properties + 1 global annotation = 436 via property_count()
-//! - 758 named individuals (each with required property assertions)
+//! Verifies that the built ontology artifact contains the correct counts
+//! as defined in [`uor_ontology::counts`].
 
 use std::path::Path;
 
 use anyhow::{Context, Result};
 use serde_json::Value;
+use uor_ontology::counts;
 use uor_ontology::model::Space;
 
 use crate::report::{ConformanceReport, TestResult};
-
-/// Expected inventory counts for the UOR Foundation ontology.
-const EXPECTED_NAMESPACES: usize = 16;
-const EXPECTED_CLASSES: usize = 213;
-const EXPECTED_PROPERTIES: usize = 436;
-const EXPECTED_INDIVIDUALS: usize = 758;
 
 /// Validates the ontology inventory counts in the built JSON-LD artifact.
 ///
@@ -107,28 +99,28 @@ fn validate_spec_counts(report: &mut ConformanceReport) {
         report,
         "namespaces",
         ns_count,
-        EXPECTED_NAMESPACES,
+        counts::NAMESPACES,
         "ontology/inventory",
     );
     check_count(
         report,
         "classes",
         class_count,
-        EXPECTED_CLASSES,
+        counts::CLASSES,
         "ontology/inventory",
     );
     check_count(
         report,
         "properties",
         property_count,
-        EXPECTED_PROPERTIES,
+        counts::PROPERTIES,
         "ontology/inventory",
     );
     check_count(
         report,
         "individuals",
         individual_count,
-        EXPECTED_INDIVIDUALS,
+        counts::INDIVIDUALS,
         "ontology/inventory",
     );
 }
@@ -183,48 +175,63 @@ fn validate_space_classification(report: &mut ConformanceReport) {
         .map(|m| m.namespace.prefix)
         .collect();
 
-    if kernel.len() == 3 {
+    if kernel.len() == counts::KERNEL_NAMESPACES {
         report.push(TestResult::pass(
             validator,
-            format!("Correct kernel-space count: 3 ({:?})", kernel),
+            format!(
+                "Correct kernel-space count: {} ({:?})",
+                counts::KERNEL_NAMESPACES,
+                kernel
+            ),
         ));
     } else {
         report.push(TestResult::fail(
             validator,
             format!(
-                "Wrong kernel-space count: expected 3, got {} ({:?})",
+                "Wrong kernel-space count: expected {}, got {} ({:?})",
+                counts::KERNEL_NAMESPACES,
                 kernel.len(),
                 kernel
             ),
         ));
     }
 
-    if bridge.len() == 10 {
+    if bridge.len() == counts::BRIDGE_NAMESPACES {
         report.push(TestResult::pass(
             validator,
-            format!("Correct bridge-space count: 10 ({:?})", bridge),
+            format!(
+                "Correct bridge-space count: {} ({:?})",
+                counts::BRIDGE_NAMESPACES,
+                bridge
+            ),
         ));
     } else {
         report.push(TestResult::fail(
             validator,
             format!(
-                "Wrong bridge-space count: expected 10, got {} ({:?})",
+                "Wrong bridge-space count: expected {}, got {} ({:?})",
+                counts::BRIDGE_NAMESPACES,
                 bridge.len(),
                 bridge
             ),
         ));
     }
 
-    if user.len() == 3 {
+    if user.len() == counts::USER_NAMESPACES {
         report.push(TestResult::pass(
             validator,
-            format!("Correct user-space count: 3 ({:?})", user),
+            format!(
+                "Correct user-space count: {} ({:?})",
+                counts::USER_NAMESPACES,
+                user
+            ),
         ));
     } else {
         report.push(TestResult::fail(
             validator,
             format!(
-                "Wrong user-space count: expected 3, got {} ({:?})",
+                "Wrong user-space count: expected {}, got {} ({:?})",
+                counts::USER_NAMESPACES,
                 user.len(),
                 user
             ),
@@ -944,21 +951,21 @@ fn validate_json_inventory(value: &Value, report: &mut ConformanceReport) {
         report,
         "classes (JSON-LD)",
         class_count,
-        EXPECTED_CLASSES,
+        counts::CLASSES,
         "ontology/inventory",
     );
     check_count(
         report,
         "properties (JSON-LD)",
         property_count,
-        EXPECTED_PROPERTIES,
+        counts::PROPERTIES,
         "ontology/inventory",
     );
     check_count(
         report,
         "individuals (JSON-LD)",
         individual_count,
-        EXPECTED_INDIVIDUALS,
+        counts::INDIVIDUALS,
         "ontology/inventory",
     );
 }

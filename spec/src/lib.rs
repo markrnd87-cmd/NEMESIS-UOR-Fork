@@ -1,9 +1,11 @@
 //! UOR Foundation ontology encoded as typed Rust data.
 //!
 //! The `uor-ontology` crate provides the complete UOR Foundation ontology —
-//! 16 namespaces, 213 classes, 436 properties, and 758 named individuals —
+//! all namespaces, classes, properties, and named individuals —
 //! as static Rust data structures, along with serializers that produce
 //! JSON-LD, Turtle, and N-Triples output.
+//!
+//! Authoritative counts are in [`counts`].
 //!
 //! # Entry Point
 //!
@@ -40,6 +42,7 @@
     clippy::missing_errors_doc
 )]
 
+pub mod counts;
 pub mod model;
 pub mod namespaces;
 #[cfg(feature = "serializers")]
@@ -52,8 +55,8 @@ pub use model::{
 };
 
 impl Ontology {
-    /// Returns the complete UOR Foundation ontology with all 16 namespaces
-    /// and all 40 amendments applied.
+    /// Returns the complete UOR Foundation ontology with all namespaces
+    /// and all amendments applied.
     ///
     /// Assembly order follows the dependency graph specified in the UOR Foundation
     /// completion plan:
@@ -63,7 +66,7 @@ impl Ontology {
     pub fn full() -> &'static Ontology {
         static ONTOLOGY: std::sync::OnceLock<Ontology> = std::sync::OnceLock::new();
         ONTOLOGY.get_or_init(|| Ontology {
-            version: "5.0.0",
+            version: env!("CARGO_PKG_VERSION"),
             base_iri: "https://uor.foundation/",
             namespaces: vec![
                 namespaces::u::module(),
@@ -108,7 +111,7 @@ mod tests {
 
     #[test]
     fn namespace_count() {
-        assert_eq!(Ontology::full().namespaces.len(), 16);
+        assert_eq!(Ontology::full().namespaces.len(), counts::NAMESPACES);
     }
 
     #[test]
@@ -118,14 +121,12 @@ mod tests {
             .iter()
             .map(|m| m.classes.len())
             .sum();
-        // 213 classes: 206 v5.0.0 + 7 Amdt41.
-        assert_eq!(total, 213);
+        assert_eq!(total, counts::CLASSES);
     }
 
     #[test]
     fn property_count() {
-        // 436 = 412 v5.0.0 + 24 Amdt41.
-        assert_eq!(Ontology::full().property_count(), 436);
+        assert_eq!(Ontology::full().property_count(), counts::PROPERTIES);
     }
 
     #[test]
@@ -135,8 +136,7 @@ mod tests {
             .iter()
             .map(|m| m.individuals.len())
             .sum();
-        // 758 = 740 v5.0.0 + 18 Amdt41.
-        assert_eq!(total, 758);
+        assert_eq!(total, counts::INDIVIDUALS);
     }
 
     #[test]

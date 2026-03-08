@@ -95,17 +95,26 @@ fn resolve_ind_ref(iri: &str, index: &OntologyIndex) -> String {
 }
 
 /// Resolves a `{@count:KEY}` directive to the current ontology count.
+/// All numeric constants come from [`uor_ontology::counts`].
 fn resolve_count(key: &str, index: &OntologyIndex) -> String {
+    use uor_ontology::counts;
     match key {
         "namespaces" => index.modules.len().to_string(),
         "classes" => index.classes.len().to_string(),
         "properties" => index.properties.len().to_string(),
         "individuals" => index.individuals.len().to_string(),
-        "amendments" => "41".to_string(),
-        "shacl_tests" => "110".to_string(),
-        "traits" => (index.classes.len() - 13).to_string(),
+        "amendments" => counts::AMENDMENTS.to_string(),
+        "shacl_tests" => counts::SHACL_TESTS.to_string(),
+        "traits" => (index.classes.len() - counts::ENUM_CLASSES).to_string(),
         "shapes" => index.classes.len().to_string(),
-        "identities" => "336".to_string(),
+        "identities" => counts::IDENTITY_COUNT.to_string(),
+        "methods" => counts::METHODS.to_string(),
+        "constant_modules" => counts::CONSTANT_MODULES.to_string(),
+        "enums" => counts::ENUM_CLASSES.to_string(),
+        "kernel_ns" => counts::KERNEL_NAMESPACES.to_string(),
+        "bridge_ns" => counts::BRIDGE_NAMESPACES.to_string(),
+        "user_ns" => counts::USER_NAMESPACES.to_string(),
+        "conformance_checks" => counts::CONFORMANCE_CHECKS.to_string(),
         _ => format!("{{@count:{}}}", key),
     }
 }

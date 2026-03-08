@@ -190,15 +190,17 @@ mod tests {
         let entries = extractor::build_search_index("");
         let class_count = entries.iter().filter(|e| e.kind == "class").count();
         assert_eq!(
-            class_count, 213,
-            "Expected 213 class entries in search index"
+            class_count,
+            uor_ontology::counts::CLASSES,
+            "Expected {} class entries in search index",
+            uor_ontology::counts::CLASSES
         );
     }
 
     #[test]
     fn namespace_summaries_count() {
         let summaries = namespace_summaries("");
-        assert_eq!(summaries.len(), 16);
+        assert_eq!(summaries.len(), uor_ontology::counts::NAMESPACES);
     }
 
     #[test]

@@ -55,12 +55,12 @@ fn main() -> Result<()> {
     let report = run_all(&paths)?;
 
     // Verify total check count has not drifted
-    let expected_total_checks: usize = 193;
+    let expected_total_checks = uor_ontology::counts::CONFORMANCE_CHECKS;
     let actual_checks = report.results.len();
     if actual_checks != expected_total_checks {
         eprintln!(
             "CHECK COUNT DRIFT: expected {} checks but got {}. \
-             Update expected_total_checks in conformance.rs and CLAUDE.md.",
+             Update CONFORMANCE_CHECKS in spec/src/counts.rs.",
             expected_total_checks, actual_checks
         );
         process::exit(2);

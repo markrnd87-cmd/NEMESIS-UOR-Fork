@@ -7,11 +7,10 @@
 //! - Type assertions are correct
 //! - Cardinality minimums are met
 
+use uor_ontology::counts;
+
 use crate::report::{ConformanceReport, TestResult};
 use crate::tests;
-
-/// Expected number of SHACL test fixtures.
-const EXPECTED_SHACL_TESTS: usize = 110;
 
 /// Runs all 110 SHACL instance conformance tests.
 pub fn validate() -> ConformanceReport {
@@ -572,20 +571,18 @@ pub fn validate() -> ConformanceReport {
 
     // Verify test fixture count matches expected
     let test_count = report.results.len() - before_tests;
-    if test_count == EXPECTED_SHACL_TESTS {
+    if test_count == counts::SHACL_TESTS {
         report.push(TestResult::pass(
             "ontology/shacl/test_count",
-            format!(
-                "SHACL test count matches expected: {}",
-                EXPECTED_SHACL_TESTS
-            ),
+            format!("SHACL test count matches expected: {}", counts::SHACL_TESTS),
         ));
     } else {
         report.push(TestResult::fail(
             "ontology/shacl/test_count",
             format!(
                 "Expected {} SHACL tests but ran {}",
-                EXPECTED_SHACL_TESTS, test_count
+                counts::SHACL_TESTS,
+                test_count
             ),
         ));
     }

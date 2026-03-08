@@ -11,7 +11,7 @@ Rust workspace encoding the UOR Foundation ontology as typed data structures, a 
 | `uor-ontology` | `spec/` | no | Ontology source of truth (classes, properties, individuals, serializers) |
 | `uor-codegen` | `codegen/` | no | Ontology-to-Rust trait generator |
 | `uor-foundation` | `foundation/` | **crates.io** | Generated `#![no_std]` trait library — never edit manually |
-| `uor-conformance` | `conformance/` | no | 193-check conformance suite (OWL, SHACL, RDF, Rust API, docs, website) |
+| `uor-conformance` | `conformance/` | no | Conformance suite (OWL, SHACL, RDF, Rust API, docs, website) — check count in `spec/src/counts.rs` |
 | `uor-docs` | `docs/` | no | Documentation generator |
 | `uor-website` | `website/` | no | Static site generator |
 | `uor-clients` | `clients/` | no | CLI binaries: `uor-build`, `uor-crate`, `uor-docs`, `uor-website`, `uor-conformance` |
@@ -22,7 +22,7 @@ Rust workspace encoding the UOR Foundation ontology as typed data structures, a 
 - **All clippy warnings are errors.** CI runs `cargo clippy --all-targets -- -D warnings`.
 - **Every crate denies:** `clippy::unwrap_used`, `clippy::expect_used`, `clippy::panic`, `missing_docs`, `clippy::missing_errors_doc`.
 - **Formatting is enforced.** CI runs `cargo fmt --check`.
-- **The conformance suite must pass.** `cargo run --bin uor-conformance` — 193 checks, zero failures allowed.
+- **The conformance suite must pass.** `cargo run --bin uor-conformance` — zero failures allowed (check count in `spec/src/counts.rs`).
 - **No `unsafe` code.** The `uor-foundation` crate is `#![no_std]` with zero dependencies.
 - **Bracket-escape doc comments.** Use `normalize_comment()` to prevent rustdoc intra-doc link warnings on `[text]` in comments.
 
@@ -71,27 +71,23 @@ Docs/website/conformance binaries accept `PUBLIC_BASE_PATH` env var for URL pref
 3. **JSON-LD 1.1** — `@context`, `@graph`, non-functional property arrays
 4. **OWL 2 DL** — disjointness, functionality, domain/range constraints
 5. **RDF / Turtle** — serialization format, prefixes, IRIs
-6. **SHACL** — 213 shapes (1:1 with classes), 110 instance test graphs
+6. **SHACL** — shapes (1:1 with classes), instance test graphs (counts in `spec/src/counts.rs`)
 7. **Generated crate** — trait/method/enum/constant counts, `#![no_std]` build
 8. **Documentation + Website** — completeness, accessibility, broken links
 
-## Hardcoded count assertions
+## Centralized counts
 
-When adding classes, properties, or individuals, update counts in **all** of these:
-- `spec/src/lib.rs`
-- `conformance/src/lib.rs`
-- `docs/src/lib.rs`
-- `website/src/lib.rs`
+All inventory counts are in **`spec/src/counts.rs`** — the single file to update when ontology terms change. All crates import from `uor_ontology::counts`. Enum class names are centralized in `Ontology::enum_class_names()` in `spec/src/model.rs`. The version string is auto-derived from `Cargo.toml` via `env!("CARGO_PKG_VERSION")`.
 
 ## Editing workflow
 
 1. Modify the ontology in `spec/src/namespaces/`
-2. Update counts in the four files listed above
+2. Update counts in `spec/src/counts.rs` (single file)
 3. Run `cargo run --bin uor-crate` to regenerate `foundation/src/`
 4. Run `cargo fmt`
 5. Run `cargo clippy --all-targets -- -D warnings`
 6. Run `cargo test`
-7. Run `cargo run --bin uor-conformance` (full validation, 193 checks)
+7. Run `cargo run --bin uor-conformance` (full validation)
 
 ## Release process
 

@@ -15,51 +15,23 @@ use crate::mapping::{
 
 /// Set of class local names that skip trait generation.
 /// Most are enum classes; QuantumLevel is a struct but also skips trait generation.
+/// The authoritative list is [`uor_ontology::Ontology::enum_class_names()`].
 fn enum_class_names() -> HashSet<&'static str> {
-    // These classes have their instances as enum variants (or struct constants),
-    // so we skip trait generation.
-    // MetricAxis is both a class and an enum — the enum takes priority
-    // Amendment 23 adds 7 more vocabulary classes that become enums
-    // Amendment 27 adds SessionBoundaryType
-    [
-        "MetricAxis",
-        "GeometricCharacter",
-        "VerificationDomain",
-        "QuantumLevel",
-        "ComplexityClass",
-        "RewriteRule",
-        "MeasurementUnit",
-        "CoordinateKind",
-        "SessionBoundaryType",
-        "PhaseBoundaryType",
-        "SaturationPhase",
-        "AchievabilityStatus",
-        "ValidityScopeKind",
-    ]
-    .into_iter()
-    .collect()
+    uor_ontology::Ontology::enum_class_names()
+        .iter()
+        .copied()
+        .collect()
 }
 
 /// Maps an enum class local name to its enum type name.
 /// When an ObjectProperty's range is one of these, we return the enum directly
 /// instead of generating an associated type with a trait bound.
+/// All current enum classes use identity mapping (name → name).
 fn object_property_enum_override(range_local: &str) -> Option<&'static str> {
-    match range_local {
-        "MetricAxis" => Some("MetricAxis"),
-        "GeometricCharacter" => Some("GeometricCharacter"),
-        "VerificationDomain" => Some("VerificationDomain"),
-        "QuantumLevel" => Some("QuantumLevel"),
-        "ComplexityClass" => Some("ComplexityClass"),
-        "RewriteRule" => Some("RewriteRule"),
-        "MeasurementUnit" => Some("MeasurementUnit"),
-        "CoordinateKind" => Some("CoordinateKind"),
-        "SessionBoundaryType" => Some("SessionBoundaryType"),
-        "PhaseBoundaryType" => Some("PhaseBoundaryType"),
-        "SaturationPhase" => Some("SaturationPhase"),
-        "AchievabilityStatus" => Some("AchievabilityStatus"),
-        "ValidityScopeKind" => Some("ValidityScopeKind"),
-        _ => None,
-    }
+    uor_ontology::Ontology::enum_class_names()
+        .iter()
+        .find(|&&name| name == range_local)
+        .copied()
 }
 
 /// Collects associated type names that parent traits already declare,
@@ -438,6 +410,11 @@ fn generate_individuals(f: &mut RustFile, module: &NamespaceModule) {
         let type_local = local_name(ind.type_);
 
         // Skip individuals that are part of enums (operations, metric axes)
+        // Skip individuals whose types are codegen-internal enums (PrimitiveOp
+        // variants) or OWL enum classes whose individuals carry no property
+        // assertions worth exposing as constant modules.  Other enum classes
+        // (e.g. QuantumLevel, VerificationDomain) retain constant modules
+        // because their individuals have data properties.
         if type_local == "UnaryOp"
             || type_local == "BinaryOp"
             || type_local == "Involution"

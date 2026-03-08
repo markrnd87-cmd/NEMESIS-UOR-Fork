@@ -56,12 +56,12 @@ This crate is the single source of truth. It is internal (`publish = false`).
 is produced by `uor-crate` — never hand-edited.
 
 - **{@count:traits} traits** (one per OWL class, generic over `Primitives`)
-- **365 methods** (one per property with a domain)
-- **16 enums** (Space, PrimitiveOp, MetricAxis, FiberState, GeometricCharacter, VerificationDomain, ComplexityClass, RewriteRule, MeasurementUnit, CoordinateKind, SessionBoundaryType, PhaseBoundaryType, SaturationPhase, AchievabilityStatus, ValidityScopeKind, ProofModality) **+ 1 struct** (QuantumLevel)
-- **699 constant modules** (for named individuals)
+- **{@count:methods} methods** (one per property with a domain)
+- **{@count:enums} enums** (Space, PrimitiveOp, MetricAxis, FiberState, GeometricCharacter, VerificationDomain, ComplexityClass, RewriteRule, MeasurementUnit, CoordinateKind, SessionBoundaryType, PhaseBoundaryType, SaturationPhase, AchievabilityStatus, ValidityScopeKind, ProofModality) **+ 1 struct** (QuantumLevel)
+- **{@count:constant_modules} constant modules** (for named individuals)
 - **Zero mandatory dependencies** — pure traits
 
-Module structure: `kernel/` (3 namespaces), `bridge/` (10 namespaces), `user/` (3 namespaces).
+Module structure: `kernel/` ({@count:kernel_ns} namespaces), `bridge/` ({@count:bridge_ns} namespaces), `user/` ({@count:user_ns} namespaces).
 
 ## conformance/ Library
 
@@ -90,7 +90,7 @@ The conformance suite is the **single gate** — all components must pass before
 
 - Templates use the Tera template engine
 - Namespace pages are auto-generated (no hand-written HTML for spec terms)
-- Search index is generated from all 213 classes, 436 properties, 758 individuals
+- Search index is generated from all {@count:classes} classes, {@count:properties} properties, {@count:individuals} individuals
 - No external dependencies (no CDN, no tracking, no third-party scripts)
 
 ## Build Pipeline

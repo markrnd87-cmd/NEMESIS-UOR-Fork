@@ -55,11 +55,11 @@ pub struct WorkspacePaths {
 ///
 /// Validators are run in this order:
 /// 1. Rust source standards (style, API surface)
-/// 2. Ontology inventory (counts must equal 16/213/436/758)
+/// 2. Ontology inventory (counts must match `uor_ontology::counts`)
 /// 3. Ontology JSON-LD 1.1
 /// 4. Ontology OWL 2 DL
 /// 5. Ontology RDF 1.1 / Turtle 1.1
-/// 6. SHACL instance conformance (110 test graphs)
+/// 6. SHACL instance conformance
 /// 7. Documentation completeness and accuracy
 /// 8. Website HTML5, WCAG, CSS, coverage
 ///
@@ -124,10 +124,13 @@ mod tests_unit {
     #[test]
     fn spec_inventory_passes() {
         let ontology = uor_ontology::Ontology::full();
-        assert_eq!(ontology.namespaces.len(), 16);
-        assert_eq!(ontology.class_count(), 213);
-        assert_eq!(ontology.property_count(), 436);
-        assert_eq!(ontology.individual_count(), 758);
+        assert_eq!(ontology.namespaces.len(), uor_ontology::counts::NAMESPACES);
+        assert_eq!(ontology.class_count(), uor_ontology::counts::CLASSES);
+        assert_eq!(ontology.property_count(), uor_ontology::counts::PROPERTIES);
+        assert_eq!(
+            ontology.individual_count(),
+            uor_ontology::counts::INDIVIDUALS
+        );
     }
 
     #[test]

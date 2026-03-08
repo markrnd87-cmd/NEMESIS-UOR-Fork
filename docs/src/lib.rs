@@ -661,10 +661,13 @@ mod tests {
     #[test]
     fn index_has_all_terms() {
         let index = OntologyIndex::from_spec();
-        assert_eq!(index.modules.len(), 16);
-        assert_eq!(index.classes.len(), 213);
-        assert_eq!(index.properties.len(), 435);
-        assert_eq!(index.individuals.len(), 758);
+        assert_eq!(index.modules.len(), uor_ontology::counts::NAMESPACES);
+        assert_eq!(index.classes.len(), uor_ontology::counts::CLASSES);
+        assert_eq!(
+            index.properties.len(),
+            uor_ontology::counts::NAMESPACE_PROPERTIES
+        );
+        assert_eq!(index.individuals.len(), uor_ontology::counts::INDIVIDUALS);
     }
 
     #[test]

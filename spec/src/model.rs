@@ -288,6 +288,30 @@ impl Ontology {
     pub fn individual_count(&self) -> usize {
         self.namespaces.iter().map(|m| m.individuals.len()).sum()
     }
+
+    /// Returns the set of class local names represented as Rust enums or structs
+    /// (not traits) in the generated `uor-foundation` crate.
+    ///
+    /// Most are OWL vocabulary classes detected by `detect_vocabulary_enum()`.
+    /// `QuantumLevel` is a struct (not enum) but also skips trait generation.
+    #[must_use]
+    pub fn enum_class_names() -> &'static [&'static str] {
+        &[
+            "AchievabilityStatus",
+            "CoordinateKind",
+            "ComplexityClass",
+            "GeometricCharacter",
+            "MeasurementUnit",
+            "MetricAxis",
+            "PhaseBoundaryType",
+            "QuantumLevel",
+            "RewriteRule",
+            "SaturationPhase",
+            "SessionBoundaryType",
+            "ValidityScopeKind",
+            "VerificationDomain",
+        ]
+    }
 }
 
 /// Returns the `uor:space` annotation property (Amendment 8).

@@ -103,21 +103,7 @@ fn validate_trait_completeness(
     report: &mut ConformanceReport,
 ) -> Result<()> {
     // Classes represented as enums — skip trait check for these
-    let enum_classes = [
-        "MetricAxis",
-        "GeometricCharacter",
-        "VerificationDomain",
-        "QuantumLevel",
-        "ComplexityClass",
-        "RewriteRule",
-        "MeasurementUnit",
-        "CoordinateKind",
-        "SessionBoundaryType",
-        "PhaseBoundaryType",
-        "SaturationPhase",
-        "AchievabilityStatus",
-        "ValidityScopeKind",
-    ];
+    let enum_classes = uor_ontology::Ontology::enum_class_names();
 
     // Read all generated source files
     let all_source = read_all_rs_files(src_dir)?;
@@ -171,21 +157,7 @@ fn validate_method_completeness(
     let all_source = read_all_rs_files(src_dir)?;
 
     // Classes represented as enums — skip method check for properties on these
-    let enum_domain_classes = [
-        "MetricAxis",
-        "GeometricCharacter",
-        "VerificationDomain",
-        "QuantumLevel",
-        "ComplexityClass",
-        "RewriteRule",
-        "MeasurementUnit",
-        "CoordinateKind",
-        "SessionBoundaryType",
-        "PhaseBoundaryType",
-        "SaturationPhase",
-        "AchievabilityStatus",
-        "ValidityScopeKind",
-    ];
+    let enum_domain_classes = uor_ontology::Ontology::enum_class_names();
 
     let mut missing = Vec::new();
     let mut found = 0usize;
@@ -254,24 +226,15 @@ fn validate_individual_completeness(
 ) -> Result<()> {
     let all_source = read_all_rs_files(src_dir)?;
 
-    // Individual types that map to enum variants (not const modules)
-    let enum_types = [
-        "UnaryOp",
-        "BinaryOp",
-        "Involution",
-        "MetricAxis",
-        "GeometricCharacter",
-        "VerificationDomain",
-        "ComplexityClass",
-        "RewriteRule",
-        "MeasurementUnit",
-        "CoordinateKind",
-        "SessionBoundaryType",
-        "PhaseBoundaryType",
-        "SaturationPhase",
-        "AchievabilityStatus",
-        "ValidityScopeKind",
-    ];
+    // Individual types that map to enum variants (not const modules).
+    // Includes both OWL enum classes and PrimitiveOp variant types.
+    let ontology_enums = uor_ontology::Ontology::enum_class_names();
+    let primitive_op_types: &[&str] = &["UnaryOp", "BinaryOp", "Involution"];
+    let enum_types: Vec<&str> = primitive_op_types
+        .iter()
+        .chain(ontology_enums.iter())
+        .copied()
+        .collect();
 
     let mut missing = Vec::new();
     let mut found = 0usize;
