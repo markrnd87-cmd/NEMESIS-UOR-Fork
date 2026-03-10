@@ -44,6 +44,7 @@
 
 pub mod extractor;
 pub mod linker;
+pub mod nav;
 pub mod renderer;
 pub mod verifier;
 pub mod writer;
@@ -73,7 +74,8 @@ pub fn generate(out_dir: &Path, readme_path: &Path) -> Result<()> {
     let content_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("content");
     verifier::verify_content(&content_dir)?;
 
-    let site_nav_html = build_site_nav_html(base_path);
+    let docs_current = format!("{base_path}/docs/");
+    let site_nav_html = nav::render_nav(&nav::build_nav(base_path), &docs_current);
     let docs_nav_html = build_docs_sidebar_html(base_path);
 
     // Generate index page
@@ -204,43 +206,6 @@ pub fn generate(out_dir: &Path, readme_path: &Path) -> Result<()> {
     writer::write_text(readme_path, &readme_content)?;
 
     Ok(())
-}
-
-/// Generates the top-bar site navigation matching the website exactly (with dropdowns).
-fn build_site_nav_html(base_path: &str) -> String {
-    let ontology = Ontology::full();
-
-    // Build the Namespaces dropdown children from the spec
-    let ns_items: String = ontology
-        .namespaces
-        .iter()
-        .map(|m| {
-            format!(
-                "    <li><a href=\"{base_path}/namespaces/{prefix}/\">{label}</a></li>\n",
-                prefix = escape_html(m.namespace.prefix),
-                label = escape_html(m.namespace.label),
-            )
-        })
-        .collect();
-
-    format!(
-        r#"<ul>
-<li><a href="{base_path}/">Home</a></li>
-<li><a href="{base_path}/namespaces/">Namespaces</a>
-<ul>
-{ns_items}</ul>
-</li>
-<li><a href="{base_path}/docs/">Documentation</a>
-<ul>
-    <li><a href="{base_path}/docs/overview.html">Overview</a></li>
-    <li><a href="{base_path}/docs/architecture.html">Architecture</a></li>
-    <li><a href="{base_path}/docs/concepts/">Concepts</a></li>
-    <li><a href="{base_path}/docs/guides/">Guides</a></li>
-</ul>
-</li>
-<li><a href="{base_path}/search.html">Search</a></li>
-</ul>"#
-    )
 }
 
 /// Generates the docs-specific sidebar navigation tree.

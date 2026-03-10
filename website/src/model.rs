@@ -67,15 +67,7 @@ pub struct NamespaceSummary {
 }
 
 /// A navigation item (possibly with children).
-#[derive(Debug, Serialize)]
-pub struct NavItem {
-    /// Display label.
-    pub label: String,
-    /// URL (empty string if this is a group heading).
-    pub url: String,
-    /// Child items.
-    pub children: Vec<NavItem>,
-}
+pub use uor_docs::nav::NavItem;
 
 /// Metadata for a concept deep-dive page.
 #[derive(Debug, Serialize)]

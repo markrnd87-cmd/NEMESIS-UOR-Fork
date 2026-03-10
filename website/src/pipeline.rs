@@ -1,24 +1,9 @@
 //! PRISM pipeline stage definitions and concept SVG hook registry.
-//!
-//! `PRISM_STAGES` is the single source of truth for pipeline stage names,
-//! section IDs, and space/prefix matchers. All renderers and conformance
-//! validators import from here — no scattered stage name literals.
 
 use uor_ontology::Ontology;
 
-/// A PRISM pipeline stage definition.
-///
-/// Fields: (display_name, section_id, match_key, is_prefix_match).
-///
-/// - When `is_prefix_match == false`, `match_key` is compared against a namespace's
-///   `space` string (e.g., `"kernel"`, `"bridge"`).
-/// - When `is_prefix_match == true`, `match_key` is compared against a namespace prefix
-///   (e.g., `"cert"` — the cert namespace is Bridge space but belongs to the Certify stage).
-pub const PRISM_STAGES: &[(&str, &str, &str, bool)] = &[
-    ("Define", "stage-define", "kernel", false),
-    ("Resolve", "stage-resolve", "bridge", false),
-    ("Certify", "stage-certify", "cert", true),
-];
+/// PRISM pipeline stage definitions — re-exported from `uor_docs::nav` (single source of truth).
+pub use uor_docs::nav::PRISM_STAGES;
 
 /// SVG hook function type: takes an ontology reference, returns an SVG string.
 pub type SvgHookFn = fn(&Ontology) -> String;

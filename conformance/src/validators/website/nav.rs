@@ -26,7 +26,7 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
 }
 
 /// Every HTML file must contain "define", "resolve", and "certify" (pipeline stage names
-/// embedded in nav links).
+/// embedded in nav links). Docs pages are included because they now use the same shared nav.
 fn check_prism_structure(artifacts: &Path, report: &mut ConformanceReport) -> Result<()> {
     let pipeline_page = artifacts.join("pipeline").join("index.html");
     if !pipeline_page.exists() {
@@ -39,13 +39,9 @@ fn check_prism_structure(artifacts: &Path, report: &mut ConformanceReport) -> Re
 
     let mut missing_files: Vec<String> = Vec::new();
 
-    // Only check website HTML pages, not docs pages (which are generated separately
-    // and do not have the PRISM pipeline nav).
-    let docs_dir = artifacts.join("docs");
     for entry in WalkDir::new(artifacts)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| !e.path().starts_with(&docs_dir))
         .filter(|e| e.path().extension().map(|x| x == "html").unwrap_or(false))
     {
         let html = match std::fs::read_to_string(entry.path()) {
