@@ -31,12 +31,12 @@ in the dihedral group D_{2^n}.
 
 ## Formal Artifacts
 
-- **OWL 2 DL ontology**: 16 namespaces, 218 classes, 446 properties, 881
+- **OWL 2 DL ontology**: 16 namespaces, 234 classes, 479 properties, 939
   named individuals.
-- **SHACL shapes**: 218 NodeShapes validating instance data.
-- **Algebraic identities**: 395 machine-verified identities spanning 11
+- **SHACL shapes**: 234 NodeShapes validating instance data.
+- **Algebraic identities**: 424 machine-verified identities spanning 11
   verification domains.
-- **Rust trait crate**: `uor-foundation` on crates.io — 193 traits generated
+- **Rust trait crate**: `uor-foundation` on crates.io — 220 traits generated
   directly from the ontology.
 
 ## Downloads
@@ -47,6 +47,14 @@ in the dihedral group D_{2^n}.
   `uor.foundation.ttl`
 - [N-Triples](https://github.com/UOR-Framework/UOR-Framework/releases) —
   `uor.foundation.nt`
+- [OWL RDF/XML](https://github.com/UOR-Framework/UOR-Framework/releases) —
+  `uor.foundation.owl`
+- [JSON Schema](https://github.com/UOR-Framework/UOR-Framework/releases) —
+  `uor.foundation.schema.json`
+- [SHACL Shapes](https://github.com/UOR-Framework/UOR-Framework/releases) —
+  `uor.shapes.ttl`
+- [EBNF Grammar](https://github.com/UOR-Framework/UOR-Framework/releases) —
+  `uor.term.ebnf`
 - [crates.io](https://crates.io/crates/uor-foundation) — `uor-foundation`
 
 [Browse the ontology namespaces](/namespaces/) or [read the documentation](/docs/overview.html).

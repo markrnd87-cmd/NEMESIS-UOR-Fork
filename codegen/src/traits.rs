@@ -204,7 +204,12 @@ fn generate_trait(
         let _ = writeln!(f.buf, "pub trait {trait_name}{p_param} {{");
     } else {
         let bounds = supertraits.join(" + ");
-        let _ = writeln!(f.buf, "pub trait {trait_name}{p_param}: {bounds} {{");
+        let one_line = format!("pub trait {trait_name}{p_param}: {bounds} {{");
+        if one_line.chars().count() <= 100 {
+            let _ = writeln!(f.buf, "{one_line}");
+        } else {
+            let _ = writeln!(f.buf, "pub trait {trait_name}{p_param}:\n    {bounds}\n{{");
+        }
     }
 
     // Associated types and methods from properties
@@ -215,11 +220,19 @@ fn generate_trait(
         .collect();
 
     if non_annotation_props.is_empty() {
-        // Empty trait body — emit `{}` on the same line
-        // Remove the trailing `{\n` and replace with `{}\n`
+        // Empty trait body — emit `{}` on the same line for single-line
+        // traits, or `{\n}\n` for multi-line traits.
         if f.buf.ends_with("{\n") {
-            f.buf.truncate(f.buf.len() - 2);
-            f.buf.push_str("{}\n");
+            // Check if this is a multi-line trait (brace on its own line)
+            let before_brace = &f.buf[..f.buf.len() - 2];
+            if before_brace.ends_with('\n') {
+                // Multi-line: keep `{` on its own line, add `}`
+                f.buf.push_str("}\n");
+            } else {
+                // Single-line: collapse to `{}`
+                f.buf.truncate(f.buf.len() - 2);
+                f.buf.push_str("{}\n");
+            }
         }
     } else {
         // Pre-populate with associated types already declared in parent traits

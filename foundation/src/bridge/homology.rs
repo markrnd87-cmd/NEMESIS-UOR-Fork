@@ -100,6 +100,54 @@ pub trait NerveFunctor<P: Primitives> {}
 /// The chain functor C: maps a simplicial complex to a chain complex.
 pub trait ChainFunctor<P: Primitives> {}
 
+/// A simplicial set satisfying the Kan extension condition. The constraint nerve, when promoted from a SimplicialComplex to a KanComplex, carries a full homotopy type — not just its homology groups.
+pub trait KanComplex<P: Primitives>: SimplicialComplex<P> {
+    /// Associated type for `HornFiller`.
+    type HornFiller: HornFiller<P>;
+    /// A horn filler witnessing the Kan condition for this complex.
+    fn kan_witness(&self) -> &[Self::HornFiller];
+}
+
+/// A witness that a given horn (an incomplete simplex boundary) can be filled, certifying the Kan condition at a specific dimension and position.
+pub trait HornFiller<P: Primitives> {
+    /// The dimension of the horn that this filler completes.
+    fn horn_dimension(&self) -> P::NonNegativeInteger;
+    /// The position (missing face index) of the horn that this filler completes.
+    fn horn_position(&self) -> P::NonNegativeInteger;
+}
+
+/// The k-th Postnikov truncation τ≤k of the constraint nerve: a KanComplex whose homotopy groups πj vanish for j > k.
+pub trait PostnikovTruncation<P: Primitives> {
+    /// The truncation level k of this Postnikov truncation τ≤k.
+    fn truncation_level(&self) -> P::NonNegativeInteger;
+    /// Associated type for `KanComplex`.
+    type KanComplex: KanComplex<P>;
+    /// The KanComplex from which this Postnikov truncation is derived.
+    fn truncation_source(&self) -> &Self::KanComplex;
+    /// Associated type for `KInvariant`.
+    type KInvariant: KInvariant<P>;
+    /// The k-invariant classifying the extension at this truncation level.
+    fn k_invariant(&self) -> &Self::KInvariant;
+}
+
+/// The k-invariant κk that classifies the extension from the (k−1)-truncation to the k-truncation of the Postnikov tower. Trivial κk means the truncation splits as a product.
+pub trait KInvariant<P: Primitives> {
+    /// True iff this k-invariant is trivial, meaning the Postnikov truncation splits as a product.
+    fn k_invariant_trivial(&self) -> P::Boolean;
+}
+
+/// The deformation complex of a CompleteType T: a chain complex whose H⁰ = automorphisms, H¹ = first-order deformations, H² = obstructions to extending deformations.
+pub trait DeformationComplex<P: Primitives>: ChainComplex<P> {
+    /// Associated type for `CompleteType`.
+    type CompleteType: crate::user::type_::CompleteType<P>;
+    /// The CompleteType whose deformation complex this is.
+    fn deformation_base(&self) -> &Self::CompleteType;
+    /// The dimension of the tangent space H¹(Def(T)): the number of first-order deformations.
+    fn tangent_dimension(&self) -> P::NonNegativeInteger;
+    /// The dimension of the obstruction space H²(Def(T)): the number of independent obstructions to extending deformations.
+    fn obstruction_dimension(&self) -> P::NonNegativeInteger;
+}
+
 /// ∂² = 0: the boundary of a boundary is zero.
 pub mod boundary_squared_zero {
     /// `forAll`

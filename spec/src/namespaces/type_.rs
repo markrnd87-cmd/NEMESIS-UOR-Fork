@@ -332,6 +332,43 @@ fn classes() -> Vec<Class> {
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
+        // Amendment 56: Moduli Space and Deformation Complex
+        Class {
+            id: "https://uor.foundation/type/ModuliSpace",
+            label: "ModuliSpace",
+            comment: "The space of all CompleteTypes over R_n at a given quantum level.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/HolonomyStratum",
+            label: "HolonomyStratum",
+            comment: "A stratum indexed by a conjugacy class of subgroups of D_{2^n}.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/DeformationFamily",
+            label: "DeformationFamily",
+            comment: "A one-parameter family of constraint configurations \
+                      parameterizing a path.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/VersalDeformation",
+            label: "VersalDeformation",
+            comment: "The versal deformation of a CompleteType T.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/type/ModuliTowerMap",
+            label: "ModuliTowerMap",
+            comment: "The map induced by QuantumLift from one moduli space to the next.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -814,6 +851,111 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/type/ObstructionChain"),
             range: XSD_BOOLEAN,
+        },
+        // Amendment 56: ModuliSpace properties
+        Property {
+            id: "https://uor.foundation/type/moduliQuantumLevel",
+            label: "moduliQuantumLevel",
+            comment: "The quantum level at which this moduli space is defined.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ModuliSpace"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/type/moduliPoint",
+            label: "moduliPoint",
+            comment: "A CompleteType that is a point of this moduli space.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/type/ModuliSpace"),
+            range: "https://uor.foundation/type/CompleteType",
+        },
+        Property {
+            id: "https://uor.foundation/type/moduliDimension",
+            label: "moduliDimension",
+            comment: "The dimension of this moduli space.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ModuliSpace"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 56: HolonomyStratum properties
+        Property {
+            id: "https://uor.foundation/type/stratumHolonomyClass",
+            label: "stratumHolonomyClass",
+            comment: "The MonodromyClass indexing this stratum.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/HolonomyStratum"),
+            range: "https://uor.foundation/observable/MonodromyClass",
+        },
+        Property {
+            id: "https://uor.foundation/type/stratumCodimension",
+            label: "stratumCodimension",
+            comment: "The codimension of this stratum within the moduli space.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/HolonomyStratum"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/type/stratumModuli",
+            label: "stratumModuli",
+            comment: "The moduli space containing this stratum.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/HolonomyStratum"),
+            range: "https://uor.foundation/type/ModuliSpace",
+        },
+        // Amendment 56: DeformationFamily properties
+        Property {
+            id: "https://uor.foundation/type/familyParameter",
+            label: "familyParameter",
+            comment: "A CompleteType along the deformation path.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/type/DeformationFamily"),
+            range: "https://uor.foundation/type/CompleteType",
+        },
+        Property {
+            id: "https://uor.foundation/type/familyPreservesCompleteness",
+            label: "familyPreservesCompleteness",
+            comment: "Whether every member of this deformation family remains a \
+                      CompleteType.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/DeformationFamily"),
+            range: XSD_BOOLEAN,
+        },
+        // Amendment 56: VersalDeformation properties
+        Property {
+            id: "https://uor.foundation/type/versalBase",
+            label: "versalBase",
+            comment: "The CompleteType at the base of this versal deformation.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/VersalDeformation"),
+            range: "https://uor.foundation/type/CompleteType",
+        },
+        Property {
+            id: "https://uor.foundation/type/versalDimension",
+            label: "versalDimension",
+            comment: "The dimension of the versal deformation space.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/VersalDeformation"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 56: ModuliTowerMap property
+        Property {
+            id: "https://uor.foundation/type/towerMapSource",
+            label: "towerMapSource",
+            comment: "The source moduli space of this tower map.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/ModuliTowerMap"),
+            range: "https://uor.foundation/type/ModuliSpace",
         },
     ]
 }

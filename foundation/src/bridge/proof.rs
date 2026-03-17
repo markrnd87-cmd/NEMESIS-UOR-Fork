@@ -4184,3 +4184,293 @@ pub mod prf_oa_5 {
     /// `verified`
     pub const VERIFIED: bool = true;
 }
+
+/// Axiomatic derivation of HT_1: the constraint nerve satisfies the Kan extension condition.
+pub mod prf_ht_1 {
+    /// `provesIdentity` -> `HT_1`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_1";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_2: path components recover Betti number β₀.
+pub mod prf_ht_2 {
+    /// `provesIdentity` -> `HT_2`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_2";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_3: π₁ factors through HolonomyGroup.
+pub mod prf_ht_3 {
+    /// `provesIdentity` -> `HT_3`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_3";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_4: higher homotopy groups vanish above dimension.
+pub mod prf_ht_4 {
+    /// `provesIdentity` -> `HT_4`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_4";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_5: 1-truncation determines flat/twisted classification.
+pub mod prf_ht_5 {
+    /// `provesIdentity` -> `HT_5`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_5";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_6: trivial k-invariants imply spectral collapse.
+pub mod prf_ht_6 {
+    /// `provesIdentity` -> `HT_6`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_6";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_7: Whitehead product detects lift obstructions.
+pub mod prf_ht_7 {
+    /// `provesIdentity` -> `HT_7`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_7";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HT_8: Hurewicz isomorphism for first non-vanishing group.
+pub mod prf_ht_8 {
+    /// `provesIdentity` -> `HT_8`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HT_8";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of ψ_7: KanComplex to PostnikovTower functor.
+pub mod prf_psi_7 {
+    /// `provesIdentity` -> `psi_7`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/psi_7";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of ψ_8: PostnikovTower to HomotopyGroups extraction.
+pub mod prf_psi_8 {
+    /// `provesIdentity` -> `psi_8`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/psi_8";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of ψ_9: HomotopyGroups to KInvariants computation.
+pub mod prf_psi_9 {
+    /// `provesIdentity` -> `psi_9`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/psi_9";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HP_1: pipeline composition ψ_7 ∘ ψ_1.
+pub mod prf_hp_1 {
+    /// `provesIdentity` -> `HP_1`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HP_1";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HP_2: homotopy extraction agrees with homology on truncation.
+pub mod prf_hp_2 {
+    /// `provesIdentity` -> `HP_2`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HP_2";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HP_3: ψ_9 detects QLS_4 convergence.
+pub mod prf_hp_3 {
+    /// `provesIdentity` -> `HP_3`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HP_3";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of HP_4: HomotopyResolver complexity bound.
+pub mod prf_hp_4 {
+    /// `provesIdentity` -> `HP_4`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/HP_4";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_1: moduli dimension equals basis cardinality.
+pub mod prf_md_1 {
+    /// `provesIdentity` -> `MD_1`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_1";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_2: automorphism group is subgroup of D_{2^n}.
+pub mod prf_md_2 {
+    /// `provesIdentity` -> `MD_2`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_2";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_3: first-order deformations parameterize tangent space.
+pub mod prf_md_3 {
+    /// `provesIdentity` -> `MD_3`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_3";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_4: obstruction space equals LiftObstruction.
+pub mod prf_md_4 {
+    /// `provesIdentity` -> `MD_4`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_4";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_5: FlatType stratum is open (codimension 0).
+pub mod prf_md_5 {
+    /// `provesIdentity` -> `MD_5`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_5";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_6: TwistedType strata have codimension at least 1.
+pub mod prf_md_6 {
+    /// `provesIdentity` -> `MD_6`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_6";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_7: versal deformation exists when unobstructed.
+pub mod prf_md_7 {
+    /// `provesIdentity` -> `MD_7`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_7";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_8: completeness-preserving iff obstruction vanishes along path.
+pub mod prf_md_8 {
+    /// `provesIdentity` -> `MD_8`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_8";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_9: tower map fiber dimension is 1 when unobstructed.
+pub mod prf_md_9 {
+    /// `provesIdentity` -> `MD_9`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_9";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MD_10: tower map fiber empty iff twisted at every level.
+pub mod prf_md_10 {
+    /// `provesIdentity` -> `MD_10`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MD_10";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MR_1: moduli resolver agrees with MorphospaceBoundary.
+pub mod prf_mr_1 {
+    /// `provesIdentity` -> `MR_1`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MR_1";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MR_2: stratification record is complete.
+pub mod prf_mr_2 {
+    /// `provesIdentity` -> `MR_2`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MR_2";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MR_3: moduli resolver complexity bound.
+pub mod prf_mr_3 {
+    /// `provesIdentity` -> `MR_3`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MR_3";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}
+
+/// Axiomatic derivation of MR_4: moduli-morphospace consistency.
+pub mod prf_mr_4 {
+    /// `provesIdentity` -> `MR_4`
+    pub const PROVES_IDENTITY: &str = "https://uor.foundation/op/MR_4";
+    /// `universalScope`
+    pub const UNIVERSAL_SCOPE: bool = true;
+    /// `verified`
+    pub const VERIFIED: bool = true;
+}

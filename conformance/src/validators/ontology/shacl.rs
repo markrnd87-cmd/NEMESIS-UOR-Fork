@@ -863,6 +863,85 @@ pub fn validate() -> ConformanceReport {
         tests::fixtures::TEST169_ARITHMETIC_VALUATION,
         &mut report,
     );
+    // Amendment 54: Homotopy Nerve
+    run_test(
+        "test170_kan_complex",
+        tests::fixtures::TEST170_KAN_COMPLEX,
+        &mut report,
+    );
+    run_test(
+        "test171_postnikov_truncation",
+        tests::fixtures::TEST171_POSTNIKOV_TRUNCATION,
+        &mut report,
+    );
+    run_test(
+        "test172_homotopy_group",
+        tests::fixtures::TEST172_HOMOTOPY_GROUP,
+        &mut report,
+    );
+    run_test(
+        "test173_homotopy_end_to_end",
+        tests::fixtures::TEST173_HOMOTOPY_END_TO_END,
+        &mut report,
+    );
+    // Amendment 55: Homotopy Pipeline
+    run_test(
+        "test174_homotopy_resolver",
+        tests::fixtures::TEST174_HOMOTOPY_RESOLVER,
+        &mut report,
+    );
+    run_test(
+        "test175_homotopy_pipeline",
+        tests::fixtures::TEST175_HOMOTOPY_PIPELINE,
+        &mut report,
+    );
+    // Amendment 56: Moduli Space
+    run_test(
+        "test176_moduli_space",
+        tests::fixtures::TEST176_MODULI_SPACE,
+        &mut report,
+    );
+    run_test(
+        "test177_deformation_complex",
+        tests::fixtures::TEST177_DEFORMATION_COMPLEX,
+        &mut report,
+    );
+    run_test(
+        "test178_holonomy_stratum",
+        tests::fixtures::TEST178_HOLONOMY_STRATUM,
+        &mut report,
+    );
+    run_test(
+        "test179_moduli_end_to_end",
+        tests::fixtures::TEST179_MODULI_END_TO_END,
+        &mut report,
+    );
+    // Amendment 57: Moduli Resolver
+    run_test(
+        "test180_moduli_resolver",
+        tests::fixtures::TEST180_MODULI_RESOLVER,
+        &mut report,
+    );
+    run_test(
+        "test181_stratification_record",
+        tests::fixtures::TEST181_STRATIFICATION_RECORD,
+        &mut report,
+    );
+    run_test(
+        "test182_whitehead_product",
+        tests::fixtures::TEST182_WHITEHEAD_PRODUCT,
+        &mut report,
+    );
+    run_test(
+        "test183_deformation_family",
+        tests::fixtures::TEST183_DEFORMATION_FAMILY,
+        &mut report,
+    );
+    run_test(
+        "test184_versal_deformation",
+        tests::fixtures::TEST184_VERSAL_DEFORMATION,
+        &mut report,
+    );
 
     // Verify test fixture count matches expected
     let test_count = report.results.len() - before_tests;
@@ -1078,6 +1157,53 @@ fn run_test(name: &str, turtle_src: &str, report: &mut ConformanceReport) {
         "test167_metric_axis" => validate_basic_turtle(turtle_src),
         "test168_witt_carry" => validate_basic_turtle(turtle_src),
         "test169_arithmetic_valuation" => validate_basic_turtle(turtle_src),
+        "test170_kan_complex" => validate_basic_turtle(turtle_src),
+        "test171_postnikov_truncation" => validate_basic_turtle(turtle_src),
+        "test172_homotopy_group" => validate_basic_turtle(turtle_src),
+        "test173_homotopy_end_to_end" => {
+            check_contains(turtle_src, "homology:KanComplex", "Missing KanComplex")
+                .and_then(|()| {
+                    check_contains(
+                        turtle_src,
+                        "homology:PostnikovTruncation",
+                        "Missing PostnikovTruncation",
+                    )
+                })
+                .and_then(|()| {
+                    check_contains(
+                        turtle_src,
+                        "observable:HomotopyGroup",
+                        "Missing HomotopyGroup",
+                    )
+                })
+        }
+        "test174_homotopy_resolver" => validate_basic_turtle(turtle_src),
+        "test175_homotopy_pipeline" => validate_basic_turtle(turtle_src),
+        "test176_moduli_space" => validate_basic_turtle(turtle_src),
+        "test177_deformation_complex" => validate_basic_turtle(turtle_src),
+        "test178_holonomy_stratum" => validate_basic_turtle(turtle_src),
+        "test179_moduli_end_to_end" => {
+            check_contains(turtle_src, "type:ModuliSpace", "Missing ModuliSpace")
+                .and_then(|()| {
+                    check_contains(
+                        turtle_src,
+                        "homology:DeformationComplex",
+                        "Missing DeformationComplex",
+                    )
+                })
+                .and_then(|()| {
+                    check_contains(
+                        turtle_src,
+                        "type:HolonomyStratum",
+                        "Missing HolonomyStratum",
+                    )
+                })
+        }
+        "test180_moduli_resolver" => validate_basic_turtle(turtle_src),
+        "test181_stratification_record" => validate_basic_turtle(turtle_src),
+        "test182_whitehead_product" => validate_basic_turtle(turtle_src),
+        "test183_deformation_family" => validate_basic_turtle(turtle_src),
+        "test184_versal_deformation" => validate_basic_turtle(turtle_src),
         _ => Ok(()),
     };
 

@@ -103,6 +103,51 @@ fn classes() -> Vec<Class> {
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
+        // Amendment 54: Higher homotopy infrastructure
+        Class {
+            id: "https://uor.foundation/homology/KanComplex",
+            label: "KanComplex",
+            comment: "A simplicial set satisfying the Kan extension condition. The constraint \
+                      nerve, when promoted from a SimplicialComplex to a KanComplex, carries a \
+                      full homotopy type \u{2014} not just its homology groups.",
+            subclass_of: &["https://uor.foundation/homology/SimplicialComplex"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/homology/HornFiller",
+            label: "HornFiller",
+            comment: "A witness that a given horn (an incomplete simplex boundary) can be filled, \
+                      certifying the Kan condition at a specific dimension and position.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/homology/PostnikovTruncation",
+            label: "PostnikovTruncation",
+            comment: "The k-th Postnikov truncation \u{03c4}\u{2264}k of the constraint nerve: a \
+                      KanComplex whose homotopy groups \u{03c0}j vanish for j > k.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/homology/KInvariant",
+            label: "KInvariant",
+            comment: "The k-invariant \u{03ba}k that classifies the extension from the \
+                      (k\u{2212}1)-truncation to the k-truncation of the Postnikov tower. \
+                      Trivial \u{03ba}k means the truncation splits as a product.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 56: Deformation Complex
+        Class {
+            id: "https://uor.foundation/homology/DeformationComplex",
+            label: "DeformationComplex",
+            comment: "The deformation complex of a CompleteType T: a chain complex \
+                      whose H\u{2070} = automorphisms, H\u{00b9} = first-order \
+                      deformations, H\u{00b2} = obstructions to extending deformations.",
+            subclass_of: &["https://uor.foundation/homology/ChainComplex"],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -308,6 +353,101 @@ fn properties() -> Vec<Property> {
             kind: PropertyKind::Datatype,
             functional: true,
             domain: Some("https://uor.foundation/homology/HomologyGroup"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        // Amendment 54: Higher homotopy properties
+        Property {
+            id: "https://uor.foundation/homology/kanWitness",
+            label: "kanWitness",
+            comment: "A horn filler witnessing the Kan condition for this complex.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/homology/KanComplex"),
+            range: "https://uor.foundation/homology/HornFiller",
+        },
+        Property {
+            id: "https://uor.foundation/homology/hornDimension",
+            label: "hornDimension",
+            comment: "The dimension of the horn that this filler completes.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/HornFiller"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/homology/hornPosition",
+            label: "hornPosition",
+            comment: "The position (missing face index) of the horn that this filler completes.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/HornFiller"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/homology/truncationLevel",
+            label: "truncationLevel",
+            comment: "The truncation level k of this Postnikov truncation \u{03c4}\u{2264}k.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/PostnikovTruncation"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/homology/truncationSource",
+            label: "truncationSource",
+            comment: "The KanComplex from which this Postnikov truncation is derived.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/PostnikovTruncation"),
+            range: "https://uor.foundation/homology/KanComplex",
+        },
+        Property {
+            id: "https://uor.foundation/homology/kInvariant",
+            label: "kInvariant",
+            comment: "The k-invariant classifying the extension at this truncation level.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/PostnikovTruncation"),
+            range: "https://uor.foundation/homology/KInvariant",
+        },
+        Property {
+            id: "https://uor.foundation/homology/kInvariantTrivial",
+            label: "kInvariantTrivial",
+            comment: "True iff this k-invariant is trivial, meaning the Postnikov truncation \
+                      splits as a product.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/KInvariant"),
+            range: XSD_BOOLEAN,
+        },
+        // Amendment 56: DeformationComplex properties
+        Property {
+            id: "https://uor.foundation/homology/deformationBase",
+            label: "deformationBase",
+            comment: "The CompleteType whose deformation complex this is.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/DeformationComplex"),
+            range: "https://uor.foundation/type/CompleteType",
+        },
+        Property {
+            id: "https://uor.foundation/homology/tangentDimension",
+            label: "tangentDimension",
+            comment: "The dimension of the tangent space H\u{00b9}(Def(T)): the \
+                      number of first-order deformations.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/DeformationComplex"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/homology/obstructionDimension",
+            label: "obstructionDimension",
+            comment: "The dimension of the obstruction space H\u{00b2}(Def(T)): \
+                      the number of independent obstructions to extending deformations.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/homology/DeformationComplex"),
             range: XSD_NON_NEGATIVE_INTEGER,
         },
         // --- Cross-namespace bridge properties (3) ---

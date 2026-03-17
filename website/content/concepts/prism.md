@@ -28,7 +28,7 @@ The Kernel space comprises the three foundational namespaces: `u`, `schema`, and
   formally in OWL.
 
 - **`op` (Operations)**: The `op:Operation` hierarchy defines what operations are possible
-  over ring elements. The 378 named algebraic identities (`op:Identity` individuals)
+  over ring elements. The 424 named algebraic identities (`op:Identity` individuals)
   live here — these are the theorems that the pipeline must eventually certify.
 
 The Define stage answers: *what exists and what are its algebraic laws?*
@@ -71,18 +71,18 @@ Key certificate classes:
   path in the space of derivations
 - `cert:SaturationCertificate` — certifies that the context is fully saturated
 
-The 378 proof individuals in the `proof` namespace each correspond to one of the 378
+The 424 proof individuals in the `proof` namespace each correspond to one of the 424
 named identities. Every proof individual is an `op:Identity` that has been resolved and
 is awaiting or holding a certification.
 
 The Certify stage answers: *has this been verified to the required standard?*
 
-## The 53 Amendments
+## The 57 Amendments
 
-The UOR ontology has evolved through 53 amendments, each adding or refining structure.
+The UOR ontology has evolved through 57 amendments, each adding or refining structure.
 The amendments are not arbitrary patches — each one closes a gap identified through
 conformance testing. The progression from 97 conformance checks (Amendment 24) to
-287 checks (Amendment 53) reflects the tightening of the conformance net around the
+308 checks (Amendment 57) reflects the tightening of the conformance net around the
 PRISM pipeline.
 
 Key milestones:
@@ -95,10 +95,11 @@ Key milestones:
 - Amendments 41–44: Quantum level scaling, arbitrary-Q generalization
 - Amendments 45–49: Self-auditing conformance, meta-validation, gap closure, multi-session coordination, conformance release
 - Amendments 50–53: PRISM website refactor, uniform navigation, seven-format artifact suite, Witt–carry formalization
+- Amendments 54–57: Homotopy nerve, homotopy pipeline, moduli space, moduli resolver
 
 ## Conformance as Truth
 
-The 287 conformance checks are not tests — they are the specification. Every check
+The 308 conformance checks are not tests — they are the specification. Every check
 defines a property that the ontology must have. When a check passes, it is a proof that
 the pipeline is correctly implemented in that dimension.
 

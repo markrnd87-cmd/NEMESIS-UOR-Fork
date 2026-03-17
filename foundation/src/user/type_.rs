@@ -244,3 +244,57 @@ pub trait ObstructionChain<P: Primitives> {
     /// True iff obstructionCount = 0 (flat tower).
     fn is_flat(&self) -> P::Boolean;
 }
+
+/// The space of all CompleteTypes over R_n at a given quantum level.
+pub trait ModuliSpace<P: Primitives> {
+    /// The quantum level at which this moduli space is defined.
+    fn moduli_quantum_level(&self) -> QuantumLevel;
+    /// Associated type for `CompleteType`.
+    type CompleteType: CompleteType<P>;
+    /// A CompleteType that is a point of this moduli space.
+    fn moduli_point(&self) -> &[Self::CompleteType];
+    /// The dimension of this moduli space.
+    fn moduli_dimension(&self) -> P::NonNegativeInteger;
+}
+
+/// A stratum indexed by a conjugacy class of subgroups of D_{2^n}.
+pub trait HolonomyStratum<P: Primitives> {
+    /// Associated type for `MonodromyClass`.
+    type MonodromyClass: crate::bridge::observable::MonodromyClass<P>;
+    /// The MonodromyClass indexing this stratum.
+    fn stratum_holonomy_class(&self) -> &Self::MonodromyClass;
+    /// The codimension of this stratum within the moduli space.
+    fn stratum_codimension(&self) -> P::NonNegativeInteger;
+    /// Associated type for `ModuliSpace`.
+    type ModuliSpace: ModuliSpace<P>;
+    /// The moduli space containing this stratum.
+    fn stratum_moduli(&self) -> &Self::ModuliSpace;
+}
+
+/// A one-parameter family of constraint configurations parameterizing a path.
+pub trait DeformationFamily<P: Primitives> {
+    /// Associated type for `CompleteType`.
+    type CompleteType: CompleteType<P>;
+    /// A CompleteType along the deformation path.
+    fn family_parameter(&self) -> &[Self::CompleteType];
+    /// Whether every member of this deformation family remains a CompleteType.
+    fn family_preserves_completeness(&self) -> P::Boolean;
+}
+
+/// The versal deformation of a CompleteType T.
+pub trait VersalDeformation<P: Primitives> {
+    /// Associated type for `CompleteType`.
+    type CompleteType: CompleteType<P>;
+    /// The CompleteType at the base of this versal deformation.
+    fn versal_base(&self) -> &Self::CompleteType;
+    /// The dimension of the versal deformation space.
+    fn versal_dimension(&self) -> P::NonNegativeInteger;
+}
+
+/// The map induced by QuantumLift from one moduli space to the next.
+pub trait ModuliTowerMap<P: Primitives> {
+    /// Associated type for `ModuliSpace`.
+    type ModuliSpace: ModuliSpace<P>;
+    /// The source moduli space of this tower map.
+    fn tower_map_source(&self) -> &Self::ModuliSpace;
+}

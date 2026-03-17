@@ -86,6 +86,11 @@ pub fn build_nav(base_path: &str) -> Vec<NavItem> {
             children: Vec::new(),
         },
         NavItem {
+            label: "Citation".to_string(),
+            url: format!("{base_path}/citation/"),
+            children: Vec::new(),
+        },
+        NavItem {
             label: "Documentation".to_string(),
             url: format!("{base_path}/docs/"),
             children: vec![

@@ -2,19 +2,19 @@
 
 ## Overview
 
-The UOR conformance suite validates 169 OWL instance graphs against SHACL NodeShapes
+The UOR conformance suite validates 184 OWL instance graphs against SHACL NodeShapes
 defined in `conformance/shapes/uor-shapes.ttl`. One NodeShape is defined per
-ontology class (218 total).
+ontology class (234 total).
 
 ## Shape File
 
 `conformance/shapes/uor-shapes.ttl` contains:
-- 218 `sh:NodeShape` declarations (one per class)
+- 234 `sh:NodeShape` declarations (one per class)
 - `sh:targetClass` targeting each OWL class
 - Cardinality constraints (`sh:minCount`, `sh:maxCount`) on required properties
 - Type constraints (`sh:class`, `sh:datatype`) on property values
 
-## The 169 Instance Tests
+## The 184 Instance Tests
 
 | Test | File | Validates |
 |------|------|-----------|
@@ -187,6 +187,21 @@ ontology class (218 total).
 | test167_metric_axis | `tests/fixtures/test167_metric_axis.rs` | `type:MetricAxis` vocabulary — three metric axes (Amendment 49) |
 | test168_witt_carry | `tests/fixtures/test168_witt_carry.rs` | `op:WC_1` — Witt coordinate identification identity (Amendment 53) |
 | test169_arithmetic_valuation | `tests/fixtures/test169_arithmetic_valuation.rs` | `op:ArithmeticValuation` verification domain (Amendment 53) |
+| test170_kan_complex | `tests/fixtures/test170_kan_complex.rs` | `homology:KanComplex` + `HornFiller` (Amendment 54) |
+| test171_postnikov_truncation | `tests/fixtures/test171_postnikov_truncation.rs` | `homology:PostnikovTruncation` + `KInvariant` (Amendment 54) |
+| test172_homotopy_group | `tests/fixtures/test172_homotopy_group.rs` | `observable:HomotopyGroup` + homotopy observables (Amendment 54) |
+| test173_homotopy_end_to_end | `tests/fixtures/test173_homotopy_end_to_end.rs` | Homotopy end-to-end: KanComplex → PostnikovTruncation → HomotopyGroup (Amendment 54) |
+| test174_homotopy_resolver | `tests/fixtures/test174_homotopy_resolver.rs` | `resolver:HomotopyResolver` + homotopyTarget/homotopyResult (Amendment 55) |
+| test175_homotopy_pipeline | `tests/fixtures/test175_homotopy_pipeline.rs` | Extended ψ-pipeline: ConstraintNerve → KanComplex → PostnikovTruncation (Amendment 55) |
+| test176_moduli_space | `tests/fixtures/test176_moduli_space.rs` | `type:ModuliSpace` + moduliQuantumLevel + moduliDimension (Amendment 56) |
+| test177_deformation_complex | `tests/fixtures/test177_deformation_complex.rs` | `homology:DeformationComplex` + tangentDimension + obstructionDimension (Amendment 56) |
+| test178_holonomy_stratum | `tests/fixtures/test178_holonomy_stratum.rs` | `type:HolonomyStratum` + stratumCodimension (Amendment 56) |
+| test179_moduli_end_to_end | `tests/fixtures/test179_moduli_end_to_end.rs` | Moduli end-to-end: ModuliSpace → DeformationComplex → HolonomyStratum (Amendment 56) |
+| test180_moduli_resolver | `tests/fixtures/test180_moduli_resolver.rs` | `resolver:ModuliResolver` + moduliTarget + moduliDeformation (Amendment 57) |
+| test181_stratification_record | `tests/fixtures/test181_stratification_record.rs` | `observable:StratificationRecord` + stratificationLevel (Amendment 57) |
+| test182_whitehead_product | `tests/fixtures/test182_whitehead_product.rs` | `observable:WhiteheadProduct` + whiteheadTrivial (Amendment 54 gap closure) |
+| test183_deformation_family | `tests/fixtures/test183_deformation_family.rs` | `type:DeformationFamily` + familyParameter + familyPreservesCompleteness (Amendment 56 gap closure) |
+| test184_versal_deformation | `tests/fixtures/test184_versal_deformation.rs` | `type:VersalDeformation` + versalBase + versalDimension (Amendment 56 gap closure) |
 
 ## Structural Validation
 

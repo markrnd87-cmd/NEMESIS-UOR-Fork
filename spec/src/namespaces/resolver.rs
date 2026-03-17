@@ -136,6 +136,7 @@ fn classes() -> Vec<Class> {
             subclass_of: &[
                 OWL_THING,
                 "https://uor.foundation/homology/SimplicialComplex",
+                "https://uor.foundation/homology/KanComplex",
             ],
             disjoint_with: &[],
         },
@@ -306,6 +307,28 @@ fn classes() -> Vec<Class> {
                       a single class with named individuals rather than a \
                       subclass hierarchy.",
             subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 55: Homotopy Pipeline
+        Class {
+            id: "https://uor.foundation/resolver/HomotopyResolver",
+            label: "HomotopyResolver",
+            comment: "A resolver that runs the extended \u{03c8}-pipeline \
+                      (\u{03c8}_7\u{2013}\u{03c8}_9) to compute the full homotopy \
+                      type of a ConstraintNerve. Returns HomotopyGroup observables \
+                      and PostnikovTruncation records.",
+            subclass_of: &["https://uor.foundation/resolver/Resolver"],
+            disjoint_with: &[],
+        },
+        // Amendment 57: Moduli Resolver
+        Class {
+            id: "https://uor.foundation/resolver/ModuliResolver",
+            label: "ModuliResolver",
+            comment: "A resolver that computes the local structure of the moduli \
+                      space at a given CompleteType: constructs the \
+                      DeformationComplex, determines the HolonomyStratum, and \
+                      computes tangent/obstruction dimensions.",
+            subclass_of: &["https://uor.foundation/resolver/Resolver"],
             disjoint_with: &[],
         },
     ]
@@ -727,6 +750,44 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/resolver/SessionResolver"),
             range: "https://uor.foundation/resolver/ExecutionPolicy",
+        },
+        // Amendment 55: HomotopyResolver properties
+        Property {
+            id: "https://uor.foundation/resolver/homotopyTarget",
+            label: "homotopyTarget",
+            comment: "The ConstraintNerve whose homotopy type this resolver computes.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/HomotopyResolver"),
+            range: "https://uor.foundation/resolver/ConstraintNerve",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/homotopyResult",
+            label: "homotopyResult",
+            comment: "A HomotopyGroup observable produced by this resolver.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/resolver/HomotopyResolver"),
+            range: "https://uor.foundation/observable/HomotopyGroup",
+        },
+        // Amendment 57: ModuliResolver properties
+        Property {
+            id: "https://uor.foundation/resolver/moduliTarget",
+            label: "moduliTarget",
+            comment: "The CompleteType whose local moduli structure this resolver computes.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/ModuliResolver"),
+            range: "https://uor.foundation/type/CompleteType",
+        },
+        Property {
+            id: "https://uor.foundation/resolver/moduliDeformation",
+            label: "moduliDeformation",
+            comment: "The DeformationComplex constructed by this resolver.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/resolver/ModuliResolver"),
+            range: "https://uor.foundation/homology/DeformationComplex",
         },
     ]
 }

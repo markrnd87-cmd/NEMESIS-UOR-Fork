@@ -34,6 +34,7 @@ pub fn render_page(
 <nav aria-label="Site navigation" class="site-nav">
 {nav_html}
 </nav>
+<a href="https://github.com/UOR-Foundation/UOR-Framework" class="github-link" target="_blank" rel="noopener">&#9733; Star on GitHub</a>
 </header>
 <main id="main-content">
 <nav aria-label="Breadcrumb" class="breadcrumb">
@@ -44,7 +45,7 @@ pub fn render_page(
 </article>
 </main>
 <footer class="site-footer">
-<p>UOR Foundation — <a href="https://uor.foundation/">uor.foundation</a> — Apache-2.0</p>
+<p>UOR Foundation — <a href="https://uor.foundation/">uor.foundation</a> — <a href="https://github.com/UOR-Foundation/UOR-Framework">GitHub</a> — Apache-2.0</p>
 </footer>
 <script src="{js_url}" defer></script>
 </body>
@@ -466,6 +467,34 @@ pub fn render_download_page(base_path: &str) -> String {
          traits and constants, suitable for <code>#![no_std]</code> environments.</p>\n\
          <p><a href=\"https://crates.io/crates/uor-foundation\" class=\"btn-primary\">View on crates.io</a></p>"
     )
+}
+
+/// Renders the citation page body.
+pub fn render_citation_page() -> String {
+    "<h1>Citation</h1>\n\
+     <p>If you use the UOR Framework in academic work, please cite it using the \
+     metadata in <a href=\"https://github.com/UOR-Foundation/UOR-Framework/blob/main/CITATION.cff\">\
+     <code>CITATION.cff</code></a> at the root of the repository.</p>\n\
+     <h2>BibTeX</h2>\n\
+     <pre><code>@software{uor-framework,\n\
+     \x20 author       = {Flom, Alexander},\n\
+     \x20 title        = {{UOR Framework}},\n\
+     \x20 url          = {https://github.com/UOR-Foundation/UOR-Framework},\n\
+     \x20 license      = {Apache-2.0},\n\
+     \x20 abstract     = {A Rust workspace implementing the UOR Foundation\n\
+     \x20                  ontology --- a mathematical framework for\n\
+     \x20                  content-addressed, algebraically-structured\n\
+     \x20                  object spaces.}\n\
+     }</code></pre>\n\
+     <h2>Zenodo</h2>\n\
+     <p>Each tagged release is automatically archived by \
+     <a href=\"https://zenodo.org/\">Zenodo</a>, which mints a persistent DOI. \
+     After the first release, the DOI will be added here and to \
+     <code>CITATION.cff</code>.</p>\n\
+     <h2>GitHub</h2>\n\
+     <p>GitHub renders a <strong>Cite this repository</strong> button on the \
+     repository page using the <code>CITATION.cff</code> file.</p>"
+        .to_string()
 }
 
 /// Renders the pipeline page body with stage sections and inline SVG.

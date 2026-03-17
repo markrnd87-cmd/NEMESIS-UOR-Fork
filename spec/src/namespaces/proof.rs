@@ -9057,5 +9057,618 @@ fn individuals() -> Vec<Individual> {
                 ),
             ],
         },
+        // Amendment 54: Homotopy Nerve proofs \u{2014} HT_ series (8)
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_1",
+            comment: "Axiomatic derivation of HT_1: the constraint nerve \
+                      satisfies the Kan extension condition.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_2",
+            comment: "Axiomatic derivation of HT_2: path components recover \
+                      Betti number \u{03b2}\u{2080}.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_3",
+            comment: "Axiomatic derivation of HT_3: \u{03c0}\u{2081} factors \
+                      through HolonomyGroup.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_4",
+            comment: "Axiomatic derivation of HT_4: higher homotopy groups \
+                      vanish above dimension.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_5",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_5",
+            comment: "Axiomatic derivation of HT_5: 1-truncation determines \
+                      flat/twisted classification.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_6",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_6",
+            comment: "Axiomatic derivation of HT_6: trivial k-invariants \
+                      imply spectral collapse.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_7",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_7",
+            comment: "Axiomatic derivation of HT_7: Whitehead product detects \
+                      lift obstructions.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_7"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HT_8",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HT_8",
+            comment: "Axiomatic derivation of HT_8: Hurewicz isomorphism for \
+                      first non-vanishing group.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HT_8"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        // Amendment 55: Homotopy Pipeline proofs
+        Individual {
+            id: "https://uor.foundation/proof/prf_psi_7",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_psi_7",
+            comment: "Axiomatic derivation of \u{03c8}_7: KanComplex to \
+                      PostnikovTower functor.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/psi_7"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_psi_8",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_psi_8",
+            comment: "Axiomatic derivation of \u{03c8}_8: PostnikovTower to \
+                      HomotopyGroups extraction.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/psi_8"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_psi_9",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_psi_9",
+            comment: "Axiomatic derivation of \u{03c8}_9: HomotopyGroups to \
+                      KInvariants computation.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/psi_9"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HP_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HP_1",
+            comment: "Axiomatic derivation of HP_1: pipeline composition \
+                      \u{03c8}_7 \u{2218} \u{03c8}_1.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HP_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HP_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HP_2",
+            comment: "Axiomatic derivation of HP_2: homotopy extraction agrees \
+                      with homology on truncation.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HP_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HP_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HP_3",
+            comment: "Axiomatic derivation of HP_3: \u{03c8}_9 detects QLS_4 \
+                      convergence.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HP_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_HP_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_HP_4",
+            comment: "Axiomatic derivation of HP_4: HomotopyResolver complexity \
+                      bound.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/HP_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        // Amendment 56: Moduli Space proofs
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_1",
+            comment: "Axiomatic derivation of MD_1: moduli dimension equals \
+                      basis cardinality.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_2",
+            comment: "Axiomatic derivation of MD_2: automorphism group is \
+                      subgroup of D_{2^n}.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_3",
+            comment: "Axiomatic derivation of MD_3: first-order deformations \
+                      parameterize tangent space.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_4",
+            comment: "Axiomatic derivation of MD_4: obstruction space equals \
+                      LiftObstruction.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_5",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_5",
+            comment: "Axiomatic derivation of MD_5: FlatType stratum is open \
+                      (codimension 0).",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_5"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_6",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_6",
+            comment: "Axiomatic derivation of MD_6: TwistedType strata have \
+                      codimension at least 1.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_6"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_7",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_7",
+            comment: "Axiomatic derivation of MD_7: versal deformation exists \
+                      when unobstructed.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_7"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_8",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_8",
+            comment: "Axiomatic derivation of MD_8: completeness-preserving iff \
+                      obstruction vanishes along path.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_8"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_9",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_9",
+            comment: "Axiomatic derivation of MD_9: tower map fiber dimension \
+                      is 1 when unobstructed.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_9"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MD_10",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MD_10",
+            comment: "Axiomatic derivation of MD_10: tower map fiber empty iff \
+                      twisted at every level.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MD_10"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        // Amendment 57: Moduli Resolver proofs
+        Individual {
+            id: "https://uor.foundation/proof/prf_MR_1",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MR_1",
+            comment: "Axiomatic derivation of MR_1: moduli resolver agrees \
+                      with MorphospaceBoundary.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MR_1"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MR_2",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MR_2",
+            comment: "Axiomatic derivation of MR_2: stratification record is \
+                      complete.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MR_2"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MR_3",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MR_3",
+            comment: "Axiomatic derivation of MR_3: moduli resolver complexity \
+                      bound.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MR_3"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/proof/prf_MR_4",
+            type_: "https://uor.foundation/proof/AxiomaticDerivation",
+            label: "prf_MR_4",
+            comment: "Axiomatic derivation of MR_4: moduli-morphospace \
+                      consistency.",
+            properties: &[
+                (
+                    "https://uor.foundation/proof/provesIdentity",
+                    IndividualValue::IriRef("https://uor.foundation/op/MR_4"),
+                ),
+                (
+                    "https://uor.foundation/proof/universalScope",
+                    IndividualValue::Bool(true),
+                ),
+                (
+                    "https://uor.foundation/proof/verified",
+                    IndividualValue::Bool(true),
+                ),
+            ],
+        },
     ]
 }

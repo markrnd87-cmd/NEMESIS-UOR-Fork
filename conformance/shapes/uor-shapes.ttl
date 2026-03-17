@@ -1,5 +1,5 @@
 # UOR Foundation SHACL Shapes
-# One NodeShape per class — 218 total.
+# One NodeShape per class — 234 total.
 # Defines cardinality and type constraints validated by the conformance suite.
 
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -1835,3 +1835,108 @@ uor-sh:ExecutionPolicyKindShape
     a               sh:NodeShape ;
     sh:targetClass  resolver:ExecutionPolicyKind ;
     rdfs:label      "ExecutionPolicyKindShape" .
+
+# ── Amendment 54: Homotopy Nerve (7) ──────────────────────────────────────────
+
+uor-sh:KanComplexShape
+    a               sh:NodeShape ;
+    sh:targetClass  homology:KanComplex ;
+    rdfs:label      "KanComplexShape" .
+
+uor-sh:HornFillerShape
+    a               sh:NodeShape ;
+    sh:targetClass  homology:HornFiller ;
+    rdfs:label      "HornFillerShape" ;
+    sh:property [ sh:path homology:hornDimension ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] ;
+    sh:property [ sh:path homology:hornPosition ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:PostnikovTruncationShape
+    a               sh:NodeShape ;
+    sh:targetClass  homology:PostnikovTruncation ;
+    rdfs:label      "PostnikovTruncationShape" ;
+    sh:property [ sh:path homology:truncationLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] ;
+    sh:property [ sh:path homology:truncationSource ; sh:minCount 1 ; sh:maxCount 1 ; sh:class homology:KanComplex ] .
+
+uor-sh:KInvariantShape
+    a               sh:NodeShape ;
+    sh:targetClass  homology:KInvariant ;
+    rdfs:label      "KInvariantShape" ;
+    sh:property [ sh:path homology:kInvariantTrivial ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+uor-sh:HomotopyGroupShape
+    a               sh:NodeShape ;
+    sh:targetClass  observable:HomotopyGroup ;
+    rdfs:label      "HomotopyGroupShape" ;
+    sh:property [ sh:path observable:homotopyDimension ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:HigherMonodromyShape
+    a               sh:NodeShape ;
+    sh:targetClass  observable:HigherMonodromy ;
+    rdfs:label      "HigherMonodromyShape" ;
+    sh:property [ sh:path observable:higherMonodromyDimension ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:WhiteheadProductShape
+    a               sh:NodeShape ;
+    sh:targetClass  observable:WhiteheadProduct ;
+    rdfs:label      "WhiteheadProductShape" ;
+    sh:property [ sh:path observable:whiteheadTrivial ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+# ── Amendment 55: Homotopy Pipeline (1) ──────────────────────────────────────
+
+uor-sh:HomotopyResolverShape
+    a               sh:NodeShape ;
+    sh:targetClass  resolver:HomotopyResolver ;
+    rdfs:label      "HomotopyResolverShape" ;
+    sh:property [ sh:path resolver:homotopyTarget ; sh:minCount 1 ; sh:maxCount 1 ; sh:class resolver:ConstraintNerve ] .
+
+# ── Amendment 56: Moduli Space (6) ────────────────────────────────────────────
+
+uor-sh:ModuliSpaceShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:ModuliSpace ;
+    rdfs:label      "ModuliSpaceShape" ;
+    sh:property [ sh:path type:moduliQuantumLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] .
+
+uor-sh:HolonomyStratumShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:HolonomyStratum ;
+    rdfs:label      "HolonomyStratumShape" ;
+    sh:property [ sh:path type:stratumCodimension ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:nonNegativeInteger ] .
+
+uor-sh:DeformationFamilyShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:DeformationFamily ;
+    rdfs:label      "DeformationFamilyShape" ;
+    sh:property [ sh:path type:familyPreservesCompleteness ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+uor-sh:VersalDeformationShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:VersalDeformation ;
+    rdfs:label      "VersalDeformationShape" ;
+    sh:property [ sh:path type:versalBase ; sh:minCount 1 ; sh:maxCount 1 ; sh:class type:CompleteType ] .
+
+uor-sh:ModuliTowerMapShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:ModuliTowerMap ;
+    rdfs:label      "ModuliTowerMapShape" ;
+    sh:property [ sh:path type:towerMapSource ; sh:minCount 1 ; sh:maxCount 1 ; sh:class type:ModuliSpace ] .
+
+uor-sh:DeformationComplexShape
+    a               sh:NodeShape ;
+    sh:targetClass  homology:DeformationComplex ;
+    rdfs:label      "DeformationComplexShape" ;
+    sh:property [ sh:path homology:deformationBase ; sh:minCount 1 ; sh:maxCount 1 ; sh:class type:CompleteType ] .
+
+# ── Amendment 57: Moduli Resolver (2) ─────────────────────────────────────────
+
+uor-sh:ModuliResolverShape
+    a               sh:NodeShape ;
+    sh:targetClass  resolver:ModuliResolver ;
+    rdfs:label      "ModuliResolverShape" ;
+    sh:property [ sh:path resolver:moduliTarget ; sh:minCount 1 ; sh:maxCount 1 ; sh:class type:CompleteType ] .
+
+uor-sh:StratificationRecordShape
+    a               sh:NodeShape ;
+    sh:targetClass  observable:StratificationRecord ;
+    rdfs:label      "StratificationRecordShape" ;
+    sh:property [ sh:path observable:stratificationLevel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class schema:QuantumLevel ] .

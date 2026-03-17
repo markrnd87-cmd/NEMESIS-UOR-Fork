@@ -84,7 +84,10 @@ pub trait RefinementSuggestion<P: Primitives> {
 }
 
 /// The simplicial complex whose vertices are constraints and where a k-simplex exists iff the corresponding k+1 constraints have nonempty intersection. The nerve's topology governs resolution convergence: trivial homology ↔ smooth convergence, non-trivial homology ↔ potential stalls.
-pub trait ConstraintNerve<P: Primitives>: crate::bridge::homology::SimplicialComplex<P> {}
+pub trait ConstraintNerve<P: Primitives>:
+    crate::bridge::homology::SimplicialComplex<P> + crate::bridge::homology::KanComplex<P>
+{
+}
 
 /// A specialisation of Resolver driving the completeness certification loop. Accepts a CompletenessCandidate, runs the ψ-pipeline (reading nerveEulerCharacteristic from ResolutionState), and either issues a CompletenessCertificate or produces a RefinementSuggestion.
 pub trait CompletenessResolver<P: Primitives>: Resolver<P> {
@@ -214,6 +217,30 @@ pub trait TowerCompletenessResolver<P: Primitives>: Resolver<P> {
 /// A strategy class that defines how a SessionResolver orders pending RelationQuery instances for dispatch. The policy reads the targetFiber.freeCount of each pending query and applies an ordering function.
 /// Disjoint with: Resolver, ResolutionState, RefinementSuggestion.
 pub trait ExecutionPolicy<P: Primitives> {}
+
+/// A resolver that runs the extended ψ-pipeline (ψ_7–ψ_9) to compute the full homotopy type of a ConstraintNerve. Returns HomotopyGroup observables and PostnikovTruncation records.
+pub trait HomotopyResolver<P: Primitives>: Resolver<P> {
+    /// Associated type for `ConstraintNerve`.
+    type ConstraintNerve: ConstraintNerve<P>;
+    /// The ConstraintNerve whose homotopy type this resolver computes.
+    fn homotopy_target(&self) -> &Self::ConstraintNerve;
+    /// Associated type for `HomotopyGroup`.
+    type HomotopyGroup: crate::bridge::observable::HomotopyGroup<P>;
+    /// A HomotopyGroup observable produced by this resolver.
+    fn homotopy_result(&self) -> &[Self::HomotopyGroup];
+}
+
+/// A resolver that computes the local structure of the moduli space at a given CompleteType: constructs the DeformationComplex, determines the HolonomyStratum, and computes tangent/obstruction dimensions.
+pub trait ModuliResolver<P: Primitives>: Resolver<P> {
+    /// Associated type for `CompleteType`.
+    type CompleteType: crate::user::type_::CompleteType<P>;
+    /// The CompleteType whose local moduli structure this resolver computes.
+    fn moduli_target(&self) -> &Self::CompleteType;
+    /// Associated type for `DeformationComplex`.
+    type DeformationComplex: crate::bridge::homology::DeformationComplex<P>;
+    /// The DeformationComplex constructed by this resolver.
+    fn moduli_deformation(&self) -> &Self::DeformationComplex;
+}
 
 /// O(1) complexity — the resolver runs in constant time regardless of ring size.
 pub mod constant_time {}

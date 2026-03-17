@@ -80,7 +80,22 @@ mod test167_metric_axis;
 mod test168_witt_carry;
 mod test169_arithmetic_valuation;
 mod test16_algebraic_identities;
+mod test170_kan_complex;
+mod test171_postnikov_truncation;
+mod test172_homotopy_group;
+mod test173_homotopy_end_to_end;
+mod test174_homotopy_resolver;
+mod test175_homotopy_pipeline;
+mod test176_moduli_space;
+mod test177_deformation_complex;
+mod test178_holonomy_stratum;
+mod test179_moduli_end_to_end;
 mod test17_inter_algebra_maps;
+mod test180_moduli_resolver;
+mod test181_stratification_record;
+mod test182_whitehead_product;
+mod test183_deformation_family;
+mod test184_versal_deformation;
 mod test18_analytical_completeness;
 mod test19_homological_pipeline;
 mod test1_ring;
@@ -250,7 +265,22 @@ pub use test167_metric_axis::TEST167_METRIC_AXIS;
 pub use test168_witt_carry::TEST168_WITT_CARRY;
 pub use test169_arithmetic_valuation::TEST169_ARITHMETIC_VALUATION;
 pub use test16_algebraic_identities::TEST16_ALGEBRAIC_IDENTITIES;
+pub use test170_kan_complex::TEST170_KAN_COMPLEX;
+pub use test171_postnikov_truncation::TEST171_POSTNIKOV_TRUNCATION;
+pub use test172_homotopy_group::TEST172_HOMOTOPY_GROUP;
+pub use test173_homotopy_end_to_end::TEST173_HOMOTOPY_END_TO_END;
+pub use test174_homotopy_resolver::TEST174_HOMOTOPY_RESOLVER;
+pub use test175_homotopy_pipeline::TEST175_HOMOTOPY_PIPELINE;
+pub use test176_moduli_space::TEST176_MODULI_SPACE;
+pub use test177_deformation_complex::TEST177_DEFORMATION_COMPLEX;
+pub use test178_holonomy_stratum::TEST178_HOLONOMY_STRATUM;
+pub use test179_moduli_end_to_end::TEST179_MODULI_END_TO_END;
 pub use test17_inter_algebra_maps::TEST17_INTER_ALGEBRA_MAPS;
+pub use test180_moduli_resolver::TEST180_MODULI_RESOLVER;
+pub use test181_stratification_record::TEST181_STRATIFICATION_RECORD;
+pub use test182_whitehead_product::TEST182_WHITEHEAD_PRODUCT;
+pub use test183_deformation_family::TEST183_DEFORMATION_FAMILY;
+pub use test184_versal_deformation::TEST184_VERSAL_DEFORMATION;
 pub use test18_analytical_completeness::TEST18_ANALYTICAL_COMPLETENESS;
 pub use test19_homological_pipeline::TEST19_HOMOLOGICAL_PIPELINE;
 pub use test1_ring::TEST1_RING;
@@ -516,5 +546,20 @@ pub fn all_fixture_sources() -> Vec<&'static str> {
         TEST167_METRIC_AXIS,
         TEST168_WITT_CARRY,
         TEST169_ARITHMETIC_VALUATION,
+        TEST170_KAN_COMPLEX,
+        TEST171_POSTNIKOV_TRUNCATION,
+        TEST172_HOMOTOPY_GROUP,
+        TEST173_HOMOTOPY_END_TO_END,
+        TEST174_HOMOTOPY_RESOLVER,
+        TEST175_HOMOTOPY_PIPELINE,
+        TEST176_MODULI_SPACE,
+        TEST177_DEFORMATION_COMPLEX,
+        TEST178_HOLONOMY_STRATUM,
+        TEST179_MODULI_END_TO_END,
+        TEST180_MODULI_RESOLVER,
+        TEST181_STRATIFICATION_RECORD,
+        TEST182_WHITEHEAD_PRODUCT,
+        TEST183_DEFORMATION_FAMILY,
+        TEST184_VERSAL_DEFORMATION,
     ]
 }

@@ -7,6 +7,7 @@
 use crate::enums::AchievabilityStatus;
 use crate::enums::MeasurementUnit;
 use crate::enums::PhaseBoundaryType;
+use crate::enums::QuantumLevel;
 use crate::Primitives;
 
 /// A measurable quantity in the UOR Framework. All observables are kernel-computed and user-consumed.
@@ -190,6 +191,10 @@ pub trait SpectralSequencePage<P: Primitives> {
     fn differential_is_zero(&self) -> P::Boolean;
     /// The page index r at which the spectral sequence converged (all subsequent differentials zero).
     fn converged_at(&self) -> P::NonNegativeInteger;
+    /// Associated type for `PostnikovTruncation`.
+    type PostnikovTruncation: crate::bridge::homology::PostnikovTruncation<P>;
+    /// The Postnikov truncation associated with this spectral sequence page.
+    fn postnikov_truncation(&self) -> &Self::PostnikovTruncation;
 }
 
 /// The cohomology class in H^2(N(C(T))) representing the LiftObstruction for a specific QuantumLift. The class is zero iff the obstruction is trivial. When non-zero, it indexes the specific fiber pair at Q_{n+1} that cannot be closed by the lifted constraint set alone.
@@ -221,6 +226,40 @@ pub trait ClosedConstraintPath<P: Primitives> {
     type Constraint: crate::user::type_::Constraint<P>;
     /// Non-functional. The ordered sequence of constraints traversed. One assertion per step.
     fn path_constraints(&self) -> &[Self::Constraint];
+}
+
+/// The k-th homotopy group πk(N(C), v) of the constraint nerve based at vertex v.
+pub trait HomotopyGroup<P: Primitives> {
+    /// The dimension k of this homotopy group πk.
+    fn homotopy_dimension(&self) -> P::NonNegativeInteger;
+    /// The rank of this homotopy group (number of free generators).
+    fn homotopy_rank(&self) -> P::NonNegativeInteger;
+    /// Associated type for `Constraint`.
+    type Constraint: crate::user::type_::Constraint<P>;
+    /// The basepoint vertex v at which this homotopy group is computed.
+    fn homotopy_basepoint(&self) -> &Self::Constraint;
+}
+
+/// The image of πk(N(C)) → Aut(fiberk) for k > 1. Generalises the MN_6 monodromy homomorphism.
+pub trait HigherMonodromy<P: Primitives> {
+    /// The dimension k > 1 at which this higher monodromy acts.
+    fn higher_monodromy_dimension(&self) -> P::NonNegativeInteger;
+}
+
+/// The Whitehead product \[α, β\] ∈ πp+q−1 for α ∈ πp, β ∈ πq.
+pub trait WhiteheadProduct<P: Primitives> {
+    /// True iff this Whitehead product is trivial (zero in πp+q−1).
+    fn whitehead_trivial(&self) -> P::Boolean;
+}
+
+/// A record of the holonomy stratification of the moduli space at a given quantum level: the list of HolonomyStrata, their codimensions, and their relationship to the MorphospaceBoundary.
+pub trait StratificationRecord<P: Primitives> {
+    /// The quantum level at which this stratification is computed.
+    fn stratification_level(&self) -> QuantumLevel;
+    /// Associated type for `HolonomyStratum`.
+    type HolonomyStratum: crate::user::type_::HolonomyStratum<P>;
+    /// A HolonomyStratum in this stratification record.
+    fn stratification_stratum(&self) -> &[Self::HolonomyStratum];
 }
 
 /// Information-theoretic unit: the measurement is in bits (e.g., Hamming weight, entropy).

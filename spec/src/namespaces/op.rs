@@ -23,6 +23,12 @@
 //! - **Amendment 53**: 12 `WC_` Witt\u{2013}carry bridge identities, 5 `OA_`
 //!   Ostrowski\u{2013}Archimedean bridge identities, `ArithmeticValuation`
 //!   verification domain, CA_1\u{2013}CA_6 reclassified Enumerative \u{2192} Algebraic
+//! - **Amendment 54**: 8 `HT_` homotopy nerve identities (Kan condition,
+//!   Hurewicz, Whitehead, Postnikov truncation, spectral collapse)
+//! - **Amendment 55**: 3 `psi_` pipeline stages (\u{03c8}_7\u{2013}\u{03c8}_9) +
+//!   4 `HP_` homotopy pipeline composition identities
+//! - **Amendment 56**: 10 `MD_` moduli space / deformation complex identities
+//! - **Amendment 57**: 4 `MR_` moduli resolver identities
 //!
 //! **Critical identity:** `neg(bnot(x)) = succ(x)` for all x in R_n.
 //!
@@ -7358,6 +7364,861 @@ fn individuals() -> Vec<Individual> {
                  IndividualValue::IriRef("https://uor.foundation/op/Universal")),
                 ("https://uor.foundation/op/verificationPathNote",
                  IndividualValue::Str("QL_3 (\u{03b2}* = ln 2) + WC_4 (\u{03b4} divides by 2) \u{2192} per-\u{03b4} cost = ln 2")),
+            ],
+        },
+        // Amendment 54: Homotopy Nerve
+        Individual {
+            id: "https://uor.foundation/op/HT_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_1",
+            comment: "KanComplex(N(C)) \u{2014} the constraint nerve satisfies the \
+                      Kan extension condition for all horns of dimension \u{2264} d \
+                      where d is the maximum simplex dimension of N(C).",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("N(C)")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("KanComplex")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Finite simplicial complex \u{21d2} Kan condition")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_2",
+            comment: "Path components of nerve recover \u{03b2}\u{2080}: \
+                      \u{03c0}\u{2080}(N(C)) \u{2245} Z^{\u{03b2}\u{2080}} \
+                      counts the connected components of the constraint \
+                      configuration.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("\u{03c0}\u{2080}(N(C))")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("Z^{\u{03b2}\u{2080}}")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Path component counting via nerve functor")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_3",
+            comment: "MN_6 monodromy is abelianisation of full \u{03c0}\u{2081}: \
+                      the fundamental group \u{03c0}\u{2081}(N(C)) surjects onto \
+                      the HolonomyGroup D_{2^n} via abelianisation.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("\u{03c0}\u{2081}(N(C)) \u{2192} D_{2^n}")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("HolonomyGroup factorization")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Fundamental group projects through HolonomyGroup")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_4",
+            comment: "Higher homotopy groups vanish above nerve dimension: \
+                      \u{03c0}_k(N(C)) = 0 for all k > dim(N(C)), because the \
+                      nerve is a finite CW-complex.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("\u{03c0}_k(N(C)) for k > dim(N(C))")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("0")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C, k > dim(N(C))")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Finite CW-complex dimension bound")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_5",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_5",
+            comment: "1-truncation determines flat/twisted classification: \
+                      \u{03c4}_{\u{2264}1}(N(C)) captures the holonomy action \
+                      that distinguishes FlatType from TwistedType.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("\u{03c4}_{\u{2264}1}(N(C))")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("FlatType/TwistedType classification")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Postnikov 1-truncation captures holonomy")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_6",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_6",
+            comment: "Trivial k-invariants beyond depth d imply spectral collapse: \
+                      if \u{03ba}_k is trivial for all k > d then the spectral \
+                      sequence collapses at E_{d+2}.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("\u{03ba}_k trivial for all k > d")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("spectral sequence collapses at E_{d+2}")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C, d = max simplex dim")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("k-invariant vanishing \u{21d2} QLS_4 convergence")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_7",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_7",
+            comment: "Non-trivial Whitehead product implies lift obstruction: \
+                      [\u{03b1}, \u{03b2}] \u{2260} 0 in \u{03c0}_{p+q\u{2212}1} \
+                      implies a non-trivial LiftObstruction that Betti numbers \
+                      alone cannot detect.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("[\u{03b1}, \u{03b2}] \u{2260} 0 in \u{03c0}_{p+q\u{2212}1}")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("LiftObstruction non-trivial")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("\u{03b1} \u{2208} \u{03c0}_p, \u{03b2} \u{2208} \u{03c0}_q")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Whitehead bracket detects obstructions Betti numbers miss")),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HT_8",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HT_8",
+            comment: "Hurewicz isomorphism for first non-vanishing group: \
+                      \u{03c0}_k(N(C)) \u{2297} Z \u{2245} H_k(N(C); Z) for the \
+                      smallest k with \u{03c0}_k \u{2260} 0, linking homotopy \
+                      invariants to homology.",
+            properties: &[
+                ("https://uor.foundation/op/lhs",
+                 IndividualValue::Str("\u{03c0}_k(N(C)) \u{2297} Z")),
+                ("https://uor.foundation/op/rhs",
+                 IndividualValue::Str("H_k(N(C); Z) for smallest k with \u{03c0}_k \u{2260} 0")),
+                ("https://uor.foundation/op/forAll",
+                 IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid",
+                 IndividualValue::Bool(true)),
+                ("https://uor.foundation/op/validityKind",
+                 IndividualValue::IriRef("https://uor.foundation/op/Universal")),
+                ("https://uor.foundation/op/verificationPathNote",
+                 IndividualValue::Str("Hurewicz theorem for simply-connected spaces")),
+            ],
+        },
+        // Amendment 55: Homotopy Pipeline stages
+        Individual {
+            id: "https://uor.foundation/op/psi_7",
+            type_: "https://uor.foundation/op/Identity",
+            label: "psi_7",
+            comment: "\u{03c8}_7: KanComplex \u{2192} PostnikovTower \u{2014} compute \
+                      the Postnikov truncations \u{03c4}_{\u{2264}k} for \
+                      k = 0, 1, \u{2026}, dim(N(C)).",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("KanComplex(N(C))")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("PostnikovTower")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("KanComplex \u{2192} PostnikovTruncation tower"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/psi_8",
+            type_: "https://uor.foundation/op/Identity",
+            label: "psi_8",
+            comment: "\u{03c8}_8: PostnikovTower \u{2192} HomotopyGroups \u{2014} extract \
+                      the homotopy groups \u{03c0}_k from each truncation stage.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("PostnikovTower(\u{03c4}\u{2264}k)"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("HomotopyGroups(\u{03c0}_k)"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("PostnikovTower \u{2192} HomotopyGroup extraction"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/psi_9",
+            type_: "https://uor.foundation/op/Identity",
+            label: "psi_9",
+            comment: "\u{03c8}_9: HomotopyGroups \u{2192} KInvariants \u{2014} compute \
+                      the k-invariants \u{03ba}_k classifying the Postnikov tower.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("HomotopyGroups(\u{03c0}_k)"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("KInvariants(\u{03ba}_k)"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("HomotopyGroup \u{2192} KInvariant computation"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HP_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HP_1",
+            comment: "Pipeline composition: nerve construction + Kan promotion = \
+                      \u{03c8}_7 \u{2218} \u{03c8}_1.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("\u{03c8}_7 \u{2218} \u{03c8}_1"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("Kan promotion of nerve"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Pipeline composition: nerve construction + Kan promotion"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HP_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HP_2",
+            comment: "Homotopy extraction agrees with homology on k-skeleton.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("\u{03c8}_8(\u{03c4}\u{2264}k) restricted"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("\u{03c8}_3(C\u{2264}k)"),
+                ),
+                (
+                    "https://uor.foundation/op/forAll",
+                    IndividualValue::Str("constraint configuration C, truncation level k"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Pipeline"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Homotopy extraction agrees with homology on k-skeleton"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HP_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HP_3",
+            comment: "k-invariant computation detects QLS_4 convergence.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("\u{03c8}_9 detects convergence"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("spectral sequence converges at E_{d+2}"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("constraint configuration C")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("k-invariant computation detects QLS_4 convergence"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/HP_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "HP_4",
+            comment: "Complexity bound for homotopy type computation.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("HomotopyResolver time"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("O(n^{d+1})"),
+                ),
+                (
+                    "https://uor.foundation/op/forAll",
+                    IndividualValue::Str("d = max simplex dimension"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Analytical"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Complexity bound for homotopy type computation"),
+                ),
+            ],
+        },
+        // Amendment 56: Moduli Space identities
+        Individual {
+            id: "https://uor.foundation/op/MD_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_1",
+            comment: "Moduli space dimension equals basis size of any contained type.",
+            properties: &[
+                ("https://uor.foundation/op/lhs", IndividualValue::Str("dim(M_n)")),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("basisSize(T)")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("T in M_n")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Moduli dimension = basis size"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_2",
+            comment: "Zeroth deformation cohomology = automorphism group \
+                      intersected with dihedral group.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("H^0(Def(T))"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("Aut(T) \u{2229} D_{2^n}"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("H^0 = automorphisms"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_3",
+            comment: "First deformation cohomology = tangent space to the \
+                      moduli space at T.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("H^1(Def(T))"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("T_T(M_n)"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("H^1 = tangent space"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_4",
+            comment: "Second deformation cohomology = LiftObstruction space.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("H^2(Def(T))"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("LiftObstruction space"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("H^2 = obstruction space"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_5",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_5",
+            comment: "FlatType stratum has codimension zero in the moduli space.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("FlatType stratum codimension"),
+                ),
+                ("https://uor.foundation/op/rhs", IndividualValue::Str("0")),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("M_n at any quantum level")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("FlatType stratum is open and dense"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_6",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_6",
+            comment: "TwistedType stratum has codimension at least 1.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("TwistedType stratum codimension"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("\u{2265} 1"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("M_n at any quantum level")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("TwistedType stratum has positive codimension"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_7",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_7",
+            comment: "VersalDeformation existence is guaranteed when the \
+                      obstruction space H\u{00b2} vanishes.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("VersalDeformation existence"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("guaranteed when H^2 = 0"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Unobstructed deformations admit versal families"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_8",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_8",
+            comment: "A deformation family preserves completeness iff \
+                      H\u{00b2}(Def(T_t)) = 0 along the entire path.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("familyPreservesCompleteness"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("H^2(Def(T_t)) = 0 along path"),
+                ),
+                (
+                    "https://uor.foundation/op/forAll",
+                    IndividualValue::Str("DeformationFamily {C_t}"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Completeness preservation = vanishing obstruction along path"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_9",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_9",
+            comment: "The fiber of a ModuliTowerMap at T has dimension 1 \
+                      when the obstruction is trivial.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("fiber(ModuliTowerMap, T) dimension"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("1 when obstructionTrivial"),
+                ),
+                (
+                    "https://uor.foundation/op/forAll",
+                    IndividualValue::Str("CompleteType T, obstruction = 0"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Trivial obstruction \u{2192} unique lift"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MD_10",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MD_10",
+            comment: "The fiber of a ModuliTowerMap at T is empty iff T is \
+                      a TwistedType at every level.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("fiber(ModuliTowerMap, T)"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("empty iff TwistedType at every level"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/IndexTheoretic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Persistent twist \u{2192} empty tower fiber"),
+                ),
+            ],
+        },
+        // Amendment 57: Moduli Resolver identities
+        Individual {
+            id: "https://uor.foundation/op/MR_1",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MR_1",
+            comment: "ModuliResolver boundary agrees with MorphospaceBoundary.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("ModuliResolver boundary"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("MorphospaceBoundary"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("M_n")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Resolver boundary = morphospace boundary"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MR_2",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MR_2",
+            comment: "StratificationRecord covers every CompleteType in exactly \
+                      one stratum.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("StratificationRecord coverage"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("every CompleteType in exactly one stratum"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("M_n")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Topological"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Stratification is a partition of the moduli space"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MR_3",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MR_3",
+            comment: "ModuliResolver complexity bound.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("ModuliResolver complexity"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("O(n \u{00d7} basisSize\u{00b2})"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("CompleteType T")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Analytical"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Complexity bound for moduli resolver"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/op/MR_4",
+            type_: "https://uor.foundation/op/Identity",
+            label: "MR_4",
+            comment: "Achievable signatures correspond to membership in some \
+                      HolonomyStratum.",
+            properties: &[
+                (
+                    "https://uor.foundation/op/lhs",
+                    IndividualValue::Str("achievabilityStatus = Achievable"),
+                ),
+                (
+                    "https://uor.foundation/op/rhs",
+                    IndividualValue::Str("signature in some HolonomyStratum"),
+                ),
+                ("https://uor.foundation/op/forAll", IndividualValue::Str("MorphospaceRecord")),
+                (
+                    "https://uor.foundation/op/verificationDomain",
+                    IndividualValue::IriRef("https://uor.foundation/op/Algebraic"),
+                ),
+                ("https://uor.foundation/op/universallyValid", IndividualValue::Bool(true)),
+                (
+                    "https://uor.foundation/op/validityKind",
+                    IndividualValue::IriRef("https://uor.foundation/op/Universal"),
+                ),
+                (
+                    "https://uor.foundation/op/verificationPathNote",
+                    IndividualValue::Str("Achievability = stratum membership"),
+                ),
             ],
         },
     ]

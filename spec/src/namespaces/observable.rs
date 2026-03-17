@@ -408,6 +408,41 @@ fn classes() -> Vec<Class> {
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
+        // Amendment 54: Higher homotopy observables
+        Class {
+            id: "https://uor.foundation/observable/HomotopyGroup",
+            label: "HomotopyGroup",
+            comment: "The k-th homotopy group \u{03c0}k(N(C), v) of the constraint nerve \
+                      based at vertex v.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/HigherMonodromy",
+            label: "HigherMonodromy",
+            comment: "The image of \u{03c0}k(N(C)) \u{2192} Aut(fiberk) for k > 1. \
+                      Generalises the MN_6 monodromy homomorphism.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/observable/WhiteheadProduct",
+            label: "WhiteheadProduct",
+            comment: "The Whitehead product [\u{03b1}, \u{03b2}] \u{2208} \u{03c0}p+q\u{2212}1 \
+                      for \u{03b1} \u{2208} \u{03c0}p, \u{03b2} \u{2208} \u{03c0}q.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 57: Stratification Record
+        Class {
+            id: "https://uor.foundation/observable/StratificationRecord",
+            label: "StratificationRecord",
+            comment: "A record of the holonomy stratification of the moduli space \
+                      at a given quantum level: the list of HolonomyStrata, their \
+                      codimensions, and their relationship to the MorphospaceBoundary.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -763,6 +798,80 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/observable/DihedralElement"),
             range: XSD_BOOLEAN,
+        },
+        // Amendment 54: Higher homotopy observable properties
+        Property {
+            id: "https://uor.foundation/observable/homotopyDimension",
+            label: "homotopyDimension",
+            comment: "The dimension k of this homotopy group \u{03c0}k.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/HomotopyGroup"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/observable/homotopyRank",
+            label: "homotopyRank",
+            comment: "The rank of this homotopy group (number of free generators).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/HomotopyGroup"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/observable/homotopyBasepoint",
+            label: "homotopyBasepoint",
+            comment: "The basepoint vertex v at which this homotopy group is computed.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/HomotopyGroup"),
+            range: "https://uor.foundation/type/Constraint",
+        },
+        Property {
+            id: "https://uor.foundation/observable/higherMonodromyDimension",
+            label: "higherMonodromyDimension",
+            comment: "The dimension k > 1 at which this higher monodromy acts.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/HigherMonodromy"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/observable/whiteheadTrivial",
+            label: "whiteheadTrivial",
+            comment: "True iff this Whitehead product is trivial (zero in \u{03c0}p+q\u{2212}1).",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/WhiteheadProduct"),
+            range: XSD_BOOLEAN,
+        },
+        Property {
+            id: "https://uor.foundation/observable/postnikovTruncation",
+            label: "postnikovTruncation",
+            comment: "The Postnikov truncation associated with this spectral sequence page.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/SpectralSequencePage"),
+            range: "https://uor.foundation/homology/PostnikovTruncation",
+        },
+        // Amendment 57: StratificationRecord properties
+        Property {
+            id: "https://uor.foundation/observable/stratificationLevel",
+            label: "stratificationLevel",
+            comment: "The quantum level at which this stratification is computed.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/observable/StratificationRecord"),
+            range: "https://uor.foundation/schema/QuantumLevel",
+        },
+        Property {
+            id: "https://uor.foundation/observable/stratificationStratum",
+            label: "stratificationStratum",
+            comment: "A HolonomyStratum in this stratification record.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/observable/StratificationRecord"),
+            range: "https://uor.foundation/type/HolonomyStratum",
         },
     ]
 }

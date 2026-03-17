@@ -136,6 +136,8 @@ pub fn generate(out_dir: &Path, readme_path: &Path) -> Result<()> {
 <li><a href="type-synthesis.html">Type Synthesis — Inverse ψ-pipeline: synthesising types from topological targets</a></li>
 <li><a href="quantum-spectral-sequence.html">Quantum Spectral Sequence — Lifting CompleteTypes across quantum levels</a></li>
 <li><a href="monodromy.html">Monodromy — Holonomy groups and flat/twisted type classification</a></li>
+<li><a href="homotopy-nerve.html">Homotopy Nerve — KanComplex, Postnikov tower, and higher homotopy groups</a></li>
+<li><a href="moduli-space.html">Moduli Space — Deformation complexes and holonomy stratification</a></li>
 </ul>"#,
         &site_nav_html,
         &docs_nav_html,
@@ -171,6 +173,8 @@ pub fn generate(out_dir: &Path, readme_path: &Path) -> Result<()> {
 <li><a href="psi-pipeline.html">ψ Pipeline — Structural reasoning via homology and cohomology</a></li>
 <li><a href="type-synthesis.html">Type Synthesis — Construct CompleteTypes from topological goals</a></li>
 <li><a href="incremental-completeness.html">Incremental Completeness — Lift CompleteTypes across quantum levels</a></li>
+<li><a href="homotopy-pipeline.html">Homotopy Pipeline — Extended psi pipeline: psi_7 through psi_9</a></li>
+<li><a href="deformation-analysis.html">Deformation Analysis — ModuliResolver and stratification records</a></li>
 </ul>"#,
         &site_nav_html,
         &docs_nav_html,
@@ -265,6 +269,8 @@ fn build_docs_sidebar_html(base_path: &str) -> String {
 <li><a href="{base_path}/docs/concepts/type-synthesis.html">Type Synthesis</a></li>
 <li><a href="{base_path}/docs/concepts/quantum-spectral-sequence.html">Quantum Spectral Sequence</a></li>
 <li><a href="{base_path}/docs/concepts/monodromy.html">Monodromy</a></li>
+<li><a href="{base_path}/docs/concepts/homotopy-nerve.html">Homotopy Nerve</a></li>
+<li><a href="{base_path}/docs/concepts/moduli-space.html">Moduli Space</a></li>
 </ul>
 </li>
 <li class="nav-group"><span>Guides</span>
@@ -275,6 +281,8 @@ fn build_docs_sidebar_html(base_path: &str) -> String {
 <li><a href="{base_path}/docs/guides/psi-pipeline.html">ψ Pipeline</a></li>
 <li><a href="{base_path}/docs/guides/type-synthesis.html">Type Synthesis</a></li>
 <li><a href="{base_path}/docs/guides/incremental-completeness.html">Incremental Completeness</a></li>
+<li><a href="{base_path}/docs/guides/homotopy-pipeline.html">Homotopy Pipeline</a></li>
+<li><a href="{base_path}/docs/guides/deformation-analysis.html">Deformation Analysis</a></li>
 </ul>
 </li>
 <li><a href="{base_path}/search.html">Search</a></li>
@@ -607,6 +615,11 @@ cargo clippy -- -D warnings
 cargo test
 ```
 
+## Citation
+
+If you use the UOR Framework in academic work, please cite it using the
+metadata in [`CITATION.cff`](CITATION.cff).
+
 ## License
 
 Apache-2.0 — see [LICENSE](LICENSE).
@@ -674,8 +687,8 @@ mod tests {
         let src = "The ontology has {@count:classes} classes.";
         let expanded = renderer::expand_directives(src, &index);
         assert!(
-            expanded.contains("218"),
-            "Count directive should expand to 218, got: {}",
+            expanded.contains("234"),
+            "Count directive should expand to 234, got: {}",
             expanded
         );
     }

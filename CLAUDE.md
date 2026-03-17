@@ -49,9 +49,9 @@ Docs/website/conformance binaries accept `PUBLIC_BASE_PATH` env var for URL pref
 
 - **16 namespaces**, assembly order: `u → schema → op → query → resolver → type → partition → observable → homology → cohomology → proof → derivation → trace → cert → morphism → state`
 - **Space classification:** Kernel (`u`, `schema`, `op`), Bridge (10 namespaces), User (`type`, `morphism`, `state`)
-- **218 classes** → 204 traits + 14 enum classes (includes QuantumLevel newtype struct)
-- **446 properties** → trait methods (generic over `P: Primitives`)
-- **881 named individuals** → constant modules
+- **234 classes** → 220 traits + 14 enum classes (includes QuantumLevel newtype struct)
+- **479 properties** → trait methods (generic over `P: Primitives`)
+- **939 named individuals** → constant modules
 - **14 enum classes:** `MetricAxis`, `GeometricCharacter`, `VerificationDomain`, `ComplexityClass`, `RewriteRule`, `MeasurementUnit`, `CoordinateKind`, `SessionBoundaryType`, `PhaseBoundaryType`, `SaturationPhase`, `AchievabilityStatus`, `ValidityScopeKind`, `ExecutionPolicyKind`, `QuantumLevel`
 
 ## Code generation patterns

@@ -7,7 +7,8 @@ constraint space.
 
 ## Pipeline Stages
 
-The psi pipeline has six stages:
+The psi pipeline has nine stages (the first six compute homology and cohomology;
+stages 7-9, added in Amendment 55, compute the full homotopy type):
 
 | Stage | Input | Output | Description |
 |-------|-------|--------|-------------|
@@ -17,6 +18,9 @@ The psi pipeline has six stages:
 | psi_4 | Homology | Index | Bridge Betti numbers to the analytical index (Euler characteristic) |
 | psi_5 | Chain complex | Cochain complex | Dualize chains to cochains via {@class https://uor.foundation/cohomology/CochainGroup} |
 | psi_6 | Cochain complex | Cohomology | Compute cohomology and {@class https://uor.foundation/cohomology/GluingObstruction} classes |
+| psi_7 | KanComplex | PostnikovTower | Compute {@class https://uor.foundation/homology/PostnikovTruncation} for each dimension |
+| psi_8 | PostnikovTower | HomotopyGroups | Extract {@class https://uor.foundation/observable/HomotopyGroup} from each truncation |
+| psi_9 | HomotopyGroups | KInvariants | Compute the {@class https://uor.foundation/homology/KInvariant} classifying each extension |
 
 ## Relationship to the phi Pipeline
 

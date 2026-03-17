@@ -101,6 +101,17 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
     validate_witt_carry_vocabulary(&mut report);
     validate_ostrowski_derivation_chain(&mut report);
 
+    // Amendment 54: Homotopy Nerve
+    validate_homotopy_nerve_vocabulary(&mut report);
+    validate_postnikov_bridge(&mut report);
+    // Amendment 55: Homotopy Pipeline
+    validate_homotopy_pipeline(&mut report);
+    // Amendment 56: Moduli Space
+    validate_moduli_vocabulary(&mut report);
+    validate_deformation_complex(&mut report);
+    // Amendment 57: Moduli Resolver
+    validate_moduli_resolver_vocabulary(&mut report);
+
     // Validate the built JSON-LD artifact
     let json_path = artifacts.join("uor.foundation.jsonld");
     if !json_path.exists() {
@@ -438,7 +449,11 @@ fn validate_identity_completeness(report: &mut ConformanceReport) {
         // Amendment 46: Certificate Issuance Coverage
         "CIC_", "GC_", // Amendment 48: Multi-Session Coordination
         "MC_", // Amendment 53: Witt-Carry Formalization
-        "WC_", "OA_",
+        "WC_", "OA_", // Amendment 54: Homotopy Nerve
+        "HT_", // Amendment 55: Homotopy Pipeline
+        "HP_", // Amendment 56: Moduli Space
+        "MD_", // Amendment 57: Moduli Resolver
+        "MR_",
     ];
     for prefix in &expected_prefixes {
         let has = identities.iter().any(|i| i.label.starts_with(prefix));
@@ -2873,6 +2888,376 @@ fn validate_ostrowski_derivation_chain(report: &mut ConformanceReport) {
         report.push(TestResult::pass(
             validator,
             "Witt\u{2013}Ostrowski\u{2013}Landauer derivation chain complete",
+        ));
+    }
+}
+
+/// Amendment 54: Validates HT_1\u{2013}HT_8 identities with correct
+/// verificationDomains (Topological for 1-5,8; IndexTheoretic for 6,7).
+fn validate_homotopy_nerve_vocabulary(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/homotopy_nerve_vocabulary";
+
+    let ht_ids: &[(&str, &str)] = &[
+        (
+            "https://uor.foundation/op/HT_1",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/HT_2",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/HT_3",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/HT_4",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/HT_5",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/HT_6",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+        (
+            "https://uor.foundation/op/HT_7",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+        (
+            "https://uor.foundation/op/HT_8",
+            "https://uor.foundation/op/Topological",
+        ),
+    ];
+
+    let domain_prop = "https://uor.foundation/op/verificationDomain";
+    let mut all_valid = true;
+
+    for (iri, expected_domain) in ht_ids {
+        match ontology.find_individual(iri) {
+            Some(ind) => {
+                let has_domain = ind.properties.iter().any(|(k, v)| {
+                    *k == domain_prop
+                        && matches!(
+                            v,
+                            IndividualValue::IriRef(d) if *d == *expected_domain
+                        )
+                });
+                if !has_domain {
+                    report.push(TestResult::fail(
+                        validator,
+                        format!("{} missing verificationDomain {}", iri, expected_domain),
+                    ));
+                    all_valid = false;
+                }
+            }
+            None => {
+                report.push(TestResult::fail(
+                    validator,
+                    format!("Identity {} not found", iri),
+                ));
+                all_valid = false;
+            }
+        }
+    }
+
+    if all_valid {
+        report.push(TestResult::pass(
+            validator,
+            "All 8 HT_ identities present with correct verificationDomains",
+        ));
+    }
+}
+
+/// Amendment 54: Validates Postnikov bridge \u{2014} ConstraintNerve has
+/// KanComplex subclass and observable/ has a postnikovTruncation property.
+fn validate_postnikov_bridge(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/postnikov_bridge";
+
+    let kan_iri = "https://uor.foundation/homology/KanComplex";
+    let nerve_found = ontology
+        .namespaces
+        .iter()
+        .flat_map(|m| m.classes.iter())
+        .any(|c| c.label == "ConstraintNerve" && c.subclass_of.contains(&kan_iri));
+
+    let postnikov_prop = ontology
+        .namespaces
+        .iter()
+        .flat_map(|m| m.properties.iter())
+        .any(|p| p.id.ends_with("/postnikovTruncation"));
+
+    if nerve_found && postnikov_prop {
+        report.push(TestResult::pass(
+            validator,
+            "Postnikov bridge: ConstraintNerve subclasses KanComplex and postnikovTruncation property exists",
+        ));
+    } else {
+        let mut msg = String::new();
+        if !nerve_found {
+            msg.push_str("ConstraintNerve does not subclass KanComplex; ");
+        }
+        if !postnikov_prop {
+            msg.push_str("postnikovTruncation property not found");
+        }
+        report.push(TestResult::fail(validator, msg));
+    }
+}
+
+/// Amendment 55: Validates homotopy pipeline identities psi_7\u{2013}psi_9,
+/// HP_1\u{2013}HP_4 with correct verificationDomains.
+fn validate_homotopy_pipeline(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/homotopy_pipeline";
+
+    let hp_ids: &[(&str, &str)] = &[
+        (
+            "https://uor.foundation/op/psi_7",
+            "https://uor.foundation/op/Pipeline",
+        ),
+        (
+            "https://uor.foundation/op/psi_8",
+            "https://uor.foundation/op/Pipeline",
+        ),
+        (
+            "https://uor.foundation/op/psi_9",
+            "https://uor.foundation/op/Pipeline",
+        ),
+        (
+            "https://uor.foundation/op/HP_1",
+            "https://uor.foundation/op/Pipeline",
+        ),
+        (
+            "https://uor.foundation/op/HP_2",
+            "https://uor.foundation/op/Pipeline",
+        ),
+        (
+            "https://uor.foundation/op/HP_3",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+        (
+            "https://uor.foundation/op/HP_4",
+            "https://uor.foundation/op/Analytical",
+        ),
+    ];
+
+    let domain_prop = "https://uor.foundation/op/verificationDomain";
+    let mut all_valid = true;
+
+    for (iri, expected_domain) in hp_ids {
+        match ontology.find_individual(iri) {
+            Some(ind) => {
+                let has_domain = ind.properties.iter().any(|(k, v)| {
+                    *k == domain_prop
+                        && matches!(
+                            v,
+                            IndividualValue::IriRef(d) if *d == *expected_domain
+                        )
+                });
+                if !has_domain {
+                    report.push(TestResult::fail(
+                        validator,
+                        format!("{} missing verificationDomain {}", iri, expected_domain),
+                    ));
+                    all_valid = false;
+                }
+            }
+            None => {
+                report.push(TestResult::fail(
+                    validator,
+                    format!("Identity {} not found", iri),
+                ));
+                all_valid = false;
+            }
+        }
+    }
+
+    if all_valid {
+        report.push(TestResult::pass(
+            validator,
+            "All homotopy pipeline identities present with correct verificationDomains",
+        ));
+    }
+}
+
+/// Amendment 56: Validates MD_1\u{2013}MD_10 identities with correct
+/// verificationDomains.
+fn validate_moduli_vocabulary(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/moduli_vocabulary";
+
+    let md_ids: &[(&str, &str)] = &[
+        (
+            "https://uor.foundation/op/MD_1",
+            "https://uor.foundation/op/Algebraic",
+        ),
+        (
+            "https://uor.foundation/op/MD_2",
+            "https://uor.foundation/op/Algebraic",
+        ),
+        (
+            "https://uor.foundation/op/MD_3",
+            "https://uor.foundation/op/Algebraic",
+        ),
+        (
+            "https://uor.foundation/op/MD_4",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+        (
+            "https://uor.foundation/op/MD_5",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/MD_6",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/MD_7",
+            "https://uor.foundation/op/Algebraic",
+        ),
+        (
+            "https://uor.foundation/op/MD_8",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+        (
+            "https://uor.foundation/op/MD_9",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+        (
+            "https://uor.foundation/op/MD_10",
+            "https://uor.foundation/op/IndexTheoretic",
+        ),
+    ];
+
+    let domain_prop = "https://uor.foundation/op/verificationDomain";
+    let mut all_valid = true;
+
+    for (iri, expected_domain) in md_ids {
+        match ontology.find_individual(iri) {
+            Some(ind) => {
+                let has_domain = ind.properties.iter().any(|(k, v)| {
+                    *k == domain_prop
+                        && matches!(
+                            v,
+                            IndividualValue::IriRef(d) if *d == *expected_domain
+                        )
+                });
+                if !has_domain {
+                    report.push(TestResult::fail(
+                        validator,
+                        format!("{} missing verificationDomain {}", iri, expected_domain),
+                    ));
+                    all_valid = false;
+                }
+            }
+            None => {
+                report.push(TestResult::fail(
+                    validator,
+                    format!("Identity {} not found", iri),
+                ));
+                all_valid = false;
+            }
+        }
+    }
+
+    if all_valid {
+        report.push(TestResult::pass(
+            validator,
+            "All 10 MD_ identities present with correct verificationDomains",
+        ));
+    }
+}
+
+/// Amendment 56: Validates DeformationComplex class exists and subclasses
+/// ChainComplex.
+fn validate_deformation_complex(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/deformation_complex";
+
+    let chain_iri = "https://uor.foundation/homology/ChainComplex";
+    let found = ontology
+        .namespaces
+        .iter()
+        .flat_map(|m| m.classes.iter())
+        .any(|c| c.label == "DeformationComplex" && c.subclass_of.contains(&chain_iri));
+
+    if found {
+        report.push(TestResult::pass(
+            validator,
+            "DeformationComplex class exists and subclasses ChainComplex",
+        ));
+    } else {
+        report.push(TestResult::fail(
+            validator,
+            "DeformationComplex class not found or does not subclass ChainComplex",
+        ));
+    }
+}
+
+/// Amendment 57: Validates MR_1\u{2013}MR_4 identities with correct
+/// verificationDomains.
+fn validate_moduli_resolver_vocabulary(report: &mut ConformanceReport) {
+    let ontology = uor_ontology::Ontology::full();
+    let validator = "ontology/inventory/moduli_resolver_vocabulary";
+
+    let mr_ids: &[(&str, &str)] = &[
+        (
+            "https://uor.foundation/op/MR_1",
+            "https://uor.foundation/op/Algebraic",
+        ),
+        (
+            "https://uor.foundation/op/MR_2",
+            "https://uor.foundation/op/Topological",
+        ),
+        (
+            "https://uor.foundation/op/MR_3",
+            "https://uor.foundation/op/Analytical",
+        ),
+        (
+            "https://uor.foundation/op/MR_4",
+            "https://uor.foundation/op/Algebraic",
+        ),
+    ];
+
+    let domain_prop = "https://uor.foundation/op/verificationDomain";
+    let mut all_valid = true;
+
+    for (iri, expected_domain) in mr_ids {
+        match ontology.find_individual(iri) {
+            Some(ind) => {
+                let has_domain = ind.properties.iter().any(|(k, v)| {
+                    *k == domain_prop
+                        && matches!(
+                            v,
+                            IndividualValue::IriRef(d) if *d == *expected_domain
+                        )
+                });
+                if !has_domain {
+                    report.push(TestResult::fail(
+                        validator,
+                        format!("{} missing verificationDomain {}", iri, expected_domain),
+                    ));
+                    all_valid = false;
+                }
+            }
+            None => {
+                report.push(TestResult::fail(
+                    validator,
+                    format!("Identity {} not found", iri),
+                ));
+                all_valid = false;
+            }
+        }
+    }
+
+    if all_valid {
+        report.push(TestResult::pass(
+            validator,
+            "All 4 MR_ identities present with correct verificationDomains",
         ));
     }
 }

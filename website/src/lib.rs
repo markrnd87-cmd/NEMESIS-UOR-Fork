@@ -26,6 +26,7 @@
 //!   explore/index.html
 //!   identities/index.html
 //!   download/index.html
+//!   citation/index.html
 //!   concepts/index.html
 //!   concepts/<slug>.html   (one per content/concepts/*.md file)
 //!   namespaces/
@@ -69,9 +70,9 @@ use extractor::{
 };
 use nav::{build_nav, render_nav};
 use renderer::{
-    render_concept_page_body, render_concepts_index, render_download_page, render_explore,
-    render_homepage, render_identities_page, render_namespace_page, render_namespaces_index,
-    render_page, render_pipeline_page, render_search_page, render_sitemap,
+    render_citation_page, render_concept_page_body, render_concepts_index, render_download_page,
+    render_explore, render_homepage, render_identities_page, render_namespace_page,
+    render_namespaces_index, render_page, render_pipeline_page, render_search_page, render_sitemap,
 };
 
 const BASE_URL: &str = "https://uor.foundation";
@@ -212,6 +213,19 @@ pub fn generate(out_dir: &Path) -> Result<()> {
     );
     writer::write(&out_dir.join("download").join("index.html"), &download_html)?;
     sitemap_paths.push("/download/".to_string());
+
+    // Citation page
+    let citation_body = render_citation_page();
+    let citation_nav = render_nav(&nav, &format!("{}/citation/", base_path));
+    let citation_html = render_page(
+        "Citation",
+        &citation_body,
+        &citation_nav,
+        &simple_breadcrumbs("Citation", base_path),
+        base_path,
+    );
+    writer::write(&out_dir.join("citation").join("index.html"), &citation_html)?;
+    sitemap_paths.push("/citation/".to_string());
 
     // Concepts index + dynamically discovered concept pages
     let content_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("content");

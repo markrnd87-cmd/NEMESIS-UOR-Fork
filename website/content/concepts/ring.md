@@ -50,7 +50,7 @@ An address is a point in Z/(2^8)Z^d for some dimension d. Content-addressed obje
 identified by their position in this space, making the ring the literal substrate of every
 UOR identity.
 
-The critical identities in `op:criticalIdentity` — the 378 named algebraic identities —
+The critical identities in `op:criticalIdentity` — the 424 named algebraic identities —
 are theorems over this ring: equations that hold in Z/(2^n)Z for the appropriate quantum
 level, certified by the proof individuals in `proof:`.
 

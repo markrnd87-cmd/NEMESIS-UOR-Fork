@@ -6121,6 +6121,532 @@ pub mod oa_5 {
         "QL_3 (β* = ln 2) + WC_4 (δ divides by 2) → per-δ cost = ln 2";
 }
 
+/// KanComplex(N(C)) — the constraint nerve satisfies the Kan extension condition for all horns of dimension ≤ d where d is the maximum simplex dimension of N(C).
+pub mod ht_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "N(C)";
+    /// `rhs`
+    pub const RHS: &str = "KanComplex";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Finite simplicial complex ⇒ Kan condition";
+}
+
+/// Path components of nerve recover β₀: π₀(N(C)) ≅ Z^{β₀} counts the connected components of the constraint configuration.
+pub mod ht_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "π₀(N(C))";
+    /// `rhs`
+    pub const RHS: &str = "Z^{β₀}";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Path component counting via nerve functor";
+}
+
+/// MN_6 monodromy is abelianisation of full π₁: the fundamental group π₁(N(C)) surjects onto the HolonomyGroup D_{2^n} via abelianisation.
+pub mod ht_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "π₁(N(C)) → D_{2^n}";
+    /// `rhs`
+    pub const RHS: &str = "HolonomyGroup factorization";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Fundamental group projects through HolonomyGroup";
+}
+
+/// Higher homotopy groups vanish above nerve dimension: π_k(N(C)) = 0 for all k > dim(N(C)), because the nerve is a finite CW-complex.
+pub mod ht_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C, k > dim(N(C))";
+    /// `lhs`
+    pub const LHS: &str = "π_k(N(C)) for k > dim(N(C))";
+    /// `rhs`
+    pub const RHS: &str = "0";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Finite CW-complex dimension bound";
+}
+
+/// 1-truncation determines flat/twisted classification: τ_{≤1}(N(C)) captures the holonomy action that distinguishes FlatType from TwistedType.
+pub mod ht_5 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "τ_{≤1}(N(C))";
+    /// `rhs`
+    pub const RHS: &str = "FlatType/TwistedType classification";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Postnikov 1-truncation captures holonomy";
+}
+
+/// Trivial k-invariants beyond depth d imply spectral collapse: if κ_k is trivial for all k > d then the spectral sequence collapses at E_{d+2}.
+pub mod ht_6 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C, d = max simplex dim";
+    /// `lhs`
+    pub const LHS: &str = "κ_k trivial for all k > d";
+    /// `rhs`
+    pub const RHS: &str = "spectral sequence collapses at E_{d+2}";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "k-invariant vanishing ⇒ QLS_4 convergence";
+}
+
+/// Non-trivial Whitehead product implies lift obstruction: \[α, β\] ≠ 0 in π_{p+q−1} implies a non-trivial LiftObstruction that Betti numbers alone cannot detect.
+pub mod ht_7 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "α ∈ π_p, β ∈ π_q";
+    /// `lhs`
+    pub const LHS: &str = "[α, β] ≠ 0 in π_{p+q−1}";
+    /// `rhs`
+    pub const RHS: &str = "LiftObstruction non-trivial";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "Whitehead bracket detects obstructions Betti numbers miss";
+}
+
+/// Hurewicz isomorphism for first non-vanishing group: π_k(N(C)) ⊗ Z ≅ H_k(N(C); Z) for the smallest k with π_k ≠ 0, linking homotopy invariants to homology.
+pub mod ht_8 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "π_k(N(C)) ⊗ Z";
+    /// `rhs`
+    pub const RHS: &str = "H_k(N(C); Z) for smallest k with π_k ≠ 0";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Hurewicz theorem for simply-connected spaces";
+}
+
+/// ψ_7: KanComplex → PostnikovTower — compute the Postnikov truncations τ_{≤k} for k = 0, 1, …, dim(N(C)).
+pub mod psi_7 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "KanComplex(N(C))";
+    /// `rhs`
+    pub const RHS: &str = "PostnikovTower";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "KanComplex → PostnikovTruncation tower";
+}
+
+/// ψ_8: PostnikovTower → HomotopyGroups — extract the homotopy groups π_k from each truncation stage.
+pub mod psi_8 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "PostnikovTower(τ≤k)";
+    /// `rhs`
+    pub const RHS: &str = "HomotopyGroups(π_k)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "PostnikovTower → HomotopyGroup extraction";
+}
+
+/// ψ_9: HomotopyGroups → KInvariants — compute the k-invariants κ_k classifying the Postnikov tower.
+pub mod psi_9 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "HomotopyGroups(π_k)";
+    /// `rhs`
+    pub const RHS: &str = "KInvariants(κ_k)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "HomotopyGroup → KInvariant computation";
+}
+
+/// Pipeline composition: nerve construction + Kan promotion = ψ_7 ∘ ψ_1.
+pub mod hp_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "ψ_7 ∘ ψ_1";
+    /// `rhs`
+    pub const RHS: &str = "Kan promotion of nerve";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "Pipeline composition: nerve construction + Kan promotion";
+}
+
+/// Homotopy extraction agrees with homology on k-skeleton.
+pub mod hp_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C, truncation level k";
+    /// `lhs`
+    pub const LHS: &str = "ψ_8(τ≤k) restricted";
+    /// `rhs`
+    pub const RHS: &str = "ψ_3(C≤k)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Pipeline`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Pipeline";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "Homotopy extraction agrees with homology on k-skeleton";
+}
+
+/// k-invariant computation detects QLS_4 convergence.
+pub mod hp_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "constraint configuration C";
+    /// `lhs`
+    pub const LHS: &str = "ψ_9 detects convergence";
+    /// `rhs`
+    pub const RHS: &str = "spectral sequence converges at E_{d+2}";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "k-invariant computation detects QLS_4 convergence";
+}
+
+/// Complexity bound for homotopy type computation.
+pub mod hp_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "d = max simplex dimension";
+    /// `lhs`
+    pub const LHS: &str = "HomotopyResolver time";
+    /// `rhs`
+    pub const RHS: &str = "O(n^{d+1})";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Analytical`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Analytical";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Complexity bound for homotopy type computation";
+}
+
+/// Moduli space dimension equals basis size of any contained type.
+pub mod md_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "T in M_n";
+    /// `lhs`
+    pub const LHS: &str = "dim(M_n)";
+    /// `rhs`
+    pub const RHS: &str = "basisSize(T)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Algebraic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Moduli dimension = basis size";
+}
+
+/// Zeroth deformation cohomology = automorphism group intersected with dihedral group.
+pub mod md_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "H^0(Def(T))";
+    /// `rhs`
+    pub const RHS: &str = "Aut(T) ∩ D_{2^n}";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Algebraic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "H^0 = automorphisms";
+}
+
+/// First deformation cohomology = tangent space to the moduli space at T.
+pub mod md_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "H^1(Def(T))";
+    /// `rhs`
+    pub const RHS: &str = "T_T(M_n)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Algebraic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "H^1 = tangent space";
+}
+
+/// Second deformation cohomology = LiftObstruction space.
+pub mod md_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "H^2(Def(T))";
+    /// `rhs`
+    pub const RHS: &str = "LiftObstruction space";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "H^2 = obstruction space";
+}
+
+/// FlatType stratum has codimension zero in the moduli space.
+pub mod md_5 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "M_n at any quantum level";
+    /// `lhs`
+    pub const LHS: &str = "FlatType stratum codimension";
+    /// `rhs`
+    pub const RHS: &str = "0";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "FlatType stratum is open and dense";
+}
+
+/// TwistedType stratum has codimension at least 1.
+pub mod md_6 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "M_n at any quantum level";
+    /// `lhs`
+    pub const LHS: &str = "TwistedType stratum codimension";
+    /// `rhs`
+    pub const RHS: &str = "≥ 1";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "TwistedType stratum has positive codimension";
+}
+
+/// VersalDeformation existence is guaranteed when the obstruction space H² vanishes.
+pub mod md_7 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "VersalDeformation existence";
+    /// `rhs`
+    pub const RHS: &str = "guaranteed when H^2 = 0";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Algebraic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Unobstructed deformations admit versal families";
+}
+
+/// A deformation family preserves completeness iff H²(Def(T_t)) = 0 along the entire path.
+pub mod md_8 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "DeformationFamily {C_t}";
+    /// `lhs`
+    pub const LHS: &str = "familyPreservesCompleteness";
+    /// `rhs`
+    pub const RHS: &str = "H^2(Def(T_t)) = 0 along path";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str =
+        "Completeness preservation = vanishing obstruction along path";
+}
+
+/// The fiber of a ModuliTowerMap at T has dimension 1 when the obstruction is trivial.
+pub mod md_9 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T, obstruction = 0";
+    /// `lhs`
+    pub const LHS: &str = "fiber(ModuliTowerMap, T) dimension";
+    /// `rhs`
+    pub const RHS: &str = "1 when obstructionTrivial";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Trivial obstruction → unique lift";
+}
+
+/// The fiber of a ModuliTowerMap at T is empty iff T is a TwistedType at every level.
+pub mod md_10 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "fiber(ModuliTowerMap, T)";
+    /// `rhs`
+    pub const RHS: &str = "empty iff TwistedType at every level";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `IndexTheoretic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/IndexTheoretic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Persistent twist → empty tower fiber";
+}
+
+/// ModuliResolver boundary agrees with MorphospaceBoundary.
+pub mod mr_1 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "M_n";
+    /// `lhs`
+    pub const LHS: &str = "ModuliResolver boundary";
+    /// `rhs`
+    pub const RHS: &str = "MorphospaceBoundary";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Algebraic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Resolver boundary = morphospace boundary";
+}
+
+/// StratificationRecord covers every CompleteType in exactly one stratum.
+pub mod mr_2 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "M_n";
+    /// `lhs`
+    pub const LHS: &str = "StratificationRecord coverage";
+    /// `rhs`
+    pub const RHS: &str = "every CompleteType in exactly one stratum";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Topological`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Topological";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Stratification is a partition of the moduli space";
+}
+
+/// ModuliResolver complexity bound.
+pub mod mr_3 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "CompleteType T";
+    /// `lhs`
+    pub const LHS: &str = "ModuliResolver complexity";
+    /// `rhs`
+    pub const RHS: &str = "O(n × basisSize²)";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Analytical`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Analytical";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Complexity bound for moduli resolver";
+}
+
+/// Achievable signatures correspond to membership in some HolonomyStratum.
+pub mod mr_4 {
+    /// `forAll`
+    pub const FOR_ALL: &str = "MorphospaceRecord";
+    /// `lhs`
+    pub const LHS: &str = "achievabilityStatus = Achievable";
+    /// `rhs`
+    pub const RHS: &str = "signature in some HolonomyStratum";
+    /// `universallyValid`
+    pub const UNIVERSALLY_VALID: bool = true;
+    /// `validityKind` -> `Universal`
+    pub const VALIDITY_KIND: &str = "https://uor.foundation/op/Universal";
+    /// `verificationDomain` -> `Algebraic`
+    pub const VERIFICATION_DOMAIN: &str = "https://uor.foundation/op/Algebraic";
+    /// `verificationPathNote`
+    pub const VERIFICATION_PATH_NOTE: &str = "Achievability = stratum membership";
+}
+
 use crate::enums::PrimitiveOp;
 
 impl PrimitiveOp {

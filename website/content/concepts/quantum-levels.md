@@ -55,7 +55,7 @@ The four individuals of `ValidityScopeKind` are:
 - `op:ParametricRange` — represents `∀k ∈ [k_min, k_max]`; requires both bounds
 - `op:LevelSpecific` — represents a claim about exactly one k
 
-Most of the 378 named identities are Universal (they hold over Z/(2^n)Z for all n in the
+Most of the 424 named identities are Universal (they hold over Z/(2^n)Z for all n in the
 tower). The level-specific identities capture phenomena that only emerge at particular
 ring scales — for example, geometric properties that depend on having at least 4 elements
 (requiring Q2 or above).
