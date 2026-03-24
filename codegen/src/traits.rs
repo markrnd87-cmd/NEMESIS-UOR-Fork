@@ -205,7 +205,10 @@ fn generate_trait(
     } else {
         let bounds = supertraits.join(" + ");
         let one_line = format!("pub trait {trait_name}{p_param}: {bounds} {{");
-        if one_line.chars().count() <= 100 {
+        // rustfmt wraps trait bounds more aggressively than the nominal
+        // 100-char max_width — use 92 to match its heuristic and avoid
+        // drift between codegen output and `cargo fmt`.
+        if one_line.chars().count() <= 92 {
             let _ = writeln!(f.buf, "{one_line}");
         } else {
             let _ = writeln!(f.buf, "pub trait {trait_name}{p_param}:\n    {bounds}\n{{");
