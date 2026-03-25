@@ -906,6 +906,192 @@ form[role="search"] label {
   color: var(--color-text-muted);
 }
 
+/* ── Reading Path ─────────────────────────────────────────────────────────── */
+
+.reading-path {
+  margin-bottom: var(--sp-8);
+  background: #f8f9fa;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+}
+
+.reading-path h2 { margin-top: 0; border-bottom: none; }
+.reading-path > p { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+.reading-path-list {
+  list-style: none;
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--sp-2);
+}
+
+.reading-path-list li a {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.reading-path-list li a:hover {
+  border-color: var(--color-link);
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+  text-decoration: none;
+}
+
+.rp-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--color-link);
+  color: #fff;
+  border-radius: 50%;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.rp-title {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-bg-dark);
+  flex: 1;
+}
+
+.rp-badge { margin-left: auto; }
+
+/* ── Reading Guide (Homepage) ─────────────────────────────────────────────── */
+
+.reading-guide { margin-bottom: 3rem; }
+.reading-guide h2 { text-align: center; margin-bottom: 1rem; }
+
+.pathway-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+
+.pathway {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  border-top: 4px solid;
+}
+
+.pathway-kernel { border-top-color: var(--color-kernel); }
+.pathway-bridge { border-top-color: var(--color-bridge); }
+.pathway-user   { border-top-color: var(--color-user); }
+
+.pathway h3 { margin-top: 0; font-size: var(--text-lg); }
+.pathway p  { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--sp-3); }
+
+.pathway-steps {
+  margin: 0; padding: 0 0 0 1.25rem;
+  font-size: var(--text-sm);
+}
+.pathway-steps li { margin-bottom: var(--sp-1); }
+.pathway-steps a { font-weight: 600; }
+
+/* ── Namespace Context ────────────────────────────────────────────────────── */
+
+.ns-context {
+  padding: var(--sp-3) var(--sp-4);
+  border-left: 4px solid var(--color-link);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin: var(--sp-4) 0;
+  font-size: var(--text-sm);
+}
+.ns-context-kernel { border-left-color: var(--color-kernel); background: var(--color-kernel-light); }
+.ns-context-bridge { border-left-color: var(--color-bridge); background: var(--color-bridge-light); }
+.ns-context-user   { border-left-color: var(--color-user); background: var(--color-user-light); }
+
+/* ── Identities Introduction ──────────────────────────────────────────────── */
+
+.identities-intro {
+  background: #f8f9fa;
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4) var(--sp-6);
+  margin-bottom: var(--sp-6);
+}
+.identities-intro p { font-size: var(--text-sm); line-height: 1.7; }
+.identities-intro p:last-child { margin-bottom: 0; }
+
+/* ── Stage Concept Links ──────────────────────────────────────────────────── */
+
+.stage-concepts {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--sp-2);
+}
+.stage-concepts a { font-weight: 600; }
+
+/* ── Related Section ──────────────────────────────────────────────────────── */
+
+.related-section {
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-6);
+  border-top: 2px solid var(--color-border);
+}
+
+.related-section h2 {
+  font-size: var(--text-xl);
+  margin-top: 0;
+  border-bottom: none;
+}
+
+.related-section h3 {
+  font-size: var(--text-base);
+  margin-top: 0;
+  color: var(--color-text-muted);
+}
+
+.related-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6);
+}
+
+.related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.related-list li {
+  padding: var(--sp-1) 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.related-list li:last-child { border-bottom: none; }
+.related-list a { font-weight: 600; font-size: var(--text-sm); }
+
+/* ── About Links ──────────────────────────────────────────────────────────── */
+
+.about-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.about-links li {
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid #e5e9f0;
+  font-size: var(--text-sm);
+}
+
+.about-links li:last-child { border-bottom: none; }
+.about-links a { font-weight: 600; }
+
 /* ── Identity Table ────────────────────────────────────────────────────────── */
 
 tr.identity-row:nth-child(even) {
@@ -1124,6 +1310,18 @@ details.ns-detail[open] summary::before {
   }
 
   .concept-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reading-path-list {
+    grid-template-columns: 1fr;
+  }
+
+  .pathway-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .related-columns {
     grid-template-columns: 1fr;
   }
 }

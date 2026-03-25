@@ -116,6 +116,11 @@ pub fn render_homepage(summaries: &[NamespaceSummary], base_path: &str) -> Strin
     let docs_url = format!("{}/docs/overview.html", base_path);
     let ns_url = format!("{}/namespaces/", base_path);
     let search_url = format!("{}/search.html", base_path);
+    let concepts_url = format!("{}/concepts", base_path);
+    let pipeline_url = format!("{}/pipeline/", base_path);
+    let explore_url = format!("{}/explore/", base_path);
+    let identities_url = format!("{}/identities/", base_path);
+    let download_url = format!("{}/download/", base_path);
 
     format!(
         r#"<section class="hero">
@@ -156,6 +161,41 @@ pub fn render_homepage(summaries: &[NamespaceSummary], base_path: &str) -> Strin
 </div>
 </section>
 
+<section class="reading-guide" aria-labelledby="reading-guide-heading">
+<h2 id="reading-guide-heading">Where to Start</h2>
+<p>The UOR Foundation ontology is a formal mathematical framework. Choose a path based on what you want to learn:</p>
+<div class="pathway-grid">
+<article class="pathway pathway-kernel">
+<h3>Understand the Mathematics</h3>
+<p>Start with the algebraic substrate and build up to the full type system.</p>
+<ol class="pathway-steps">
+<li><a href="{concepts_url}/ring.html">The Ring Substrate</a></li>
+<li><a href="{concepts_url}/quantum-levels.html">Quantum Levels</a></li>
+<li><a href="{concepts_url}/content-addressing.html">Content Addressing</a></li>
+<li><a href="{concepts_url}/fiber.html">Fiber Bundles</a></li>
+</ol>
+</article>
+<article class="pathway pathway-bridge">
+<h3>See the Pipeline</h3>
+<p>Understand how the Define \u{{2192}} Resolve \u{{2192}} Certify pipeline works end to end.</p>
+<ol class="pathway-steps">
+<li><a href="{concepts_url}/prism.html">The PRISM Pipeline</a></li>
+<li><a href="{pipeline_url}">Pipeline Stages</a></li>
+<li><a href="{explore_url}">Explore Dependencies</a></li>
+</ol>
+</article>
+<article class="pathway pathway-user">
+<h3>Browse the Reference</h3>
+<p>Jump straight into the formal ontology artifacts and namespace documentation.</p>
+<ol class="pathway-steps">
+<li><a href="{ns_url}">All Namespaces</a></li>
+<li><a href="{identities_url}">Algebraic Identities</a></li>
+<li><a href="{download_url}">Download Artifacts</a></li>
+</ol>
+</article>
+</div>
+</section>
+
 <section class="namespace-grid">
 <h2>Namespaces</h2>
 <div class="grid">
@@ -165,6 +205,11 @@ pub fn render_homepage(summaries: &[NamespaceSummary], base_path: &str) -> Strin
         docs_url = escape_html(&docs_url),
         ns_url = escape_html(&ns_url),
         search_url = escape_html(&search_url),
+        concepts_url = escape_html(&concepts_url),
+        pipeline_url = escape_html(&pipeline_url),
+        explore_url = escape_html(&explore_url),
+        identities_url = escape_html(&identities_url),
+        download_url = escape_html(&download_url),
         total_ns = total_ns,
         total_classes = total_classes,
         total_props = total_props,
@@ -232,11 +277,14 @@ pub fn render_namespace_page(module: &NamespaceModule, base_path: Option<&str>) 
     );
 
     // Documentation link
+    let bp = base_path.unwrap_or("");
     body.push_str(&format!(
-        "<p class=\"ns-docs-link\"><a href=\"{base_path}/docs/namespaces/{prefix}.html\">View documentation reference</a></p>\n",
-        base_path = base_path.unwrap_or(""),
+        "<p class=\"ns-docs-link\"><a href=\"{bp}/docs/namespaces/{prefix}.html\">View documentation reference</a></p>\n",
         prefix = escape_html(ns.prefix),
     ));
+
+    // Space context paragraph
+    body.push_str(&space_context_html(&ns.space, ns.prefix, bp));
 
     // Class hierarchy SVG (after meta block)
     let hierarchy_svg = crate::svg::render_class_hierarchy_svg(module);
@@ -333,6 +381,19 @@ pub fn render_namespace_page(module: &NamespaceModule, base_path: Option<&str>) 
             }
         }
         body.push_str("</tbody>\n</table>\n");
+    }
+
+    // Related concepts (derived from the inverse of CONCEPT_RELATIONS)
+    let related_slugs = crate::concepts::concepts_for_namespace(ns.prefix);
+    if !related_slugs.is_empty() {
+        body.push_str("<section class=\"related-section\">\n<h2>Related Concepts</h2>\n<ul class=\"related-list\">\n");
+        for slug in &related_slugs {
+            let title = concept_title(slug);
+            body.push_str(&format!(
+                "<li><a href=\"{bp}/concepts/{slug}.html\">{title}</a></li>\n",
+            ));
+        }
+        body.push_str("</ul>\n</section>\n");
     }
 
     body
@@ -469,6 +530,45 @@ pub fn render_download_page(base_path: &str) -> String {
     )
 }
 
+/// Renders the about page body from `content/about.md`.
+///
+/// Expands `{@count:}` and other directives in the markdown before rendering.
+///
+/// # Errors
+///
+/// Returns an error if `about.md` cannot be read.
+pub fn render_about_page(
+    content_dir: &std::path::Path,
+    ontology: &Ontology,
+    concept_list: &[crate::model::ConceptPage],
+    base_path: &str,
+) -> anyhow::Result<String> {
+    let about_path = content_dir.join("about.md");
+    let raw = std::fs::read_to_string(&about_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read {}: {}", about_path.display(), e))?;
+    let expanded = crate::concepts::expand_directives(&raw, ontology, concept_list, base_path);
+    let content_html = crate::concepts::markdown_to_html(&expanded);
+    let ns_count = uor_ontology::counts::NAMESPACES;
+    Ok(format!(
+        "{content_html}\n\
+         <section class=\"about-links\">\n\
+         <h2>Quick Links</h2>\n\
+         <ul>\n\
+         <li><a href=\"{base_path}/concepts/\">Concepts</a> \u{2014} \
+         deep-dive explanations of core ideas</li>\n\
+         <li><a href=\"{base_path}/pipeline/\">Pipeline</a> \u{2014} \
+         the Define \u{2192} Resolve \u{2192} Certify stages</li>\n\
+         <li><a href=\"{base_path}/namespaces/\">Namespaces</a> \u{2014} \
+         browse the {ns_count} ontology namespaces</li>\n\
+         <li><a href=\"{base_path}/download/\">Download</a> \u{2014} \
+         serialization artifacts in 7 formats</li>\n\
+         <li><a href=\"{base_path}/docs/overview.html\">Documentation</a> \u{2014} \
+         full technical reference</li>\n\
+         </ul>\n\
+         </section>"
+    ))
+}
+
 /// Renders the citation page body.
 pub fn render_citation_page() -> String {
     "<h1>Citation</h1>\n\
@@ -562,6 +662,9 @@ pub fn render_pipeline_page(summaries: &[NamespaceSummary], base_path: &str) -> 
             _ => {}
         }
 
+        // Concept links for this stage
+        body.push_str(&stage_concept_links(section_id, base_path));
+
         if !ns_in_stage.is_empty() {
             body.push_str("<ul>\n");
             for ns in &ns_in_stage {
@@ -588,11 +691,27 @@ pub fn render_identities_page(ontology: &Ontology, base_path: &str) -> String {
 
     let dist_svg = crate::svg::render_identity_distribution_svg(ontology);
 
+    let ring_url = format!("{base_path}/concepts/ring.html");
+    let proof_url = format!("{base_path}/concepts/proof-system.html");
+
     let mut body = format!(
         "<h1>Algebraic Identities</h1>\n\
-         <p>{identity_count} named algebraic identities spanning all verification domains. \
-         Each identity is an <code>op:Identity</code> individual with an associated \
-         <code>proof:AxiomaticDerivation</code> or <code>proof:ComputationCertificate</code>.</p>\n\
+         <div class=\"identities-intro\">\n\
+         <p>An <strong>algebraic identity</strong> is a named equation that holds over the ring \
+         substrate Z/(2^n)Z. Each identity is an <code>op:Identity</code> individual in the \
+         ontology, paired with a <code>proof:AxiomaticDerivation</code> or \
+         <code>proof:ComputationCertificate</code> that certifies it.</p>\n\
+         <p>Identities are classified by <strong>verification domain</strong> \u{2014} the mathematical \
+         discipline used to prove them. Domains include Enumerative (exhaustive check at Q0), \
+         Algebraic (ring-theoretic derivation), Geometric (metric-space arguments), and others. \
+         The chart below shows the distribution across all {identity_count} identities.</p>\n\
+         <p>Each identity also has a <strong>validity scope</strong>: Universal (valid at all \
+         quantum levels), ParametricLower (valid at level \u{2265} k), ParametricRange (valid in \
+         [k_min, k_max]), or LevelSpecific (valid at exactly one level). \
+         See <a href=\"{ring_url}\">The Ring Substrate</a> for the \
+         ring foundation and <a href=\"{proof_url}\">Proofs, \
+         Derivations &amp; Traces</a> for the certification pipeline.</p>\n\
+         </div>\n\
          <figure class=\"diagram-container identity-distribution\" \
          aria-label=\"Identity distribution by verification domain\">\n\
          <figcaption>Identity count by verification domain</figcaption>\n\
@@ -709,11 +828,21 @@ pub fn render_explore(
     let dep_svg = crate::svg::render_namespace_dependency_graph_svg(ontology, base_path);
     let explore_data = crate::extractor::generate_explore_data(summaries);
 
+    let prism_url = format!("{base_path}/concepts/prism.html");
+    let ns_list_url = format!("{base_path}/namespaces/");
+
     let mut body = format!(
         "<h1>Explore the Ontology</h1>\n\
          <p>The UOR Foundation ontology comprises {ns} namespaces organized into three \
          space classifications: Kernel (immutable substrate), Bridge (computed transforms), \
          and User (runtime parameterization). The diagram below shows import dependencies.</p>\n\
+         <p>Each namespace imports other namespaces for its domain and range declarations, \
+         forming a directed acyclic graph. The assembly order (u \u{2192} schema \u{2192} op \
+         \u{2192} \u{2026} \u{2192} state) ensures no circular dependencies. Expand a \
+         namespace below for a summary, or visit its \
+         <a href=\"{ns_list_url}\">full reference page</a>. \
+         For a conceptual overview, start with \
+         <a href=\"{prism_url}\">The PRISM Pipeline</a>.</p>\n\
          <figure class=\"diagram-container\" aria-label=\"Namespace dependency graph\">\n\
          <figcaption>Namespace import dependencies (assembly order, left to right)</figcaption>\n\
          {dep_svg}\n\
@@ -768,10 +897,37 @@ pub fn render_explore(
     body
 }
 
+/// Suggested reading order: `(slug, title, space)`.
+const READING_ORDER: &[(&str, &str, &str)] = &[
+    ("ring", "The Ring Substrate", "kernel"),
+    ("quantum-levels", "Quantum Levels", "kernel"),
+    ("content-addressing", "Content Addressing", "kernel"),
+    ("partition", "The Partition Decomposition", "bridge"),
+    ("fiber", "Fiber Bundle Semantics", "bridge"),
+    ("resolution", "Resolution &amp; Queries", "bridge"),
+    ("observables", "Observables &amp; Measurement", "bridge"),
+    ("proof-system", "Proofs, Derivations &amp; Traces", "bridge"),
+    ("homology", "Homological Analysis", "bridge"),
+    ("prism", "The PRISM Pipeline", "kernel"),
+];
+
 /// Renders the concepts index page.
 pub fn render_concepts_index(concepts: &[ConceptPage], base_path: &str) -> String {
     let concept_count = concepts.len();
     let pipeline_url = format!("{base_path}/pipeline/");
+
+    // Reading pathway
+    let mut path_items = String::new();
+    for (i, (slug, title, space)) in READING_ORDER.iter().enumerate() {
+        path_items.push_str(&format!(
+            "<li><a href=\"{base_path}/concepts/{slug}.html\">\
+             <span class=\"rp-number\">{num}</span>\
+             <span class=\"rp-title\">{title}</span>\
+             <span class=\"badge badge-{space} rp-badge\">{space}</span>\
+             </a></li>\n",
+            num = i + 1,
+        ));
+    }
 
     let mut cards = String::new();
     for concept in concepts {
@@ -791,6 +947,15 @@ pub fn render_concepts_index(concepts: &[ConceptPage], base_path: &str) -> Strin
          <p>Deep-dive explanations of the core mathematical and architectural concepts \
          in the UOR Foundation. Each page connects the formal ontology definitions to \
          the intuitions behind the <a href=\"{pipeline_url}\">PRISM pipeline</a>.</p>\n\
+         <section class=\"reading-path\" aria-labelledby=\"reading-path-heading\">\n\
+         <h2 id=\"reading-path-heading\">Suggested Reading Order</h2>\n\
+         <p>New to UOR? Follow this path through the core concepts, from the algebraic \
+         foundation to the full certification pipeline:</p>\n\
+         <ol class=\"reading-path-list\">\n\
+         {path_items}\
+         </ol>\n\
+         </section>\n\
+         <h2>All Concepts</h2>\n\
          <div class=\"concept-grid\">\n\
          {cards}\n\
          </div>\n\
@@ -802,10 +967,14 @@ pub fn render_concepts_index(concepts: &[ConceptPage], base_path: &str) -> Strin
 /// Renders a concept page body wrapping rendered markdown content.
 ///
 /// If `extra_svg` is provided, it is injected after the first `<h1>` heading.
+/// If related namespaces or concepts are provided, a "Related" section is appended.
 pub fn render_concept_page_body(
     title: &str,
     content_html: &str,
     extra_svg: Option<&str>,
+    related_ns: &[(&str, &str)],
+    related_concepts: &[(&str, &str)],
+    base_path: &str,
 ) -> String {
     let svg_block = extra_svg
         .map(|svg| {
@@ -819,13 +988,160 @@ pub fn render_concept_page_body(
         .unwrap_or_default();
 
     // Inject SVG after the first <h1> if present, otherwise prepend
-    if content_html.contains("</h1>") {
+    let mut result = if content_html.contains("</h1>") {
         let split_pos = content_html.find("</h1>").map(|p| p + 5).unwrap_or(0);
         let (before, after) = content_html.split_at(split_pos);
         format!("{before}\n{svg_block}{after}")
     } else {
         format!("{svg_block}{content_html}")
+    };
+
+    // Related section
+    if !related_ns.is_empty() || !related_concepts.is_empty() {
+        result.push_str(
+            "<section class=\"related-section\" aria-labelledby=\"related-heading\">\n\
+             <h2 id=\"related-heading\">Related</h2>\n\
+             <div class=\"related-columns\">\n",
+        );
+
+        if !related_ns.is_empty() {
+            result.push_str(
+                "<div class=\"related-col\">\n<h3>Namespaces</h3>\n<ul class=\"related-list\">\n",
+            );
+            for (prefix, label) in related_ns {
+                result.push_str(&format!(
+                    "<li><a href=\"{base_path}/namespaces/{prefix}/\"><code>{prefix}</code> \u{2014} {label}</a></li>\n",
+                    prefix = escape_html(prefix),
+                    label = escape_html(label),
+                ));
+            }
+            result.push_str("</ul>\n</div>\n");
+        }
+
+        if !related_concepts.is_empty() {
+            result.push_str(
+                "<div class=\"related-col\">\n<h3>Concepts</h3>\n<ul class=\"related-list\">\n",
+            );
+            for (slug, c_title) in related_concepts {
+                result.push_str(&format!(
+                    "<li><a href=\"{base_path}/concepts/{slug}.html\">{title}</a></li>\n",
+                    slug = escape_html(slug),
+                    title = escape_html(c_title),
+                ));
+            }
+            result.push_str("</ul>\n</div>\n");
+        }
+
+        result.push_str("</div>\n</section>\n");
     }
+
+    result
+}
+
+/// Returns a contextual paragraph for a namespace page based on its space and prefix.
+fn space_context_html(space: &uor_ontology::model::Space, prefix: &str, base_path: &str) -> String {
+    use uor_ontology::model::Space;
+    let (stage, stage_id, stage_desc) = match space {
+        Space::Kernel => (
+            "Define",
+            "stage-define",
+            "the immutable algebraic substrate \u{2014} ring structure, schema vocabulary, \
+             and operation algebra",
+        ),
+        Space::Bridge => (
+            "Resolve",
+            "stage-resolve",
+            "the resolution infrastructure \u{2014} queries, partitions, observables, proofs, \
+             derivations, and traces that transform inputs into certified results",
+        ),
+        Space::User => (
+            "Apply",
+            "stage-resolve",
+            "the application layer \u{2014} types, morphisms, and state that parameterize \
+             the resolution pipeline",
+        ),
+    };
+
+    let space_str = format!("{:?}", space).to_lowercase();
+
+    let concept_link = match prefix {
+        "u" => Some(("content-addressing", "Content Addressing")),
+        "schema" => Some(("ring", "The Ring Substrate")),
+        "op" => Some(("quantum-levels", "Quantum Levels")),
+        "query" | "resolver" => Some(("resolution", "Resolution &amp; Queries")),
+        "partition" => Some(("partition", "The Partition Decomposition")),
+        "observable" => Some(("observables", "Observables &amp; Measurement")),
+        "homology" | "cohomology" => Some(("homology", "Homological Analysis")),
+        "proof" | "derivation" | "trace" => {
+            Some(("proof-system", "Proofs, Derivations &amp; Traces"))
+        }
+        "cert" => Some(("proof-system", "Proofs, Derivations &amp; Traces")),
+        "type" | "morphism" | "state" => Some(("fiber", "Fiber Bundle Semantics")),
+        _ => None,
+    };
+
+    let concept_html = concept_link
+        .map(|(slug, title)| {
+            format!(" \u{00b7} <a href=\"{base_path}/concepts/{slug}.html\">{title}</a>")
+        })
+        .unwrap_or_default();
+
+    format!(
+        "<div class=\"ns-context ns-context-{space_str}\">\n\
+         <p>This is a <strong>{space_str}-space</strong> namespace in the \
+         <a href=\"{base_path}/pipeline/#{stage_id}\">{stage}</a> stage of the \
+         PRISM pipeline. It provides {stage_desc}.</p>\n\
+         <p>Learn more: <a href=\"{base_path}/pipeline/\">Pipeline Overview</a>{concept_html}</p>\n\
+         </div>\n"
+    )
+}
+
+/// Returns concept link HTML for a pipeline stage.
+fn stage_concept_links(section_id: &str, base_path: &str) -> String {
+    let links: &[(&str, &str)] = match section_id {
+        "stage-define" => &[
+            ("ring", "The Ring Substrate"),
+            ("quantum-levels", "Quantum Levels"),
+            ("content-addressing", "Content Addressing"),
+        ],
+        "stage-resolve" => &[
+            ("resolution", "Resolution &amp; Queries"),
+            ("partition", "The Partition Decomposition"),
+            ("observables", "Observables &amp; Measurement"),
+            ("homology", "Homological Analysis"),
+            ("fiber", "Fiber Bundle Semantics"),
+        ],
+        "stage-certify" => &[
+            ("proof-system", "Proofs, Derivations &amp; Traces"),
+            ("prism", "The PRISM Pipeline"),
+        ],
+        _ => &[],
+    };
+
+    if links.is_empty() {
+        return String::new();
+    }
+
+    let items: Vec<String> = links
+        .iter()
+        .map(|(slug, title)| format!("<a href=\"{base_path}/concepts/{slug}.html\">{title}</a>"))
+        .collect();
+
+    format!(
+        "<p class=\"stage-concepts\">Related concepts: {}</p>\n",
+        items.join(" \u{00b7} ")
+    )
+}
+
+/// Looks up the proper display title for a concept page slug.
+///
+/// Falls back to a title-cased version of the slug if not found in `READING_ORDER`.
+fn concept_title(slug: &str) -> String {
+    READING_ORDER
+        .iter()
+        .find(|(s, _, _)| *s == slug)
+        .map(|(_, title, _)| (*title).to_string())
+        .unwrap_or_else(|| slug.replace('-', " "))
 }
 
 /// Escapes HTML special characters.

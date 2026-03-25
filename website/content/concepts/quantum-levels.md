@@ -1,8 +1,8 @@
 # Quantum Levels
 
-Quantum levels Q0–Q3 are the four scaling tiers of the UOR ring substrate. Every computation,
-identity, and proof in UOR is valid at one or more quantum levels. Understanding quantum
-levels is essential for reading the algebraic identities and their associated proofs.
+Quantum levels Q0–Q3 are the four scaling tiers of the UOR {@concept ring} substrate. Every
+computation, identity, and proof in UOR is valid at one or more quantum levels. Understanding
+quantum levels is essential for reading the algebraic identities and their associated proofs.
 
 ## Level Definitions
 
@@ -13,14 +13,14 @@ levels is essential for reading the algebraic identities and their associated pr
 | Q2 | Z/(16)Z | 4 bits | 16 | Nibble |
 | Q3 | Z/(256)Z | 8 bits | 256 | Byte |
 
-Each level is a `schema:QuantumLevel` named individual with:
-- `schema:quantumIndex` — integer index 0–3
-- `schema:bitsWidth` — bit width 1, 2, 4, or 8
-- `schema:cycleSize` — ring cardinality (2^bitsWidth)
-- `schema:nextLevel` — the next level up (Q0→Q1, Q1→Q2, Q2→Q3)
+Each level is a {@class https://uor.foundation/schema/QuantumLevel} named individual with:
+- {@prop https://uor.foundation/schema/quantumIndex} — integer index 0–3
+- {@prop https://uor.foundation/schema/bitsWidth} — bit width 1, 2, 4, or 8
+- {@prop https://uor.foundation/schema/cycleSize} — ring cardinality (2^bitsWidth)
+- {@prop https://uor.foundation/schema/nextLevel} — the next level up (Q0→Q1, Q1→Q2, Q2→Q3)
 
-Q3 (the byte ring) is the primary ring for content addressing. Q0 is the minimal boolean
-ring. The tower Q0 ⊂ Q1 ⊂ Q2 ⊂ Q3 is captured by the `nextLevel` chain.
+Q3 (the byte ring) is the primary ring for {@concept content-addressing}. Q0 is the minimal
+boolean ring. The tower Q0 ⊂ Q1 ⊂ Q2 ⊂ Q3 is captured by the `nextLevel` chain.
 
 ## The `QuantumLevel` Enum
 
@@ -34,7 +34,7 @@ canonical instances Q0–Q3 are provided as associated constants.
 
 ## Universal vs. Level-Specific Validity
 
-Not all algebraic identities hold at all quantum levels. The `op:ValidityScopeKind`
+Not all algebraic identities hold at all quantum levels. The `ValidityScopeKind`
 enum class captures four validity patterns:
 
 - **Universal** — the identity holds for all quantum levels (k ∈ {0,1,2,3} and beyond)
@@ -46,48 +46,35 @@ These scopes are enforced by the conformance validator `validate_forall_scope_al
 which checks that the `universallyValid` boolean is consistent with the `validityKind`
 and that `validKMin`/`validKMax` bounds are present when required.
 
-## The `ValidityScopeKind` Taxonomy
-
-The four individuals of `ValidityScopeKind` are:
-
-- `op:Universal` — represents the `∀k` quantifier
-- `op:ParametricLower` — represents `∀k ≥ k_min`; requires `validKMin` property
-- `op:ParametricRange` — represents `∀k ∈ [k_min, k_max]`; requires both bounds
-- `op:LevelSpecific` — represents a claim about exactly one k
-
-Most of the 424 named identities are Universal (they hold over Z/(2^n)Z for all n in the
-tower). The level-specific identities capture phenomena that only emerge at particular
-ring scales — for example, geometric properties that depend on having at least 4 elements
-(requiring Q2 or above).
-
 ## Tower Chains
 
 Amendments 41 and beyond introduced tower chain vocabulary to formalize the Q-n scaling
-of inductive proofs. A `type:LiftChain` records a sequence of type lifts from level k to
-level k+1, and a `type:LiftObstruction` records where the lifting fails.
+of inductive proofs. A {@class https://uor.foundation/type/LiftChain} records a sequence
+of type lifts from level k to level k+1, and a
+{@class https://uor.foundation/type/LiftObstruction} records where the lifting fails.
 
-The `cert:LiftChainCertificate` certifies that a lift chain is valid all the way to the
-target level. The `type:ObstructionChain` captures the failure mode — where and why a
-lift cannot proceed.
+The {@class https://uor.foundation/cert/LiftChainCertificate} certifies that a lift chain
+is valid all the way to the target level. The
+{@class https://uor.foundation/type/ObstructionChain} captures the failure mode — where
+and why a lift cannot proceed.
 
-Inductive proofs (`proof:InductiveProof`) have three key properties:
-- `proof:baseCase` — proof at the minimal quantum level
-- `proof:inductiveStep` — proof that validity at level k implies validity at level k+1
-- `proof:validForKAtLeast` — the certified minimum quantum level
-
-This allows the tower chain structure to be formally certified in `cert`, closing the
-inductive proof pathway through the PRISM pipeline.
+Inductive proofs ({@class https://uor.foundation/proof/InductiveProof}) have three key
+properties (see {@concept proof-system} for details):
+- `baseCase` — proof at the minimal quantum level
+- `inductiveStep` — proof that validity at level k implies validity at level k+1
+- `validForKAtLeast` — the certified minimum quantum level
 
 ## Connection to Content Addressing
 
-The quantum level determines the granularity of content addressing. At Q3 (byte width),
-a content address is a sequence of bytes — the standard interpretation for file systems,
-network protocols, and cryptographic hash functions.
+The quantum level determines the granularity of {@concept content-addressing}. At Q3
+(byte width), a content address is a sequence of bytes — the standard interpretation
+for file systems, network protocols, and cryptographic hash functions.
 
 At Q0 (bit width), a content address is a single bit — useful for Boolean domains.
-The ring Z/(2)Z has only two elements (0 and 1), making Q0 addresses the coarsest
-possible content-addressable identifiers.
+The {@concept ring} Z/(2)Z has only two elements (0 and 1), making Q0 addresses the
+coarsest possible content-addressable identifiers.
 
-The `schema:QuantumLevel` individuals are referenced by the `op:QuantumLevelBinding` class,
-which links operations to the quantum level at which they are defined. This binding ensures
-that no operation is applied at a ring scale it was not designed for.
+The {@class https://uor.foundation/schema/QuantumLevel} individuals are referenced by the
+{@class https://uor.foundation/op/QuantumLevelBinding} class, which links operations to the
+quantum level at which they are defined. This binding ensures that no operation is applied
+at a ring scale it was not designed for.

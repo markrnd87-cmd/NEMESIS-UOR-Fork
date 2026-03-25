@@ -27,7 +27,7 @@ This is the foundational theorem proved by {@class https://uor.foundation/proof/
 
 ## Namespace Layers
 
-The 16 namespaces are organized into three **space** classifications:
+The {@count:namespaces} namespaces are organized into three **space** classifications:
 
 **Kernel** (mathematical core):
 - {@class https://uor.foundation/u/Address} — universal addressing

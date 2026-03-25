@@ -23,6 +23,7 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
     check_pipeline_page(artifacts, &mut report)?;
     check_identities_page(artifacts, &mut report)?;
     check_download_page(artifacts, &mut report)?;
+    check_about_page(artifacts, &mut report)?;
 
     Ok(report)
 }
@@ -166,6 +167,23 @@ fn check_identities_page(artifacts: &Path, report: &mut ConformanceReport) -> Re
         ));
     }
 
+    Ok(())
+}
+
+/// about/index.html must exist.
+fn check_about_page(artifacts: &Path, report: &mut ConformanceReport) -> Result<()> {
+    let page = artifacts.join("about").join("index.html");
+    if page.exists() {
+        report.push(TestResult::pass(
+            "website/pages/about",
+            "about/index.html exists in generated website",
+        ));
+    } else {
+        report.push(TestResult::fail(
+            "website/pages/about",
+            "about/index.html not found in generated website",
+        ));
+    }
     Ok(())
 }
 

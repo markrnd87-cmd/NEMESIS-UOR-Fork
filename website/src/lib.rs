@@ -70,9 +70,10 @@ use extractor::{
 };
 use nav::{build_nav, render_nav};
 use renderer::{
-    render_citation_page, render_concept_page_body, render_concepts_index, render_download_page,
-    render_explore, render_homepage, render_identities_page, render_namespace_page,
-    render_namespaces_index, render_page, render_pipeline_page, render_search_page, render_sitemap,
+    render_about_page, render_citation_page, render_concept_page_body, render_concepts_index,
+    render_download_page, render_explore, render_homepage, render_identities_page,
+    render_namespace_page, render_namespaces_index, render_page, render_pipeline_page,
+    render_search_page, render_sitemap,
 };
 
 const BASE_URL: &str = "https://uor.foundation";
@@ -227,9 +228,26 @@ pub fn generate(out_dir: &Path) -> Result<()> {
     writer::write(&out_dir.join("citation").join("index.html"), &citation_html)?;
     sitemap_paths.push("/citation/".to_string());
 
-    // Concepts index + dynamically discovered concept pages
+    // Content directory (shared by about page and concept pages)
     let content_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("content");
+
+    // Discover concept pages early (needed by about page and concept rendering)
     let concept_list = concepts::concept_page_list(&content_dir, base_path)?;
+
+    // About page
+    let about_body = render_about_page(&content_dir, ontology, &concept_list, base_path)?;
+    let about_nav = render_nav(&nav, &format!("{}/about/", base_path));
+    let about_html = render_page(
+        "About",
+        &about_body,
+        &about_nav,
+        &simple_breadcrumbs("About", base_path),
+        base_path,
+    );
+    writer::write(&out_dir.join("about").join("index.html"), &about_html)?;
+    sitemap_paths.push("/about/".to_string());
+
+    // Concepts index
     let concepts_body = render_concepts_index(&concept_list, base_path);
     let concepts_nav = render_nav(&nav, &format!("{}/concepts/", base_path));
     let concepts_html = render_page(
@@ -246,12 +264,43 @@ pub fn generate(out_dir: &Path) -> Result<()> {
         let content_path = content_dir
             .join("concepts")
             .join(format!("{}.md", concept.slug));
-        let content_html = concepts::render_concept_from_file(&content_path)?;
+        let content_html =
+            concepts::render_concept_from_file(&content_path, ontology, &concept_list, base_path)?;
         let extra_svg = pipeline::CONCEPT_SVG_HOOKS
             .iter()
             .find(|(slug, _)| *slug == concept.slug.as_str())
             .map(|(_, f)| f(ontology));
-        let body = render_concept_page_body(&concept.title, &content_html, extra_svg.as_deref());
+
+        // Look up related namespaces and concepts
+        let (rel_ns_prefixes, rel_concept_slugs) = concepts::concept_relations(&concept.slug);
+        let rel_ns: Vec<(&str, &str)> = rel_ns_prefixes
+            .iter()
+            .filter_map(|p| {
+                ontology
+                    .namespaces
+                    .iter()
+                    .find(|m| m.namespace.prefix == *p)
+                    .map(|m| (*p, m.namespace.label))
+            })
+            .collect();
+        let rel_concepts: Vec<(&str, &str)> = rel_concept_slugs
+            .iter()
+            .filter_map(|s| {
+                concept_list
+                    .iter()
+                    .find(|c| c.slug == *s)
+                    .map(|c| (*s, c.title.as_str()))
+            })
+            .collect();
+
+        let body = render_concept_page_body(
+            &concept.title,
+            &content_html,
+            extra_svg.as_deref(),
+            &rel_ns,
+            &rel_concepts,
+            base_path,
+        );
         let concept_nav = render_nav(&nav, &concept.url);
         let concept_crumbs = concept_breadcrumbs(&concept.title, base_path);
         let concept_html = render_page(

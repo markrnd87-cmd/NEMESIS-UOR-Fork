@@ -31,7 +31,7 @@ uor-ontology (spec/)
 `uor-ontology` encodes the complete ontology as typed Rust static data:
 
 - **`model.rs`**: Core types — `Namespace`, `Class`, `Property`, `Individual`, `Ontology`
-- **`namespaces/*.rs`**: 16 modules, one per namespace (all {@count:amendments} amendments applied)
+- **`namespaces/*.rs`**: {@count:namespaces} modules, one per namespace (all {@count:amendments} amendments applied)
 - **`serializer/jsonld.rs`**: Serializes to JSON-LD 1.1
 - **`serializer/turtle.rs`**: Serializes to Turtle 1.1
 - **`serializer/ntriples.rs`**: Serializes to N-Triples
