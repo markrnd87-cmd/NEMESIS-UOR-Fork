@@ -1079,7 +1079,7 @@ checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 
 [[package]]
 name = "uor-clients"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "clap",
@@ -1093,7 +1093,7 @@ dependencies = [
 
 [[package]]
 name = "uor-codegen"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "uor-ontology",
@@ -1101,7 +1101,7 @@ dependencies = [
 
 [[package]]
 name = "uor-conformance"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "cssparser",
@@ -1117,7 +1117,7 @@ dependencies = [
 
 [[package]]
 name = "uor-docs"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "pulldown-cmark",
@@ -1131,11 +1131,11 @@ dependencies = [
 
 [[package]]
 name = "uor-foundation"
-version = "0.1.1"
+version = "0.1.2"
 
 [[package]]
 name = "uor-ontology"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -1143,7 +1143,7 @@ dependencies = [
 
 [[package]]
 name = "uor-website"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "pulldown-cmark",
