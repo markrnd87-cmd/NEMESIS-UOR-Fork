@@ -301,16 +301,16 @@ body {
 
 .page-content p { margin: 0 0 1rem; }
 
-.page-content a {
+.page-content a:not(.cta-primary):not(.cta-secondary) {
   color: var(--color-link);
   text-decoration: none;
 }
 
-.page-content a:hover {
+.page-content a:not(.cta-primary):not(.cta-secondary):hover {
   text-decoration: underline;
 }
 
-.page-content a:focus {
+.page-content a:not(.cta-primary):not(.cta-secondary):focus {
   outline: 2px solid var(--color-link);
   outline-offset: 2px;
   border-radius: 2px;
