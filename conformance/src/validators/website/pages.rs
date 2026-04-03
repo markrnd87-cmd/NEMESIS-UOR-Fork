@@ -67,8 +67,9 @@ fn count_concept_hrefs(html: &str) -> usize {
     html.match_indices("href=")
         .filter(|(pos, _)| {
             let tail = &html[*pos..];
-            // Check that within the next 200 chars there's "concepts/"
-            tail.get(..tail.len().min(200))
+            // Check that within the next 300 chars there's "concepts/"
+            // (300 accommodates PUBLIC_BASE_PATH prefixed URLs)
+            tail.get(..tail.len().min(300))
                 .map(|s| s.contains("concepts/"))
                 .unwrap_or(false)
         })
