@@ -183,10 +183,45 @@ body {
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* Nested dropdown (namespace flyout) — scrollable for 33+ items */
+/* Nested dropdown (namespace flyout) — Bootstrap 5 does not support multi-level
+   dropdowns natively. These rules enable submenu positioning and hover/focus
+   opening for .dropend items inside an already-open dropdown. */
 .site-nav .dropend .dropdown-menu {
   max-height: 70vh;
   overflow-y: auto;
+  top: 0;
+  left: 100%;
+  margin-left: 0;
+}
+
+/* Show nested submenu on hover (desktop) */
+.site-nav .dropend:hover > .dropdown-menu,
+.site-nav .dropend:focus-within > .dropdown-menu {
+  display: block;
+}
+
+/* Caret indicator for submenu toggles */
+.site-nav .dropend > .dropdown-toggle::after {
+  content: "";
+  display: inline-block;
+  margin-left: 0.5em;
+  vertical-align: 0.15em;
+  border-top: 0.3em solid transparent;
+  border-bottom: 0.3em solid transparent;
+  border-left: 0.3em solid currentColor;
+  border-right: 0;
+}
+
+/* On collapsed navbar (mobile), stack submenus vertically instead of flyout */
+@media (max-width: 991.98px) {
+  .site-nav .dropend .dropdown-menu {
+    position: static;
+    left: 0;
+    border: none;
+    background: rgba(255, 255, 255, 0.03);
+    padding-left: 1rem;
+    max-height: none;
+  }
 }
 
 /* Dropdown headers (space group labels: Kernel / Bridge / User) */

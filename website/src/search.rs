@@ -137,6 +137,37 @@ pub fn search_js(base_path: &str) -> String {
     search();
   }}
 }}());
+
+// Multi-level dropdown support — Bootstrap 5 does not handle nested dropdowns
+// natively. This toggles .show on nested .dropend submenus when clicked on
+// mobile (collapsed navbar) and prevents the parent dropdown from closing.
+(function () {{
+  'use strict';
+  document.querySelectorAll('.site-nav .dropend > .dropdown-toggle').forEach(function (toggle) {{
+    toggle.addEventListener('click', function (e) {{
+      var submenu = toggle.nextElementSibling;
+      if (!submenu || !submenu.classList.contains('dropdown-menu')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      // Close sibling submenus
+      var parent = toggle.closest('.dropdown-menu');
+      if (parent) {{
+        parent.querySelectorAll(':scope > .dropend > .dropdown-menu.show').forEach(function (m) {{
+          if (m !== submenu) m.classList.remove('show');
+        }});
+      }}
+      submenu.classList.toggle('show');
+    }});
+  }});
+  // Close nested submenus when the parent dropdown closes
+  document.querySelectorAll('.site-nav .nav-item.dropdown').forEach(function (dropdown) {{
+    dropdown.addEventListener('hidden.bs.dropdown', function () {{
+      dropdown.querySelectorAll('.dropdown-menu.show').forEach(function (m) {{
+        m.classList.remove('show');
+      }});
+    }});
+  }});
+}}());
 ",
         base_path = base_path,
     )

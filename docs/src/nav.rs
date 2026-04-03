@@ -258,10 +258,13 @@ fn render_bs_item(
             }
             html.push_str(&format!("{indent}</ul>\n{indent}</li>\n"));
         } else {
-            // Nested dropdown (e.g. Namespaces → 33+ namespace items): dropend
+            // Nested dropdown (e.g. Namespaces → 33+ namespace items): dropend.
+            // Do NOT use data-bs-toggle="dropdown" here — Bootstrap's dropdown JS
+            // does not support multi-level nesting and would close the parent menu.
+            // Custom JS in search.js handles the submenu toggle instead.
             let toggle = format!(
                 "<a class=\"dropdown-item dropdown-toggle\" href=\"{}\" \
-                 data-bs-toggle=\"dropdown\" aria-expanded=\"false\">{}</a>",
+                 aria-expanded=\"false\">{}</a>",
                 escape_html(&item.url),
                 escape_html(&item.label)
             );
