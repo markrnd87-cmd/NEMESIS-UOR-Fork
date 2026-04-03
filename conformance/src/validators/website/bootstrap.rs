@@ -32,6 +32,7 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
     check_toggler(artifacts, &mut report)?;
     check_dropdown_menus(artifacts, &mut report)?;
     check_responsive_collapse(artifacts, &mut report)?;
+    check_sri_hash(artifacts, &mut report)?;
 
     Ok(report)
 }
@@ -221,6 +222,39 @@ fn check_responsive_collapse(artifacts: &Path, report: &mut ConformanceReport) -
         report.push(TestResult::pass(
             "website/bootstrap/responsive-collapse",
             "index.html uses Bootstrap responsive collapse (no legacy hamburger-toggle)",
+        ));
+    }
+
+    Ok(())
+}
+
+/// The Bootstrap CSS integrity hash must match the known-good value for the
+/// pinned CDN version. A wrong hash causes browsers to reject the stylesheet,
+/// leaving the entire site unstyled.
+fn check_sri_hash(artifacts: &Path, report: &mut ConformanceReport) -> Result<()> {
+    let index = artifacts.join("index.html");
+    if !index.exists() {
+        report.push(TestResult::fail(
+            "website/bootstrap/sri-hash",
+            "index.html not found in generated website",
+        ));
+        return Ok(());
+    }
+
+    let html = std::fs::read_to_string(&index)?;
+
+    // Known-good integrity hash for Bootstrap 5.3.3 CSS from jsDelivr CDN.
+    let expected = "sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH";
+
+    if html.contains(expected) {
+        report.push(TestResult::pass(
+            "website/bootstrap/sri-hash",
+            "Bootstrap CSS integrity hash matches known-good value for 5.3.3",
+        ));
+    } else {
+        report.push(TestResult::fail(
+            "website/bootstrap/sri-hash",
+            format!("Bootstrap CSS integrity hash mismatch — expected {expected} in index.html"),
         ));
     }
 

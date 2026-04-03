@@ -92,6 +92,9 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
     // Check for orphan nav classes from pre-Bootstrap migration
     check_no_orphan_nav_classes(&content, &mut report);
 
+    // Check that bare element selectors are scoped to .page-content
+    check_bare_element_selectors(&content, &mut report);
+
     Ok(report)
 }
 
@@ -107,6 +110,61 @@ fn check_no_orphan_nav_classes(css: &str, report: &mut ConformanceReport) {
         report.push(TestResult::pass(
             "website/css/no-orphan-nav-classes",
             "style.css contains no orphan pre-Bootstrap nav classes",
+        ));
+    }
+}
+
+/// Bare element selectors (`h1`, `a`, `table`, etc.) must be scoped to `.page-content`
+/// to prevent them from overriding Bootstrap's global styles on navbar, dropdowns, etc.
+fn check_bare_element_selectors(css: &str, report: &mut ConformanceReport) {
+    // Patterns that indicate unscoped bare element selectors at the start of a CSS rule.
+    // We check for lines that start with a bare element name followed by a space, comma,
+    // or opening brace — but NOT when preceded by a class/id selector.
+    let dangerous = [
+        "h1", "h2", "h3", "h4", "h5", "h6", "table", "thead", "tbody", "code", "pre",
+    ];
+
+    let mut violations: Vec<String> = Vec::new();
+
+    for (line_num, line) in css.lines().enumerate() {
+        let trimmed = line.trim();
+        // Skip empty lines, comments, and lines inside @media blocks (indented)
+        if trimmed.is_empty() || trimmed.starts_with("/*") || trimmed.starts_with('*') {
+            continue;
+        }
+        for tag in &dangerous {
+            // Match bare tag at start of rule: "h2 {", "h2,", "table {", "thead {"
+            // But NOT ".page-content h2" or ".foo h2"
+            if trimmed.starts_with(tag)
+                && trimmed
+                    .get(tag.len()..tag.len() + 1)
+                    .map(|c| c == " " || c == "," || c == "{" || c == ":")
+                    .unwrap_or(false)
+            {
+                violations.push(format!(
+                    "line {}: bare `{}` selector — should be `.page-content {}`",
+                    line_num + 1,
+                    tag,
+                    tag
+                ));
+                break;
+            }
+        }
+    }
+
+    if violations.is_empty() {
+        report.push(TestResult::pass(
+            "website/css/scoped-selectors",
+            "All typography/table selectors are scoped to .page-content",
+        ));
+    } else {
+        report.push(TestResult::fail_with_details(
+            "website/css/scoped-selectors",
+            format!(
+                "{} bare element selector(s) found — must be scoped to .page-content",
+                violations.len()
+            ),
+            violations,
         ));
     }
 }

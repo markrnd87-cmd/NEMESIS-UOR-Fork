@@ -249,9 +249,10 @@ body {
   padding: 2rem 2rem 4rem;
 }
 
-/* ── Typography ────────────────────────────────────────────────────────────── */
+/* ── Typography (scoped to .page-content to avoid Bootstrap conflicts) ───── */
 
-h1, h2, h3, h4, h5, h6 {
+.page-content h1, .page-content h2, .page-content h3,
+.page-content h4, .page-content h5, .page-content h6 {
   font-weight: 700;
   line-height: 1.25;
   color: var(--color-bg-dark);
@@ -259,28 +260,28 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5em;
 }
 
-h1 { font-size: var(--text-3xl); margin-top: 0; }
-h2 { font-size: var(--text-2xl); border-bottom: 2px solid #e5e9f0; padding-bottom: 0.25rem; }
-h3 { font-size: var(--text-xl); }
+.page-content h1 { font-size: var(--text-3xl); margin-top: 0; }
+.page-content h2 { font-size: var(--text-2xl); border-bottom: 2px solid #e5e9f0; padding-bottom: 0.25rem; }
+.page-content h3 { font-size: var(--text-xl); }
 
-p { margin: 0 0 1rem; }
+.page-content p { margin: 0 0 1rem; }
 
-a {
+.page-content a {
   color: var(--color-link);
   text-decoration: none;
 }
 
-a:hover {
+.page-content a:hover {
   text-decoration: underline;
 }
 
-a:focus {
+.page-content a:focus {
   outline: 2px solid var(--color-link);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-code {
+.page-content code {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.875em;
   background: #eef2f8;
@@ -289,7 +290,7 @@ code {
   color: var(--color-bg-mid);
 }
 
-pre {
+.page-content pre {
   background: var(--color-bg-dark);
   color: #e8e8f0;
   padding: 1.25rem;
@@ -300,16 +301,16 @@ pre {
   margin: 1.5rem 0;
 }
 
-pre code {
+.page-content pre code {
   background: none;
   padding: 0;
   color: inherit;
   font-size: inherit;
 }
 
-/* ── Tables ────────────────────────────────────────────────────────────────── */
+/* ── Tables (scoped to .page-content) ─────────────────────────────────────── */
 
-table {
+.page-content table {
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
@@ -318,12 +319,12 @@ table {
   display: block;
 }
 
-thead {
+.page-content thead {
   background: var(--color-bg-mid);
   color: #e8e8f0;
 }
 
-thead th {
+.page-content thead th {
   padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 600;
@@ -332,40 +333,40 @@ thead th {
   user-select: none;
 }
 
-thead th:hover {
+.page-content thead th:hover {
   background: #252555;
 }
 
-tbody tr {
+.page-content tbody tr {
   border-bottom: 1px solid #e5e9f0;
 }
 
-tbody tr:nth-child(even) {
+.page-content tbody tr:nth-child(even) {
   background: #f4f7fc;
 }
 
-tbody tr:hover {
+.page-content tbody tr:hover {
   background: #e8f0fc;
 }
 
-tbody td {
+.page-content tbody td {
   padding: 0.6rem 1rem;
   vertical-align: top;
 }
 
-/* ── Definitions ───────────────────────────────────────────────────────────── */
+/* ── Definitions (scoped to .page-content) ─────────────────────────────────── */
 
-dl {
+.page-content dl {
   margin: 0 0 1.5rem;
 }
 
-dt {
+.page-content dt {
   font-weight: 600;
   color: #374151;
   margin-top: 0.75rem;
 }
 
-dt:first-child {
+.page-content dt:first-child {
   margin-top: 0;
 }
 
@@ -1259,7 +1260,7 @@ details.ns-detail[open] summary::before {
     grid-template-columns: 1fr;
   }
 
-  table {
+  .page-content table {
     font-size: 0.8rem;
   }
 
