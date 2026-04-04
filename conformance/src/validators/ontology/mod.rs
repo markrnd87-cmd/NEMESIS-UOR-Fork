@@ -2,6 +2,7 @@
 
 pub mod crate_;
 pub mod ebnf;
+pub mod enforcement;
 pub mod inventory;
 pub mod json_schema;
 pub mod jsonld;

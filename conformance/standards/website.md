@@ -44,7 +44,7 @@ The website must function without any external network requests:
 
 ## Search
 
-- `search-index.json` contains all 411 class labels, 841 property labels, 3331 individual labels.
+- `search-index.json` contains all 430 class labels, 881 property labels, 3336 individual labels.
 - Client-side search parses `search-index.json` and filters on input.
 - Search results link to the relevant namespace page.
 - Search works without JavaScript disabled (falls back to sitemap).

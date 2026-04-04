@@ -5091,6 +5091,17 @@ fn validate_legitimate_string_properties_only(report: &mut ConformanceReport) {
         "https://uor.foundation/cascade/predicateField",
         "https://uor.foundation/cascade/predicateOperator",
         "https://uor.foundation/cascade/predicateValue",
+        // Amendment 95: Declarative enforcement
+        "https://uor.foundation/conformance/shapeIri",
+        "https://uor.foundation/conformance/constraintIri",
+        "https://uor.foundation/conformance/propertyIri",
+        "https://uor.foundation/conformance/expectedRange",
+        "https://uor.foundation/conformance/effectName",
+        "https://uor.foundation/conformance/ringMapping",
+        "https://uor.foundation/conformance/leaseScope",
+        "https://uor.foundation/conformance/productivityWitness",
+        "https://uor.foundation/conformance/terminationWitness",
+        "https://uor.foundation/conformance/disjointnessWitness",
     ]
     .into_iter()
     .collect();

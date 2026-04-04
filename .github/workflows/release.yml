@@ -80,8 +80,8 @@ jobs:
         env:
           PUBLIC_BASE_PATH: /UOR-Framework
 
-      - name: Verify crate packaging
-        run: cargo publish --dry-run --allow-dirty -p uor-foundation
+      - name: Verify macros crate packaging
+        run: cargo publish --dry-run --allow-dirty -p uor-foundation-macros
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -106,10 +106,15 @@ jobs:
             - `uor.shapes.ttl` — SHACL validation shapes
             - `uor.term.ebnf` — ISO/IEC 14977 EBNF grammar
 
-            **Rust crate:** [`uor-foundation` on crates.io](https://crates.io/crates/uor-foundation)
+            **Rust crates:** [`uor-foundation`](https://crates.io/crates/uor-foundation) + [`uor-foundation-macros`](https://crates.io/crates/uor-foundation-macros)
             Documentation: https://uor-foundation.github.io/UOR-Framework/
 
-      - name: Publish to crates.io
+      - name: Publish macros to crates.io
+        run: cargo publish -p uor-foundation-macros
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish foundation to crates.io
         run: cargo publish -p uor-foundation
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

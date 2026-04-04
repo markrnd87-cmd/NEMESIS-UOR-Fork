@@ -14,6 +14,7 @@
 )]
 
 pub mod emit;
+pub mod enforcement;
 pub mod enums;
 pub mod individuals;
 pub mod mapping;
@@ -142,6 +143,16 @@ pub fn generate(ontology: &Ontology, out_dir: &Path) -> Result<GenerationReport>
         emit::write_file(&crate_dir.join("README.md"), &readme)?;
     }
 
+    // 6. Generate enforcement.rs (declarative enforcement types)
+    let enforcement_content = enforcement::generate_enforcement_module();
+    let enforcement_path = out_dir.join("enforcement.rs");
+    emit::write_file(&enforcement_path, &enforcement_content)?;
+    // Run rustfmt on the generated file to ensure it matches cargo fmt output.
+    let _ = std::process::Command::new("rustfmt")
+        .arg(&enforcement_path)
+        .status();
+    report.files.push("enforcement.rs".to_string());
+
     Ok(report)
 }
 
@@ -198,18 +209,72 @@ fn generate_lib_rs(ontology: &Ontology) -> String {
          //!\n\
          //! - [`kernel`] — Immutable foundation: addressing, schema, operations\n\
          //! - [`bridge`] — Kernel-computed, user-consumed: queries, resolution, partitions, proofs\n\
-         //! - [`user`] — Runtime declarations: types, morphisms, state",
+         //! - [`user`] — Runtime declarations: types, morphisms, state\n\
+         //!\n\
+         //! # Enforcement Layer\n\
+         //!\n\
+         //! The [`enforcement`] module provides concrete types (not generic over\n\
+         //! `Primitives`) for declarative validation. These form a three-layer\n\
+         //! pipeline:\n\
+         //!\n\
+         //! **Layer 1 — Opaque Witnesses.** [`enforcement::Datum`],\n\
+         //! [`enforcement::Validated`], [`enforcement::Derivation`],\n\
+         //! [`enforcement::FiberBudget`]: sealed types with private fields that\n\
+         //! prove a value passed through the cascade evaluator or the two-phase\n\
+         //! minting boundary. Prism code consumes these but cannot fabricate them.\n\
+         //!\n\
+         //! **Layer 2 — Declarative Builders.** [`enforcement::CompileUnitBuilder`]\n\
+         //! and 8 others collect the declarations required by each conformance\n\
+         //! shape, then call `validate()` to get a `Validated<T>` or a\n\
+         //! [`enforcement::ShapeViolation`] with machine-readable IRIs.\n\
+         //!\n\
+         //! **Layer 3 — Term AST.** [`enforcement::Term`] and\n\
+         //! [`enforcement::TermArena`]: stack-resident, `#![no_std]`-safe\n\
+         //! expression trees. Builders accept `Term` references (not closures),\n\
+         //! keeping Prism declarations within the term language.\n\
+         //!\n\
+         //! # The `uor!` Macro\n\
+         //!\n\
+         //! The re-exported [`uor!`] macro parses EBNF surface syntax at compile\n\
+         //! time and produces typed `Term` ASTs. Ground assertions (no free\n\
+         //! variables) are evaluated at compile time using the foundation's\n\
+         //! `const fn` ring arithmetic.\n\
+         //!\n\
+         //! ```rust,ignore\n\
+         //! use uor_foundation::uor;\n\
+         //!\n\
+         //! // Type declaration with constraints:\n\
+         //! let pixel = uor! {{ type Pixel {{ residue: 255; hamming: 8; }} }};\n\
+         //!\n\
+         //! // Operation composition (produces a TermArena):\n\
+         //! let expr = uor! {{ add(mul(3, 5), 7) }};\n\
+         //!\n\
+         //! // Ground assertion — checked at compile time:\n\
+         //! uor! {{ assert add(1, 2) = 3; }};\n\
+         //! ```\n\
+         //!\n\
+         //! # Getting Started\n\
+         //!\n\
+         //! 1. Implement [`Primitives`] for your concrete type family.\n\
+         //! 2. Use the [`enforcement`] builders to declare your types, effects,\n\
+         //!    and boundaries.\n\
+         //! 3. Use the [`uor!`] macro for term-language expressions.\n\
+         //! 4. The cascade evaluator validates and evaluates your declarations,\n\
+         //!    producing [`enforcement::Datum`] and [`enforcement::Derivation`]\n\
+         //!    witnesses.",
         ontology.version,
     ));
 
     f.line("#![no_std]");
     f.blank();
     f.line("pub mod bridge;");
+    f.line("pub mod enforcement;");
     f.line("pub mod enums;");
     f.line("pub mod kernel;");
     f.line("pub mod user;");
     f.blank();
     f.line("pub use enums::*;");
+    f.line("pub use uor_foundation_macros::uor;");
     f.blank();
 
     // Primitives trait
@@ -241,6 +306,32 @@ fn generate_lib_rs(ontology: &Ontology) -> String {
 
 /// Generates `README.md` for the published crate.
 fn generate_readme(ontology: &Ontology) -> String {
+    let ns_map = namespace_mappings();
+
+    // Build module table rows dynamically from the ontology
+    let mut rows = String::new();
+    for module in &ontology.namespaces {
+        if let Some(mapping) = ns_map.get(module.namespace.iri) {
+            let space_label = match module.namespace.space {
+                Space::Kernel => "Kernel",
+                Space::Bridge => "Bridge",
+                Space::User => "User",
+            };
+            // Use first sentence of namespace comment as description
+            let desc = module
+                .namespace
+                .comment
+                .split('.')
+                .next()
+                .unwrap_or(module.namespace.label);
+            let _ = writeln!(
+                rows,
+                "| `{}::{}` | {} | {} |",
+                mapping.space_module, mapping.file_module, space_label, desc
+            );
+        }
+    }
+
     format!(
         r#"# uor-foundation
 
@@ -253,6 +344,8 @@ typed Rust traits. Import and implement.
 - {classes} OWL classes (one trait each)
 - {props} OWL properties (one method each)
 - {inds} named individuals (constants and enums)
+- `enforcement` module with declarative builders and opaque witnesses
+- `uor!` proc macro for compile-time term-language DSL
 
 ## Quick start
 
@@ -289,24 +382,14 @@ impl FiberBudget<MyImpl> for MyFiberBudget {{
 
 | Module | Space | Description |
 |--------|-------|-------------|
-| `kernel::address` | Kernel | Content-addressed glyph space |
-| `kernel::schema` | Kernel | Ring schema: Datum, Term, Ring |
-| `kernel::op` | Kernel | Primitive operations and the dihedral group |
-| `bridge::query` | Bridge | Query hierarchy |
-| `bridge::resolver` | Bridge | Resolution state machine |
-| `bridge::partition` | Bridge | Irreducibility partitions and fiber budgets |
-| `bridge::observable` | Bridge | Observable measurements |
-| `bridge::proof` | Bridge | Proof and witness data |
-| `bridge::derivation` | Bridge | Derivation and rewrite steps |
-| `bridge::trace` | Bridge | Computation traces |
-| `bridge::cert` | Bridge | Certificate hierarchy |
-| `user::type_` | User | Type definitions and constraints |
-| `user::morphism` | User | Transforms and composition laws |
-| `user::state` | User | Context, bindings, frames, transitions |
+{module_rows}| `enums` | — | Controlled vocabulary enums (QuantumLevel, PrimitiveOp, etc.) |
+| `enforcement` | — | Opaque witnesses, declarative builders, Term AST |
 
 ## Features
 
-This crate is `#![no_std]` with zero mandatory dependencies.
+This crate is `#![no_std]` with zero mandatory dependencies. The `uor!`
+proc macro (from `uor-foundation-macros`) parses term-language expressions
+at compile time.
 
 ## License
 
@@ -317,5 +400,6 @@ Apache-2.0 — see [LICENSE](https://github.com/UOR-Foundation/UOR-Framework/blo
         classes = ontology.class_count(),
         props = ontology.property_count(),
         inds = ontology.individual_count(),
+        module_rows = rows,
     )
 }

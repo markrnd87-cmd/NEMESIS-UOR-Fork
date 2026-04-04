@@ -4,6 +4,9 @@
 //!
 //! Space: Bridge
 
+use crate::enums::QuantumLevel;
+use crate::enums::VerificationDomain;
+use crate::enums::ViolationKind;
 use crate::Primitives;
 
 /// A constraint shape that a Prism-declared extension must satisfy. Analogous to sh:NodeShape in SHACL.
@@ -63,6 +66,170 @@ pub trait ValidationResult<P: Primitives> {
 
 /// Shape for user-declared predicates. Requires a bounded evaluator (termination witness) and input type declaration.
 pub trait PredicateShape<P: Primitives>: Shape<P> {}
+
+/// Opaque ring element witness. Cannot be constructed outside the foundation crate — only produced by cascade evaluation or the two-phase minting boundary.
+pub trait WitnessDatum<P: Primitives> {
+    /// The quantum level at which this witness datum was minted.
+    fn witness_level(&self) -> P::NonNegativeInteger;
+    /// The raw byte representation of this witness datum.
+    fn witness_bytes(&self) -> &P::String;
+}
+
+/// Boundary crossing intermediate for a single grounded coordinate value. Not a WitnessDatum — must be validated and minted by the foundation.
+pub trait GroundedCoordinate<P: Primitives> {
+    /// The quantum level tag of this grounded coordinate.
+    fn coordinate_level(&self) -> QuantumLevel;
+}
+
+/// Boundary crossing intermediate for a fixed-size array of GroundedCoordinate values. Stack-resident, no heap allocation.
+pub trait GroundedTuple<P: Primitives> {}
+
+/// Sealed marker trait class. Implemented only for GroundedCoordinate and GroundedTuple. Prevents downstream crates from substituting arbitrary types.
+pub trait GroundedValueMarker<P: Primitives> {}
+
+/// Generic validation-proof wrapper. Proves that the inner value was produced by the conformance checker, not fabricated by Prism code.
+pub trait ValidatedWrapper<P: Primitives> {
+    /// The validated inner value wrapped by this proof.
+    fn validated_inner(&self) -> &P::String;
+}
+
+/// Opaque derivation trace that can only be extended by the rewrite engine. Records rewrite step count and root term content address.
+pub trait WitnessDerivation<P: Primitives> {}
+
+/// Opaque fiber budget that can only be decremented by PinningEffect and incremented by UnbindingEffect — never by direct mutation.
+pub trait WitnessFiberBudget<P: Primitives> {}
+
+/// Structured violation diagnostic carrying the shape IRI, constraint IRI, property IRI, expected range, cardinality bounds, and violation kind.
+pub trait ShapeViolationReport<P: Primitives> {
+    /// IRI of the conformance:Shape that was validated against.
+    fn shape_iri(&self) -> &P::String;
+    /// IRI of the specific PropertyConstraint that failed.
+    fn constraint_iri(&self) -> &P::String;
+    /// IRI of the property that was missing or invalid.
+    fn property_iri(&self) -> &P::String;
+    /// The expected range class IRI for the violated property.
+    fn expected_range(&self) -> &P::String;
+    /// The minimum cardinality from the violated constraint.
+    fn violation_min_count(&self) -> P::NonNegativeInteger;
+    /// The maximum cardinality from the violated constraint (0 = unbounded).
+    fn violation_max_count(&self) -> P::NonNegativeInteger;
+    /// The kind of violation that occurred.
+    fn violation_kind(&self) -> ViolationKind;
+}
+
+/// Builder for CompileUnit admission. Collects rootTerm, quantumLevelCeiling, thermodynamicBudget, and targetDomains. Validates against CompileUnitShape.
+pub trait CompileUnitBuilder<P: Primitives> {
+    /// Associated type for `Term`.
+    type Term: crate::kernel::schema::Term<P>;
+    /// The root term expression for the CompileUnit.
+    fn builder_root_term(&self) -> &Self::Term;
+    /// The widest quantum level the computation may reference.
+    fn builder_quantum_level_ceiling(&self) -> QuantumLevel;
+    /// Landauer-bounded energy budget in kBT ln 2 units.
+    fn builder_thermodynamic_budget(&self) -> P::Decimal;
+    /// Verification domains targeted by the CompileUnit.
+    fn builder_target_domains(&self) -> &[VerificationDomain];
+}
+
+/// Builder for EffectShape. Collects effect name, target fibers, budget delta, and commutation flag.
+pub trait EffectDeclaration<P: Primitives> {
+    /// The name of the declared effect.
+    fn effect_name(&self) -> &P::String;
+    /// Fiber coordinates this effect reads or writes.
+    fn target_fibers(&self) -> &[P::NonNegativeInteger];
+    /// The fiber budget delta (positive = increment, negative = decrement).
+    fn budget_delta(&self) -> P::Integer;
+    /// Whether this effect commutes with effects on disjoint fibers.
+    fn commutation_flag(&self) -> P::Boolean;
+}
+
+/// Builder for GroundingShape. Collects source type, ring mapping, and invertibility contract.
+pub trait GroundingDeclaration<P: Primitives> {
+    /// Associated type for `TypeDefinition`.
+    type TypeDefinition: crate::user::type_::TypeDefinition<P>;
+    /// The source type of incoming external data.
+    fn grounding_source_type(&self) -> &Self::TypeDefinition;
+    /// Description of the mapping from surface data to ring.
+    fn ring_mapping(&self) -> &P::String;
+    /// Whether the grounding map is invertible.
+    fn invertibility_contract(&self) -> P::Boolean;
+}
+
+/// Builder for DispatchShape. Collects predicate, target resolver, and dispatch priority.
+pub trait DispatchDeclaration<P: Primitives> {
+    /// Associated type for `PredicateExpression`.
+    type PredicateExpression: crate::kernel::cascade::PredicateExpression<P>;
+    /// The predicate expression guarding this dispatch rule.
+    fn dispatch_predicate(&self) -> &Self::PredicateExpression;
+    /// Associated type for `Resolver`.
+    type Resolver: crate::bridge::resolver::Resolver<P>;
+    /// The resolver to dispatch to when the predicate holds.
+    fn target_resolver(&self) -> &Self::Resolver;
+    /// Priority ordering for this dispatch rule (lower = first).
+    fn dispatch_priority(&self) -> P::NonNegativeInteger;
+}
+
+/// Builder for LeaseShape. Collects linear fiber and lease scope.
+pub trait LeaseDeclaration<P: Primitives> {
+    /// The fiber coordinate allocated linearly by this lease.
+    fn linear_fiber(&self) -> P::NonNegativeInteger;
+    /// The scope within which this lease is valid.
+    fn lease_scope(&self) -> &P::String;
+}
+
+/// Builder for StreamShape. Collects unfold seed, step term, and productivity witness.
+pub trait StreamDeclaration<P: Primitives> {
+    /// Associated type for `Term`.
+    type Term: crate::kernel::schema::Term<P>;
+    /// The seed term for the stream unfold constructor.
+    fn unfold_seed(&self) -> &Self::Term;
+    /// The step function term for the stream unfold.
+    fn step_term(&self) -> &Self::Term;
+    /// Evidence that the stream is productive (always produces a next element).
+    fn productivity_witness(&self) -> &P::String;
+}
+
+/// Builder for PredicateShape. Collects input type, evaluator term, and termination witness.
+pub trait PredicateDeclaration<P: Primitives> {
+    /// Associated type for `TypeDefinition`.
+    type TypeDefinition: crate::user::type_::TypeDefinition<P>;
+    /// The input type for the declared predicate.
+    fn predicate_input_type(&self) -> &Self::TypeDefinition;
+    /// Associated type for `Term`.
+    type Term: crate::kernel::schema::Term<P>;
+    /// The evaluator term for the declared predicate.
+    fn evaluator_term(&self) -> &Self::Term;
+    /// Evidence that the predicate evaluator terminates on all inputs.
+    fn termination_witness(&self) -> &P::String;
+}
+
+/// Builder for ParallelShape. Collects fiber partition and disjointness witness.
+pub trait ParallelDeclaration<P: Primitives> {
+    /// Associated type for `Partition`.
+    type Partition: crate::bridge::partition::Partition<P>;
+    /// The fiber partition for the parallel composition.
+    fn fiber_partition(&self) -> &Self::Partition;
+    /// Evidence that the fiber partition components are pairwise disjoint.
+    fn disjointness_witness(&self) -> &P::String;
+}
+
+/// Builder for QuantumLevelShape. Collects declared bit width, cycle size, and predecessor level.
+pub trait QuantumLevelDeclaration<P: Primitives> {
+    /// The declared bit width for this quantum level.
+    fn declared_bit_width(&self) -> P::PositiveInteger;
+    /// The declared number of ring states at this level.
+    fn declared_cycle_size(&self) -> P::NonNegativeInteger;
+    /// The predecessor quantum level in the chain.
+    fn predecessor_level(&self) -> QuantumLevel;
+}
+
+/// Boundary session state tracker. Records crossing count and idempotency flag for the two-phase minting boundary.
+pub trait MintingSession<P: Primitives> {
+    /// Total boundary crossings in this minting session.
+    fn session_crossing_count(&self) -> P::NonNegativeInteger;
+    /// Whether applying this session's boundary effect twice equals applying it once.
+    fn session_is_idempotent(&self) -> P::Boolean;
+}
 
 /// Shape validating that a CompileUnit carries all required properties before cascade admission. The unitAddress property is NOT required — it is computed by stage_initialization after shape validation passes.
 pub mod compile_unit_shape {
@@ -124,3 +291,18 @@ pub mod compile_unit_target_domains_constraint {
     /// `minCount`
     pub const MIN_COUNT: i64 = 1;
 }
+
+/// Required property was not set on the builder.
+pub mod missing {}
+
+/// Property was set but its value is not an instance of the constraintRange.
+pub mod type_mismatch {}
+
+/// Cardinality violated: too few or too many values provided.
+pub mod cardinality_violation {}
+
+/// Value-dependent check failed (Tier 2). For example, thermodynamic budget insufficient for Landauer bound.
+pub mod value_check {}
+
+/// A term's quantum level annotation exceeds the CompileUnit ceiling, or binary operation operands are at different levels without an intervening lift or project.
+pub mod level_mismatch {}

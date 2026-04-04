@@ -3,7 +3,8 @@
 ## Prerequisites
 
 - `CARGO_REGISTRY_TOKEN` org secret configured at `github.com/UOR-Foundation`
-  (Settings > Secrets and variables > Actions)
+  (Settings > Secrets and variables > Actions). The token must have permission
+  to publish both `uor-foundation` and `uor-foundation-macros`.
 
 ## Release Process
 
@@ -13,32 +14,44 @@
    version = "X.Y.Z"
    ```
 
-2. Regenerate the foundation crate and commit:
+2. Update the macros dependency version in `foundation/Cargo.toml`:
+   ```toml
+   [dependencies]
+   uor-foundation-macros = { version = "X.Y.Z", path = "../uor-foundation-macros" }
+   ```
+
+3. Regenerate the foundation crate and commit:
    ```sh
    cargo run --bin uor-crate
    cargo fmt -- foundation/src/**/*.rs foundation/src/*.rs
-   git add Cargo.toml Cargo.lock foundation/src/
+   git add Cargo.toml Cargo.lock foundation/Cargo.toml foundation/src/ uor-foundation-macros/
    git commit -m "Bump version to X.Y.Z"
    ```
 
-3. Tag and push:
+4. Tag and push:
    ```sh
    git tag vX.Y.Z
    git push origin main --tags
    ```
 
-4. The release workflow will automatically:
+5. The release workflow will automatically:
    - Validate the tag matches the `uor-foundation` Cargo.toml version
    - Run all checks (fmt, clippy, test, conformance)
    - Regenerate the foundation crate and verify no drift
-   - Verify crate packaging with `cargo publish --dry-run`
+   - Verify `uor-foundation-macros` packaging with `cargo publish --dry-run`
    - Create a GitHub Release with ontology artifacts
+   - Publish `uor-foundation-macros` to crates.io (must succeed first)
    - Publish `uor-foundation` to crates.io
 
-## Published Crate
+## Published Crates
 
-The published crate is `uor-foundation` (generated from `foundation/`).
-The internal ontology crate `uor-ontology` (in `spec/`) is not published.
+Two crates are published to crates.io (in this order):
+
+1. `uor-foundation-macros` — proc macro providing the `uor!` DSL
+2. `uor-foundation` — typed Rust traits for the ontology (depends on macros)
+
+The internal crates (`uor-ontology`, `uor-codegen`, `uor-conformance`,
+`uor-docs`, `uor-website`, `uor-clients`) are not published.
 
 ## Troubleshooting
 
@@ -47,8 +60,11 @@ The internal ontology crate `uor-ontology` (in `spec/`) is not published.
 - **Generated code drift**: If `git diff --exit-code foundation/src/` fails
   in CI, the committed generated code doesn't match the generator output.
   Run `cargo run --bin uor-crate && cargo fmt` locally and commit.
-- **crates.io publish failure**: The GitHub Release will already exist.
-  Fix the issue, delete and re-create the tag, or manually run
-  `cargo publish -p uor-foundation`.
+- **crates.io publish failure**: If `uor-foundation-macros` publishes but
+  `uor-foundation` fails, the GitHub Release will already exist. Fix the
+  issue and manually run `cargo publish -p uor-foundation`.
 - **Version already published**: crates.io does not allow re-publishing
   the same version. Bump the version and create a new tag.
+- **Macros version mismatch**: If `foundation/Cargo.toml` specifies a
+  different version for `uor-foundation-macros` than what was published,
+  the foundation publish will fail. Ensure both versions match.

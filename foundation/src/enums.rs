@@ -539,6 +539,34 @@ impl fmt::Display for ProofStrategy {
     }
 }
 
+/// The kind of shape violation reported by a builder's validate method.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ViolationKind {
+    /// Required property was not set on the builder.
+    Missing,
+    /// Property was set but its value is not an instance of the constraintRange.
+    TypeMismatch,
+    /// Cardinality violated: too few or too many values provided.
+    CardinalityViolation,
+    /// Value-dependent check failed (Tier 2). For example, thermodynamic budget insufficient for Landauer bound.
+    ValueCheck,
+    /// A term's quantum level annotation exceeds the CompileUnit ceiling, or binary operation operands are at different levels without an intervening lift or project.
+    LevelMismatch,
+}
+
+impl fmt::Display for ViolationKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Missing => f.write_str("missing"),
+            Self::TypeMismatch => f.write_str("type_mismatch"),
+            Self::CardinalityViolation => f.write_str("cardinality_violation"),
+            Self::ValueCheck => f.write_str("value_check"),
+            Self::LevelMismatch => f.write_str("level_mismatch"),
+        }
+    }
+}
+
 /// The modality of a proof: computation (exhaustive verification at a specific quantum level) or axiomatic (derivation from ring axioms).
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -566,6 +594,31 @@ impl fmt::Display for ProofModality {
 /// The class is open: any non-negative integer k identifies a valid level.
 /// Named levels Q0 through Q3 are provided as associated constants.
 /// Arbitrary levels can be constructed with `QuantumLevel::new(k)`.
+/// # Examples
+/// ```rust
+/// use uor_foundation::QuantumLevel;
+///
+/// // Named reference levels (Q0-Q3 are spec-defined):
+/// let q0 = QuantumLevel::Q0;
+/// assert_eq!(q0.index(), 0);
+/// assert_eq!(q0.bits_width(), 8);    // 8*(0+1) = 8 bits
+/// assert_eq!(q0.cycle_size(), Some(256)); // 2^8 = 256 ring elements
+///
+/// let q3 = QuantumLevel::Q3;
+/// assert_eq!(q3.bits_width(), 32);   // 8*(3+1) = 32 bits
+///
+/// // Arbitrary levels beyond Q3 (Prism-declared):
+/// let q7 = QuantumLevel::new(7);
+/// assert_eq!(q7.bits_width(), 64);   // 8*(7+1) = 64 bits — native u64
+///
+/// // The chain is unbounded:
+/// let q10 = QuantumLevel::new(10);
+/// assert_eq!(q10.bits_width(), 88);
+/// assert_eq!(q10.next_level().index(), 11);
+///
+/// // Ordering follows the index:
+/// assert!(QuantumLevel::Q0 < QuantumLevel::Q3);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct QuantumLevel {
     /// The quantum index k in Q_k. Maps to `schema:quantumIndex`.

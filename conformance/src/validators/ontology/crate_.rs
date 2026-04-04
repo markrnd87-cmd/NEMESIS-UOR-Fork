@@ -53,6 +53,7 @@ pub fn validate(workspace: &Path) -> Result<ConformanceReport> {
 fn validate_module_structure(src_dir: &Path, report: &mut ConformanceReport) -> Result<()> {
     let expected_files = [
         "lib.rs",
+        "enforcement.rs",
         "enums.rs",
         "kernel/mod.rs",
         "kernel/address.rs",

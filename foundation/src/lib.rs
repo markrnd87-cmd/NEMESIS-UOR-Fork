@@ -30,15 +30,69 @@
 //! - [`kernel`] — Immutable foundation: addressing, schema, operations
 //! - [`bridge`] — Kernel-computed, user-consumed: queries, resolution, partitions, proofs
 //! - [`user`] — Runtime declarations: types, morphisms, state
+//!
+//! # Enforcement Layer
+//!
+//! The [`enforcement`] module provides concrete types (not generic over
+//! `Primitives`) for declarative validation. These form a three-layer
+//! pipeline:
+//!
+//! **Layer 1 — Opaque Witnesses.** [`enforcement::Datum`],
+//! [`enforcement::Validated`], [`enforcement::Derivation`],
+//! [`enforcement::FiberBudget`]: sealed types with private fields that
+//! prove a value passed through the cascade evaluator or the two-phase
+//! minting boundary. Prism code consumes these but cannot fabricate them.
+//!
+//! **Layer 2 — Declarative Builders.** [`enforcement::CompileUnitBuilder`]
+//! and 8 others collect the declarations required by each conformance
+//! shape, then call `validate()` to get a `Validated<T>` or a
+//! [`enforcement::ShapeViolation`] with machine-readable IRIs.
+//!
+//! **Layer 3 — Term AST.** [`enforcement::Term`] and
+//! [`enforcement::TermArena`]: stack-resident, `#![no_std]`-safe
+//! expression trees. Builders accept `Term` references (not closures),
+//! keeping Prism declarations within the term language.
+//!
+//! # The `uor!` Macro
+//!
+//! The re-exported [`uor!`] macro parses EBNF surface syntax at compile
+//! time and produces typed `Term` ASTs. Ground assertions (no free
+//! variables) are evaluated at compile time using the foundation's
+//! `const fn` ring arithmetic.
+//!
+//! ```rust,ignore
+//! use uor_foundation::uor;
+//!
+//! // Type declaration with constraints:
+//! let pixel = uor! { type Pixel { residue: 255; hamming: 8; } };
+//!
+//! // Operation composition (produces a TermArena):
+//! let expr = uor! { add(mul(3, 5), 7) };
+//!
+//! // Ground assertion — checked at compile time:
+//! uor! { assert add(1, 2) = 3; };
+//! ```
+//!
+//! # Getting Started
+//!
+//! 1. Implement [`Primitives`] for your concrete type family.
+//! 2. Use the [`enforcement`] builders to declare your types, effects,
+//!    and boundaries.
+//! 3. Use the [`uor!`] macro for term-language expressions.
+//! 4. The cascade evaluator validates and evaluates your declarations,
+//!    producing [`enforcement::Datum`] and [`enforcement::Derivation`]
+//!    witnesses.
 
 #![no_std]
 
 pub mod bridge;
+pub mod enforcement;
 pub mod enums;
 pub mod kernel;
 pub mod user;
 
 pub use enums::*;
+pub use uor_foundation_macros::uor;
 
 /// XSD primitive type family.
 /// Implementors choose concrete representations for each XSD type.

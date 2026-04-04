@@ -1347,6 +1347,21 @@ pub fn validate() -> ConformanceReport {
         tests::fixtures::TEST265_USER_TYPES,
         &mut report,
     );
+    run_test(
+        "test266_witness_datum",
+        tests::fixtures::TEST266_WITNESS_DATUM,
+        &mut report,
+    );
+    run_test(
+        "test267_compile_unit_builder",
+        tests::fixtures::TEST267_COMPILE_UNIT_BUILDER,
+        &mut report,
+    );
+    run_test(
+        "test268_violation_kind",
+        tests::fixtures::TEST268_VIOLATION_KIND,
+        &mut report,
+    );
 
     // Verify test fixture count matches expected
     let test_count = report.results.len() - before_tests;
@@ -1687,6 +1702,9 @@ fn run_test(name: &str, turtle_src: &str, report: &mut ConformanceReport) {
         "test263_boundary_types" => validate_basic_turtle(turtle_src),
         "test264_conformance_types" => validate_basic_turtle(turtle_src),
         "test265_user_types" => validate_basic_turtle(turtle_src),
+        "test266_witness_datum" => validate_basic_turtle(turtle_src),
+        "test267_compile_unit_builder" => validate_basic_turtle(turtle_src),
+        "test268_violation_kind" => validate_basic_turtle(turtle_src),
         _ => Ok(()),
     };
 

@@ -186,6 +186,9 @@ mod test262_region_types;
 mod test263_boundary_types;
 mod test264_conformance_types;
 mod test265_user_types;
+mod test266_witness_datum;
+mod test267_compile_unit_builder;
+mod test268_violation_kind;
 mod test26_complexity_class;
 mod test27_rewrite_rule;
 mod test28_measurement_unit;
@@ -452,6 +455,9 @@ pub use test262_region_types::TEST262_REGION_TYPES;
 pub use test263_boundary_types::TEST263_BOUNDARY_TYPES;
 pub use test264_conformance_types::TEST264_CONFORMANCE_TYPES;
 pub use test265_user_types::TEST265_USER_TYPES;
+pub use test266_witness_datum::TEST266_WITNESS_DATUM;
+pub use test267_compile_unit_builder::TEST267_COMPILE_UNIT_BUILDER;
+pub use test268_violation_kind::TEST268_VIOLATION_KIND;
 pub use test26_complexity_class::TEST26_COMPLEXITY_CLASS;
 pub use test27_rewrite_rule::TEST27_REWRITE_RULE;
 pub use test28_measurement_unit::TEST28_MEASUREMENT_UNIT;
@@ -804,5 +810,8 @@ pub fn all_fixture_sources() -> Vec<&'static str> {
         TEST263_BOUNDARY_TYPES,
         TEST264_CONFORMANCE_TYPES,
         TEST265_USER_TYPES,
+        TEST266_WITNESS_DATUM,
+        TEST267_COMPILE_UNIT_BUILDER,
+        TEST268_VIOLATION_KIND,
     ]
 }

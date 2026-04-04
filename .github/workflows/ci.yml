@@ -50,7 +50,7 @@ jobs:
         run: cargo check -p uor-foundation --no-default-features
 
       - name: Verify crate packaging (dry-run)
-        run: cargo publish --dry-run --allow-dirty -p uor-foundation
+        run: cargo publish --dry-run --allow-dirty -p uor-foundation-macros
 
       - name: Build ontology artifacts
         run: cargo run --bin uor-build

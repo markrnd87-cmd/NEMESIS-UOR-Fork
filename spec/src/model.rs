@@ -314,6 +314,7 @@ impl Ontology {
             "ValidityScopeKind",
             "VarianceAnnotation",
             "VerificationDomain",
+            "ViolationKind",
         ]
     }
 }

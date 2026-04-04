@@ -52,6 +52,42 @@ impl RustFile {
         let _ = writeln!(self.buf, "//! {comment}");
     }
 
+    /// Appends a `# Examples` doc section with a fenced code block.
+    ///
+    /// `fence` is the language tag: `"rust"` for runnable, `"rust,ignore"` for
+    /// display-only, or `"rust,no_run"` for compile-but-don't-run.
+    pub fn doc_example(&mut self, code: &str, fence: &str) {
+        self.doc_comment("");
+        self.doc_comment("# Examples");
+        self.doc_comment("");
+        let _ = writeln!(self.buf, "/// ```{fence}");
+        for line in code.lines() {
+            if line.is_empty() {
+                self.buf.push_str("///\n");
+            } else {
+                let _ = writeln!(self.buf, "/// {line}");
+            }
+        }
+        self.buf.push_str("/// ```\n");
+    }
+
+    /// Appends an indented `# Examples` doc section (4 spaces, for inside
+    /// trait/impl bodies).
+    pub fn indented_doc_example(&mut self, code: &str, fence: &str) {
+        self.indented_doc_comment("");
+        self.indented_doc_comment("# Examples");
+        self.indented_doc_comment("");
+        let _ = writeln!(self.buf, "    /// ```{fence}");
+        for line in code.lines() {
+            if line.is_empty() {
+                self.buf.push_str("    ///\n");
+            } else {
+                let _ = writeln!(self.buf, "    /// {line}");
+            }
+        }
+        self.buf.push_str("    /// ```\n");
+    }
+
     /// Returns the built source as a string, with trailing whitespace trimmed.
     pub fn finish(self) -> String {
         let trimmed = self.buf.trim_end();

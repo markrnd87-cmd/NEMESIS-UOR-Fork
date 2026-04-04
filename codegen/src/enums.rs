@@ -247,7 +247,16 @@ pub fn detect_enums(ontology: &Ontology) -> Vec<DetectedEnum> {
         &mut enums,
     );
 
-    // 20. ProofModality enum (hardcoded — codegen enum, not an OWL class)
+    // 20. ViolationKind enum (Amendment 95 — Declarative enforcement)
+    detect_vocabulary_enum(
+        ontology,
+        "conformance",
+        "ViolationKind",
+        "The kind of shape violation reported by a builder's validate method.",
+        &mut enums,
+    );
+
+    // 21. ProofModality enum (hardcoded — codegen enum, not an OWL class)
     enums.push(DetectedEnum {
         name: "ProofModality",
         comment: "The modality of a proof: computation (exhaustive verification at a \
@@ -396,6 +405,31 @@ pub fn generate_enums_file(ontology: &Ontology) -> String {
     f.doc_comment("The class is open: any non-negative integer k identifies a valid level.");
     f.doc_comment("Named levels Q0 through Q3 are provided as associated constants.");
     f.doc_comment("Arbitrary levels can be constructed with `QuantumLevel::new(k)`.");
+    f.doc_example(
+        "use uor_foundation::QuantumLevel;\n\
+         \n\
+         // Named reference levels (Q0-Q3 are spec-defined):\n\
+         let q0 = QuantumLevel::Q0;\n\
+         assert_eq!(q0.index(), 0);\n\
+         assert_eq!(q0.bits_width(), 8);    // 8*(0+1) = 8 bits\n\
+         assert_eq!(q0.cycle_size(), Some(256)); // 2^8 = 256 ring elements\n\
+         \n\
+         let q3 = QuantumLevel::Q3;\n\
+         assert_eq!(q3.bits_width(), 32);   // 8*(3+1) = 32 bits\n\
+         \n\
+         // Arbitrary levels beyond Q3 (Prism-declared):\n\
+         let q7 = QuantumLevel::new(7);\n\
+         assert_eq!(q7.bits_width(), 64);   // 8*(7+1) = 64 bits — native u64\n\
+         \n\
+         // The chain is unbounded:\n\
+         let q10 = QuantumLevel::new(10);\n\
+         assert_eq!(q10.bits_width(), 88);\n\
+         assert_eq!(q10.next_level().index(), 11);\n\
+         \n\
+         // Ordering follows the index:\n\
+         assert!(QuantumLevel::Q0 < QuantumLevel::Q3);",
+        "rust",
+    );
     f.line("#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]");
     f.line("pub struct QuantumLevel {");
     f.indented_doc_comment("The quantum index k in Q_k. Maps to `schema:quantumIndex`.");

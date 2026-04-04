@@ -117,6 +117,11 @@ pub fn run_all(paths: &WorkspacePaths) -> anyhow::Result<ConformanceReport> {
     // 6b. Generated crate conformance
     report.extend(validators::ontology::crate_::validate(&paths.workspace)?);
 
+    // 6b2. Declarative enforcement module
+    report.extend(validators::ontology::enforcement::validate(
+        &paths.workspace,
+    )?);
+
     // 6c. Standards document counts
     report.extend(validators::ontology::standards::validate(&paths.workspace)?);
 
