@@ -1,6 +1,10 @@
-# UOR Framework
+## ⚠️ EXPERIMENTAL FORK: NEMESIS RESONANCE ⚠️
+This fork is actively integrating the hypercomplex scalar geometries of **NEMESIS Theory**. 
+For the theoretical proofs, operational logs, and equations governing the `spec/nemesis/` ontology, refer to the core archive: 
+👉 **[NEMESIS-Theory Repository](https://github.com/markrnd87-cmd/NEMESIS-Theory)**# UOR Framework
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19068826.svg)](https://doi.org/10.5281/zenodo.19068826)
+![a785ceaa-31fe-45d5-99a5-1a289fb160d2](https://github.com/user-attachments/assets/b9c37c35-87e9-4a05-b0b5-1808decd9f94)
 
 The Universal Object Reference (UOR) Framework is a Rust workspace implementing
 the [UOR Foundation](https://uor.foundation/) ontology — a mathematical framework
