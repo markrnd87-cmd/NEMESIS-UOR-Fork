@@ -10,6 +10,7 @@ The Universal Object Reference (UOR) Framework is a Rust workspace implementing
 the [UOR Foundation](https://uor.foundation/) ontology — a mathematical framework
 for content-addressed, symmetric, multi-metric object spaces with algebraic
 structure based on Z/(2^n)Z.
+<img width="2816" height="1536" alt="Gemini_Generated_Image_7pymxc7pymxc7pym" src="https://github.com/user-attachments/assets/8530d86e-13b3-49cd-bded-776ce5fe8bff" />
 
 ## Ontology
 
