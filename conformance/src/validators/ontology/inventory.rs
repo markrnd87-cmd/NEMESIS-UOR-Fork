@@ -10,6 +10,7 @@ use anyhow::{Context, Result};
 use serde_json::Value;
 use uor_ontology::counts;
 use uor_ontology::model::{IndividualValue, PropertyKind, Space};
+use uor_ontology::Ontology;
 
 use crate::report::{ConformanceReport, TestResult};
 
@@ -165,6 +166,14 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
 
     // Amendment 92: Proof derivation typing
     validate_formal_derivation_typed(&mut report);
+
+    // Amendment 95: Workstreams 1, 3, 4, 5, 6, 8
+    validate_predicate_registry(&mut report);
+    validate_constraint_completion(&mut report);
+    validate_host_value_sort(&mut report);
+    validate_boundary_map_registry(&mut report);
+    validate_type_definition_coverage(&mut report);
+    validate_operad_retyping(&mut report);
 
     // Validate the built JSON-LD artifact
     let json_path = artifacts.join("uor.foundation.jsonld");
@@ -5102,6 +5111,8 @@ fn validate_legitimate_string_properties_only(report: &mut ConformanceReport) {
         "https://uor.foundation/conformance/productivityWitness",
         "https://uor.foundation/conformance/terminationWitness",
         "https://uor.foundation/conformance/disjointnessWitness",
+        // Amendment 95: Host-value sort (Workstream 5)
+        "https://uor.foundation/schema/hostString",
     ]
     .into_iter()
     .collect();
@@ -5224,6 +5235,268 @@ fn validate_formal_derivation_typed(report: &mut ConformanceReport) {
                 validator,
                 "Property proof:formalDerivation not found",
             ));
+        }
+    }
+}
+
+// ── Amendment 95 validators ────────────────────────────────────────────────
+
+/// Validates the 12 predicate registry individuals (Workstream 1).
+fn validate_predicate_registry(report: &mut ConformanceReport) {
+    let ontology = Ontology::full();
+    let validator = "ontology/inventory/predicate_registry";
+    let ns = ontology.find_namespace("predicate");
+    match ns {
+        Some(m) => {
+            let expected = [
+                "always",
+                "never",
+                "isZero",
+                "isUnit",
+                "isOdd",
+                "isEven",
+                "isInvolution",
+                "fiberPinned",
+                "fiberFree",
+                "contradictionReached",
+                "budgetExhausted",
+                "cascadeConverged",
+            ];
+            let mut all_found = true;
+            for label in &expected {
+                let iri = format!("https://uor.foundation/predicate/{label}");
+                if !m.individuals.iter().any(|i| i.id == iri) {
+                    all_found = false;
+                }
+            }
+            if all_found {
+                report.push(TestResult::pass(
+                    validator,
+                    format!(
+                        "All {} predicate registry individuals present",
+                        expected.len()
+                    ),
+                ));
+            } else {
+                report.push(TestResult::fail(
+                    validator,
+                    "Missing one or more predicate registry individuals",
+                ));
+            }
+        }
+        None => {
+            report.push(TestResult::fail(validator, "predicate namespace not found"));
+        }
+    }
+}
+
+/// Validates the 3 new Constraint subclasses and 5 properties (Workstream 3).
+fn validate_constraint_completion(report: &mut ConformanceReport) {
+    let ontology = Ontology::full();
+    let validator = "ontology/inventory/constraint_completion";
+    let ns = ontology.find_namespace("type");
+    match ns {
+        Some(m) => {
+            let new_classes = [
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/FiberConstraint",
+                "https://uor.foundation/type/AffineConstraint",
+            ];
+            let classes_ok = new_classes
+                .iter()
+                .all(|iri| m.classes.iter().any(|c| c.id == *iri));
+            let new_props = [
+                "https://uor.foundation/type/hammingBound",
+                "https://uor.foundation/type/fiberIndex",
+                "https://uor.foundation/type/fiberValue",
+                "https://uor.foundation/type/affineOffset",
+                "https://uor.foundation/type/affineGenerator",
+            ];
+            let props_ok = new_props
+                .iter()
+                .all(|iri| m.properties.iter().any(|p| p.id == *iri));
+            let carry_ok = m.properties.iter().any(|p| {
+                p.id == "https://uor.foundation/type/carryPattern"
+                    && p.range == "https://uor.foundation/schema/Datum"
+            });
+            if classes_ok && props_ok && carry_ok {
+                report.push(TestResult::pass(
+                    validator,
+                    "Constraint completion: 3 classes, 5 properties, carryPattern retyped",
+                ));
+            } else {
+                report.push(TestResult::fail(
+                    validator,
+                    format!(
+                        "Constraint completion incomplete: classes={classes_ok}, \
+                         props={props_ok}, carry_retyped={carry_ok}"
+                    ),
+                ));
+            }
+        }
+        None => {
+            report.push(TestResult::fail(validator, "type namespace not found"));
+        }
+    }
+}
+
+/// Validates the host-value sort classes and properties (Workstream 5).
+fn validate_host_value_sort(report: &mut ConformanceReport) {
+    let ontology = Ontology::full();
+    let validator = "ontology/inventory/host_value_sort";
+    let ns = ontology.find_namespace("schema");
+    match ns {
+        Some(m) => {
+            let new_classes = [
+                "https://uor.foundation/schema/SurfaceSymbol",
+                "https://uor.foundation/schema/HostValue",
+                "https://uor.foundation/schema/HostStringLiteral",
+                "https://uor.foundation/schema/HostBooleanLiteral",
+            ];
+            let classes_ok = new_classes
+                .iter()
+                .all(|iri| m.classes.iter().any(|c| c.id == *iri));
+            let literal_ok = m.classes.iter().any(|c| {
+                c.id == "https://uor.foundation/schema/Literal"
+                    && c.subclass_of
+                        .contains(&"https://uor.foundation/schema/SurfaceSymbol")
+            });
+            if classes_ok && literal_ok {
+                report.push(TestResult::pass(
+                    validator,
+                    "Host-value sort: 4 classes present, Literal has SurfaceSymbol parent",
+                ));
+            } else {
+                report.push(TestResult::fail(
+                    validator,
+                    format!(
+                        "Host-value sort incomplete: classes={classes_ok}, \
+                         literal_parent={literal_ok}"
+                    ),
+                ));
+            }
+        }
+        None => {
+            report.push(TestResult::fail(validator, "schema namespace not found"));
+        }
+    }
+}
+
+/// Validates the boundary map registry (Workstream 4).
+fn validate_boundary_map_registry(report: &mut ConformanceReport) {
+    let ontology = Ontology::full();
+    let validator = "ontology/inventory/boundary_map_registry";
+    let ns = ontology.find_namespace("morphism");
+    match ns {
+        Some(m) => {
+            let new_classes = [
+                "https://uor.foundation/morphism/Witness",
+                "https://uor.foundation/morphism/GroundingWitness",
+                "https://uor.foundation/morphism/ProjectionWitness",
+                "https://uor.foundation/morphism/SymbolSequence",
+                "https://uor.foundation/morphism/SequenceElement",
+            ];
+            let classes_ok = new_classes
+                .iter()
+                .all(|iri| m.classes.iter().any(|c| c.id == *iri));
+            let map_individuals = [
+                "https://uor.foundation/morphism/IntegerGroundingMap",
+                "https://uor.foundation/morphism/Utf8GroundingMap",
+                "https://uor.foundation/morphism/JsonGroundingMap",
+                "https://uor.foundation/morphism/IntegerProjectionMap",
+                "https://uor.foundation/morphism/Utf8ProjectionMap",
+                "https://uor.foundation/morphism/JsonProjectionMap",
+            ];
+            let individuals_ok = map_individuals
+                .iter()
+                .all(|iri| m.individuals.iter().any(|i| i.id == *iri));
+            let redomained_ok = m.properties.iter().any(|p| {
+                p.id == "https://uor.foundation/morphism/surfaceSymbol"
+                    && p.domain == Some("https://uor.foundation/morphism/GroundingWitness")
+                    && p.range == "https://uor.foundation/schema/SurfaceSymbol"
+            });
+            if classes_ok && individuals_ok && redomained_ok {
+                report.push(TestResult::pass(
+                    validator,
+                    "Boundary map registry: 5 classes, 6 individuals, re-domainings correct",
+                ));
+            } else {
+                report.push(TestResult::fail(
+                    validator,
+                    format!(
+                        "Boundary map registry incomplete: classes={classes_ok}, \
+                         individuals={individuals_ok}, redomained={redomained_ok}"
+                    ),
+                ));
+            }
+        }
+        None => {
+            report.push(TestResult::fail(validator, "morphism namespace not found"));
+        }
+    }
+}
+
+/// Validates EitherType and OptionType as SumType individuals (Workstream 8).
+fn validate_type_definition_coverage(report: &mut ConformanceReport) {
+    let ontology = Ontology::full();
+    let validator = "ontology/inventory/type_definition_coverage";
+    let ns = ontology.find_namespace("type");
+    match ns {
+        Some(m) => {
+            let either_ok = m.individuals.iter().any(|i| {
+                i.id == "https://uor.foundation/type/EitherType"
+                    && i.type_ == "https://uor.foundation/type/SumType"
+            });
+            let option_ok = m.individuals.iter().any(|i| {
+                i.id == "https://uor.foundation/type/OptionType"
+                    && i.type_ == "https://uor.foundation/type/SumType"
+            });
+            if either_ok && option_ok {
+                report.push(TestResult::pass(
+                    validator,
+                    "EitherType and OptionType present as SumType individuals",
+                ));
+            } else {
+                report.push(TestResult::fail(
+                    validator,
+                    format!(
+                        "TypeDefinition coverage incomplete: either={either_ok}, \
+                         option={option_ok}"
+                    ),
+                ));
+            }
+        }
+        None => {
+            report.push(TestResult::fail(validator, "type namespace not found"));
+        }
+    }
+}
+
+/// Validates composedGrounding range retyping (Workstream 6).
+fn validate_operad_retyping(report: &mut ConformanceReport) {
+    let ontology = Ontology::full();
+    let validator = "ontology/inventory/operad_retyping";
+    let ns = ontology.find_namespace("operad");
+    match ns {
+        Some(m) => {
+            let grounding_ok = m.properties.iter().any(|p| {
+                p.id == "https://uor.foundation/operad/composedGrounding"
+                    && p.range == "https://uor.foundation/morphism/GroundingMap"
+            });
+            if grounding_ok {
+                report.push(TestResult::pass(
+                    validator,
+                    "composedGrounding range is morphism:GroundingMap",
+                ));
+            } else {
+                report.push(TestResult::fail(
+                    validator,
+                    "composedGrounding range is not morphism:GroundingMap",
+                ));
+            }
+        }
+        None => {
+            report.push(TestResult::fail(validator, "operad namespace not found"));
         }
     }
 }

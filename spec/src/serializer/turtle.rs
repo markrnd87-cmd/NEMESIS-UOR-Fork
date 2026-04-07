@@ -201,4 +201,26 @@ mod tests {
             "Missing criticalIdentity individual in Turtle output"
         );
     }
+
+    #[test]
+    fn contains_amendment_95_terms() {
+        let ontology = Ontology::full();
+        let turtle = to_turtle(ontology);
+        assert!(
+            turtle.contains("SurfaceSymbol"),
+            "Missing SurfaceSymbol class"
+        );
+        assert!(
+            turtle.contains("HammingConstraint"),
+            "Missing HammingConstraint class"
+        );
+        assert!(
+            turtle.contains("IntegerGroundingMap"),
+            "Missing IntegerGroundingMap individual"
+        );
+        assert!(
+            turtle.contains("predicate/always"),
+            "Missing predicate:always individual"
+        );
+    }
 }

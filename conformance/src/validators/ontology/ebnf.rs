@@ -54,65 +54,38 @@ pub fn validate(artifacts: &Path) -> Result<ConformanceReport> {
         ));
     }
 
-    // All 10 PrimitiveOp operations
-    for op in &[
-        "neg", "bnot", "succ", "pred", "add", "sub", "mul", "xor", "and", "or",
-    ] {
-        let terminal = format!("\"{}\"", op);
-        if !content.contains(&terminal) {
-            issues.push(format!("Missing operation terminal: {}", op));
-        }
-    }
-
-    // All 4 quantum levels
-    for level in &["Q0", "Q1", "Q2", "Q3"] {
-        let terminal = format!("\"{}\"", level);
-        if !content.contains(&terminal) {
-            issues.push(format!("Missing quantum level: {}", level));
-        }
-    }
-
     // Version string from live spec
     let ontology = uor_ontology::Ontology::full();
     if !content.contains(ontology.version) {
         issues.push(format!("Missing version string: {}", ontology.version));
     }
 
-    // All 6 rewrite rules
-    for rule in &[
-        "CriticalIdentity",
-        "Involution",
-        "Associativity",
-        "Commutativity",
-        "IdentityElement",
-        "Normalization",
-    ] {
-        if !content.contains(rule) {
-            issues.push(format!("Missing rewrite rule: {}", rule));
+    // Amendment 95: Grammar restructuring checks
+    let required_productions = [
+        "value",
+        "host-literal",
+        "string-literal",
+        "boolean-literal",
+        "constraint-arg",
+        "type-expr",
+        "type-app",
+        "type-params",
+    ];
+    for prod in &required_productions {
+        if !content.contains(prod) {
+            issues.push(format!("Missing production: {}", prod));
         }
     }
 
-    // Amendment 88: All 10 extended productions for identity formalization
-    let extended_productions = [
-        "relation-expr",
-        "quantified-expr",
-        "set-expr",
-        "aggregation-expr",
-        "composition-expr",
-        "subscript-expr",
-        "power-expr",
-        "cardinality-expr",
-        "connective-expr",
-        "conditional-expr",
-    ];
-    let mut extended_missing = Vec::new();
-    for prod in &extended_productions {
-        let def = format!("{}\n    ::=", prod);
-        if !content.contains(&def) {
-            extended_missing.push(format!("Missing extended production: {}", prod));
-        }
+    // Application must be a single n-ary production (not unary/binary split)
+    if content.contains("unary-application") || content.contains("binary-application") {
+        issues.push("Grammar still contains deprecated unary/binary application split".to_string());
     }
-    issues.extend(extended_missing);
+
+    // Recover-arm must use name (not lowercase failure-kind enum)
+    if content.contains("\"guard\"") || content.contains("\"contradiction\"") {
+        issues.push("Grammar still contains deprecated lowercase failure-kind tokens".to_string());
+    }
 
     if issues.is_empty() {
         report.push(TestResult::pass(

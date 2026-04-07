@@ -5,12 +5,14 @@
 //! resolution paths. Every predicate is total (evaluation terminates for
 //! all inputs) and pure (no side effects).
 //!
-//! - **Amendment 72**: 9 classes, 15 properties, 0 individuals (identities in op/)
+//! - **Amendment 95**: 9 classes, 15 properties, 12 individuals (predicate registry)
 //!
 //! **Space classification:** `kernel` — immutable algebra.
 
 use crate::model::iris::*;
-use crate::model::{Class, Namespace, NamespaceModule, Property, PropertyKind, Space};
+use crate::model::{
+    Class, Individual, IndividualValue, Namespace, NamespaceModule, Property, PropertyKind, Space,
+};
 
 /// Returns the `predicate/` namespace module.
 #[must_use]
@@ -24,11 +26,11 @@ pub fn module() -> NamespaceModule {
                       resolver dispatch, cascade guard evaluation, and \
                       conditional resolution paths.",
             space: Space::Kernel,
-            imports: &[NS_OP, NS_SCHEMA, NS_TYPE, NS_STATE, NS_EFFECT],
+            imports: &[NS_OP, NS_SCHEMA, NS_TYPE, NS_STATE, NS_EFFECT, NS_PARTITION],
         },
         classes: classes(),
         properties: properties(),
-        individuals: vec![],
+        individuals: individuals(),
     }
 }
 
@@ -260,6 +262,134 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/predicate/MatchArm"),
             range: XSD_NON_NEGATIVE_INTEGER,
+        },
+    ]
+}
+
+const EVALUATES_OVER: &str = "https://uor.foundation/predicate/evaluatesOver";
+
+/// Amendment 95: Predicate registry individuals (Workstream 1).
+fn individuals() -> Vec<Individual> {
+    vec![
+        Individual {
+            id: "https://uor.foundation/predicate/always",
+            type_: "https://uor.foundation/predicate/Predicate",
+            label: "always",
+            comment: "True on every Datum. Match-arm default catch-all.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/never",
+            type_: "https://uor.foundation/predicate/Predicate",
+            label: "never",
+            comment: "False on every Datum. Disabled-arm marker.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isZero",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isZero",
+            comment: "True iff the Datum is the additive identity of its ring.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isUnit",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isUnit",
+            comment: "True iff the Datum is the multiplicative identity.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isOdd",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isOdd",
+            comment: "True iff the Datum parity bit is 1.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isEven",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isEven",
+            comment: "True iff the Datum parity bit is 0.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isInvolution",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isInvolution",
+            comment: "True iff op(op(x)) = x for the bound op.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/fiberPinned",
+            type_: "https://uor.foundation/predicate/FiberPredicate",
+            label: "fiberPinned",
+            comment: "True iff the named fiber coordinate is currently pinned.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/partition/FiberCoordinate"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/fiberFree",
+            type_: "https://uor.foundation/predicate/FiberPredicate",
+            label: "fiberFree",
+            comment: "True iff the named fiber coordinate is currently free.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/partition/FiberCoordinate"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/contradictionReached",
+            type_: "https://uor.foundation/predicate/StatePredicate",
+            label: "contradictionReached",
+            comment: "True iff the resolver has entered a ContradictionBoundary.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/state/ContradictionBoundary"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/budgetExhausted",
+            type_: "https://uor.foundation/predicate/StatePredicate",
+            label: "budgetExhausted",
+            comment: "True iff the FiberBudget deficit is zero.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/partition/FiberBudget"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/cascadeConverged",
+            type_: "https://uor.foundation/predicate/StatePredicate",
+            label: "cascadeConverged",
+            comment: "True iff the cascade fixpoint has been reached.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/cascade/CascadeState"),
+            )],
         },
     ]
 }

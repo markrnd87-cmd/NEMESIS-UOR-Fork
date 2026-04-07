@@ -88,3 +88,75 @@ pub trait MatchExpression<P: Primitives>: crate::kernel::schema::Term<P> {
     /// The ordered arms of this match expression.
     fn match_arms(&self) -> &[Self::MatchArm];
 }
+
+/// True on every Datum. Match-arm default catch-all.
+pub mod always {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// False on every Datum. Disabled-arm marker.
+pub mod never {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// True iff the Datum is the additive identity of its ring.
+pub mod is_zero {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// True iff the Datum is the multiplicative identity.
+pub mod is_unit {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// True iff the Datum parity bit is 1.
+pub mod is_odd {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// True iff the Datum parity bit is 0.
+pub mod is_even {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// True iff op(op(x)) = x for the bound op.
+pub mod is_involution {
+    /// `evaluatesOver` -> `Datum`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/schema/Datum";
+}
+
+/// True iff the named fiber coordinate is currently pinned.
+pub mod fiber_pinned {
+    /// `evaluatesOver` -> `FiberCoordinate`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/partition/FiberCoordinate";
+}
+
+/// True iff the named fiber coordinate is currently free.
+pub mod fiber_free {
+    /// `evaluatesOver` -> `FiberCoordinate`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/partition/FiberCoordinate";
+}
+
+/// True iff the resolver has entered a ContradictionBoundary.
+pub mod contradiction_reached {
+    /// `evaluatesOver` -> `ContradictionBoundary`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/state/ContradictionBoundary";
+}
+
+/// True iff the FiberBudget deficit is zero.
+pub mod budget_exhausted {
+    /// `evaluatesOver` -> `FiberBudget`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/partition/FiberBudget";
+}
+
+/// True iff the cascade fixpoint has been reached.
+pub mod cascade_converged {
+    /// `evaluatesOver` -> `CascadeState`
+    pub const EVALUATES_OVER: &str = "https://uor.foundation/cascade/CascadeState";
+}

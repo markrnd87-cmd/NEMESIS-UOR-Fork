@@ -117,6 +117,9 @@ fn classes() -> Vec<Class> {
                 "https://uor.foundation/type/CarryConstraint",
                 "https://uor.foundation/type/DepthConstraint",
                 "https://uor.foundation/type/CompositeConstraint",
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/FiberConstraint",
+                "https://uor.foundation/type/AffineConstraint",
             ],
         },
         Class {
@@ -129,6 +132,9 @@ fn classes() -> Vec<Class> {
                 "https://uor.foundation/type/ResidueConstraint",
                 "https://uor.foundation/type/DepthConstraint",
                 "https://uor.foundation/type/CompositeConstraint",
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/FiberConstraint",
+                "https://uor.foundation/type/AffineConstraint",
             ],
         },
         Class {
@@ -142,6 +148,9 @@ fn classes() -> Vec<Class> {
                 "https://uor.foundation/type/ResidueConstraint",
                 "https://uor.foundation/type/CarryConstraint",
                 "https://uor.foundation/type/CompositeConstraint",
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/FiberConstraint",
+                "https://uor.foundation/type/AffineConstraint",
             ],
         },
         Class {
@@ -155,6 +164,55 @@ fn classes() -> Vec<Class> {
                 "https://uor.foundation/type/ResidueConstraint",
                 "https://uor.foundation/type/CarryConstraint",
                 "https://uor.foundation/type/DepthConstraint",
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/FiberConstraint",
+                "https://uor.foundation/type/AffineConstraint",
+            ],
+        },
+        // Amendment 95: Constraint completion (Workstream 3)
+        Class {
+            id: "https://uor.foundation/type/HammingConstraint",
+            label: "HammingConstraint",
+            comment: "Pins the Hamming weight of the Datum to at most the bound. \
+                      The horizontal axis of the tri-metric.",
+            subclass_of: &["https://uor.foundation/type/Constraint"],
+            disjoint_with: &[
+                "https://uor.foundation/type/ResidueConstraint",
+                "https://uor.foundation/type/CarryConstraint",
+                "https://uor.foundation/type/DepthConstraint",
+                "https://uor.foundation/type/CompositeConstraint",
+                "https://uor.foundation/type/FiberConstraint",
+                "https://uor.foundation/type/AffineConstraint",
+            ],
+        },
+        Class {
+            id: "https://uor.foundation/type/FiberConstraint",
+            label: "FiberConstraint",
+            comment: "Pins a single fiber coordinate to 0 or 1. The atomic unit \
+                      of the fiber budget.",
+            subclass_of: &["https://uor.foundation/type/Constraint"],
+            disjoint_with: &[
+                "https://uor.foundation/type/ResidueConstraint",
+                "https://uor.foundation/type/CarryConstraint",
+                "https://uor.foundation/type/DepthConstraint",
+                "https://uor.foundation/type/CompositeConstraint",
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/AffineConstraint",
+            ],
+        },
+        Class {
+            id: "https://uor.foundation/type/AffineConstraint",
+            label: "AffineConstraint",
+            comment: "Pins the Datum to an affine subspace specified by an offset \
+                      and a set of generators.",
+            subclass_of: &["https://uor.foundation/type/Constraint"],
+            disjoint_with: &[
+                "https://uor.foundation/type/ResidueConstraint",
+                "https://uor.foundation/type/CarryConstraint",
+                "https://uor.foundation/type/DepthConstraint",
+                "https://uor.foundation/type/CompositeConstraint",
+                "https://uor.foundation/type/HammingConstraint",
+                "https://uor.foundation/type/FiberConstraint",
             ],
         },
         Class {
@@ -179,7 +237,9 @@ fn classes() -> Vec<Class> {
                       all Betti numbers β_k = 0. A CompleteType guarantees that resolution \
                       closes the fiber budget in O(1) — no iterative refinement is required. \
                       Completeness is attested by a cert:CompletenessCertificate linked via \
-                      cert:certifiedType.",
+                      cert:certifiedType. This class is not addressable from a type-expr \
+                      position in the term language; references from term-language positions \
+                      are rejected by the resolver.",
             subclass_of: &["https://uor.foundation/type/TypeDefinition"],
             disjoint_with: &[],
         },
@@ -190,7 +250,10 @@ fn classes() -> Vec<Class> {
             comment: "A ConstrainedType actively undergoing the completeness certification \
                       pipeline. Links to the resolver:ResolutionState tracking the current \
                       iteration and to the resolver:ConstraintNerve being computed. \
-                      Disjoint from CompleteType (which is already certified).",
+                      Disjoint from CompleteType (which is already certified). \
+                      This class is not addressable from a type-expr position in \
+                      the term language; references from term-language positions \
+                      are rejected by the resolver.",
             subclass_of: &["https://uor.foundation/type/ConstrainedType"],
             disjoint_with: &["https://uor.foundation/type/CompleteType"],
         },
@@ -232,7 +295,9 @@ fn classes() -> Vec<Class> {
             comment: "A ConstrainedType produced by the TypeSynthesisResolver. Distinguished \
                       from a hand-authored ConstrainedType by the presence of a \
                       type:synthesisResult link. May or may not be a CompleteType, depending \
-                      on the synthesis goal.",
+                      on the synthesis goal. This class is not addressable from a type-expr \
+                      position in the term language; references from term-language positions \
+                      are rejected by the resolver.",
             subclass_of: &["https://uor.foundation/type/ConstrainedType"],
             disjoint_with: &[],
         },
@@ -277,7 +342,9 @@ fn classes() -> Vec<Class> {
                       closed constraint path produces a non-identity dihedral element. A \
                       TwistedType may still be a CompleteType (IT_7d is a homological, not \
                       holonomic, criterion), but its resolution paths require tracking dihedral \
-                      accumulation.",
+                      accumulation. This class is not addressable from a type-expr position \
+                      in the term language; references from term-language positions are \
+                      rejected by the resolver.",
             subclass_of: &["https://uor.foundation/type/ConstrainedType"],
             disjoint_with: &["https://uor.foundation/type/FlatType"],
         },
@@ -286,7 +353,9 @@ fn classes() -> Vec<Class> {
             label: "FlatType",
             comment: "A ConstrainedType whose HolonomyGroup is trivial — all closed constraint \
                       paths have identity monodromy. The constraint configuration is \
-                      topologically flat: resolution is path-independent.",
+                      topologically flat: resolution is path-independent. This class is \
+                      not addressable from a type-expr position in the term language; \
+                      references from term-language positions are rejected by the resolver.",
             subclass_of: &["https://uor.foundation/type/ConstrainedType"],
             disjoint_with: &["https://uor.foundation/type/TwistedType"],
         },
@@ -296,7 +365,10 @@ fn classes() -> Vec<Class> {
             label: "SuperposedFiberState",
             comment: "A type representing a superposition of fiber states where fibers \
                       carry complex amplitudes rather than binary pinned/free \
-                      assignments. Ontological realisation of RC_5 (Amendment 32).",
+                      assignments. Ontological realisation of RC_5 (Amendment 32). \
+                      This class is not addressable from a type-expr position in \
+                      the term language; references from term-language positions \
+                      are rejected by the resolver.",
             subclass_of: &["https://uor.foundation/type/TypeDefinition"],
             disjoint_with: &[],
         },
@@ -494,11 +566,11 @@ fn properties() -> Vec<Property> {
             id: "https://uor.foundation/type/carryPattern",
             label: "carryPattern",
             comment: "The carry propagation pattern of a carry constraint, \
-                      expressed as a binary string (e.g., '1010').",
+                      expressed as a Datum at the appropriate quantum level.",
             kind: PropertyKind::Object,
             functional: true,
             domain: Some("https://uor.foundation/type/CarryConstraint"),
-            range: "https://uor.foundation/schema/TermExpression",
+            range: "https://uor.foundation/schema/Datum",
         },
         Property {
             id: "https://uor.foundation/type/minDepth",
@@ -528,6 +600,54 @@ fn properties() -> Vec<Property> {
             functional: false,
             domain: Some("https://uor.foundation/type/CompositeConstraint"),
             range: "https://uor.foundation/type/Constraint",
+        },
+        // Amendment 95: Constraint completion properties (Workstream 3)
+        Property {
+            id: "https://uor.foundation/type/hammingBound",
+            label: "hammingBound",
+            comment: "Upper bound on the Hamming weight of the Datum.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/HammingConstraint"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/type/fiberIndex",
+            label: "fiberIndex",
+            comment: "Zero-based index of the pinned fiber coordinate.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/type/FiberConstraint"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/type/fiberValue",
+            label: "fiberValue",
+            comment: "The value the pinned fiber coordinate must equal \
+                      (a Datum in the set {0, 1}).",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/FiberConstraint"),
+            range: "https://uor.foundation/schema/Datum",
+        },
+        Property {
+            id: "https://uor.foundation/type/affineOffset",
+            label: "affineOffset",
+            comment: "Constant offset defining the affine subspace.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/type/AffineConstraint"),
+            range: "https://uor.foundation/schema/Datum",
+        },
+        Property {
+            id: "https://uor.foundation/type/affineGenerator",
+            label: "affineGenerator",
+            comment: "A generator of the affine subspace. Non-functional: \
+                      multiple generators span the subspace.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/type/AffineConstraint"),
+            range: "https://uor.foundation/schema/Datum",
         },
         Property {
             id: "https://uor.foundation/type/metricAxis",
@@ -1455,6 +1575,22 @@ fn individuals() -> Vec<Individual> {
                 "https://uor.foundation/op/enumVariant",
                 IndividualValue::IriRef("https://uor.foundation/type/Bivariant"),
             )],
+        },
+        // Amendment 95: TypeDefinition individual coverage (Workstream 8)
+        Individual {
+            id: "https://uor.foundation/type/EitherType",
+            type_: "https://uor.foundation/type/SumType",
+            label: "EitherType",
+            comment: "The canonical binary disjoint union type whose carrier is \
+                      L + R.",
+            properties: &[],
+        },
+        Individual {
+            id: "https://uor.foundation/type/OptionType",
+            type_: "https://uor.foundation/type/SumType",
+            label: "OptionType",
+            comment: "The canonical A + Unit idiom for optional values.",
+            properties: &[],
         },
     ]
 }

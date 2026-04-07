@@ -15,23 +15,23 @@ use crate::surface;
 pub fn emit(node: &ParsedNode) -> TokenStream {
     match node {
         ParsedNode::Literal { .. }
+        | ParsedNode::StringLiteral(_)
         | ParsedNode::Variable(_)
         | ParsedNode::Application { .. }
         | ParsedNode::Lift { .. }
         | ParsedNode::Project { .. } => emit_term_arena(node),
-        ParsedNode::TypeDecl { name, constraints } => emit_type_decl(name, constraints),
+        ParsedNode::TypeDecl {
+            name,
+            constraints,
+            type_params: _,
+        } => emit_type_decl(name, constraints),
         ParsedNode::Binding {
             name,
             type_name,
             value,
         } => emit_binding(name, type_name, value),
         ParsedNode::Assertion { lhs, rhs } => emit_assertion(lhs, rhs),
-        ParsedNode::EffectDecl {
-            name,
-            target,
-            delta,
-            commutes,
-        } => emit_effect_decl(name, target, *delta, *commutes),
+        ParsedNode::EffectDecl { name, props } => emit_effect_decl(name, props),
         ParsedNode::SourceDecl {
             name,
             type_name,
@@ -42,9 +42,10 @@ pub fn emit(node: &ParsedNode) -> TokenStream {
             type_name,
             via,
         } => emit_sink_decl(name, type_name, via),
-        ParsedNode::Match { .. } | ParsedNode::Recurse { .. } | ParsedNode::Unfold { .. } => {
-            emit_term_arena(node)
-        }
+        ParsedNode::Match { .. }
+        | ParsedNode::TryExpr { .. }
+        | ParsedNode::Recurse { .. }
+        | ParsedNode::Unfold { .. } => emit_term_arena(node),
     }
 }
 
@@ -53,7 +54,7 @@ pub fn emit(node: &ParsedNode) -> TokenStream {
 /// Count the total number of `Term` nodes in a `ParsedNode` tree.
 fn count_nodes(node: &ParsedNode) -> usize {
     match node {
-        ParsedNode::Literal { .. } | ParsedNode::Variable(_) => 1,
+        ParsedNode::Literal { .. } | ParsedNode::StringLiteral(_) | ParsedNode::Variable(_) => 1,
         ParsedNode::Application { args, .. } => 1 + args.iter().map(count_nodes).sum::<usize>(),
         ParsedNode::Lift { operand, .. } | ParsedNode::Project { operand, .. } => {
             1 + count_nodes(operand)
@@ -61,11 +62,21 @@ fn count_nodes(node: &ParsedNode) -> usize {
         ParsedNode::Match {
             arms, otherwise, ..
         } => 1 + arms.iter().map(|(_, e)| count_nodes(e)).sum::<usize>() + count_nodes(otherwise),
+        ParsedNode::TryExpr { body, recover_arms } => {
+            1 + count_nodes(body)
+                + recover_arms
+                    .iter()
+                    .map(|(_, e)| count_nodes(e))
+                    .sum::<usize>()
+        }
         ParsedNode::Recurse {
-            base_expr,
+            base_arms,
             step_expr,
             ..
-        } => 1 + count_nodes(base_expr) + count_nodes(step_expr),
+        } => {
+            1 + base_arms.iter().map(|(_, e)| count_nodes(e)).sum::<usize>()
+                + count_nodes(step_expr)
+        }
         ParsedNode::Unfold { seed, .. } => 1 + count_nodes(seed),
         _ => 1,
     }
@@ -94,6 +105,19 @@ fn emit_push(
                 let #idx_name = arena.push(uor_foundation::enforcement::Term::Literal {
                     value: #value,
                     level: #level_expr,
+                });
+            });
+            quote! { #idx_name }
+        }
+        ParsedNode::StringLiteral(_) => {
+            // String literals emit as Variable placeholders (host values
+            // are resolved at the enforcement layer, not in the term arena)
+            let idx_name =
+                proc_macro2::Ident::new(&format!("_idx{counter}"), proc_macro2::Span::call_site());
+            *counter += 1;
+            stmts.push(quote! {
+                let #idx_name = arena.push(uor_foundation::enforcement::Term::Variable {
+                    name_index: 0,
                 });
             });
             quote! { #idx_name }
@@ -208,10 +232,11 @@ fn emit_term_arena(node: &ParsedNode) -> TokenStream {
 // ── Statement-level emission ──
 
 /// Emit a type declaration.
-fn emit_type_decl(name: &str, constraints: &[(String, ParsedNode)]) -> TokenStream {
+fn emit_type_decl(name: &str, constraints: &[(String, Vec<(String, ParsedNode)>)]) -> TokenStream {
     let constraint_count = constraints.len() as u32;
     let surface_str = surface::serialize(&ParsedNode::TypeDecl {
         name: name.to_string(),
+        type_params: Vec::new(),
         constraints: constraints.to_vec(),
     });
     let addr = address::content_address(&surface_str);
@@ -306,7 +331,7 @@ fn emit_assertion(lhs: &ParsedNode, rhs: &ParsedNode) -> TokenStream {
 /// Check if a parsed node contains no free variables (all leaves are literals).
 fn is_ground(node: &ParsedNode) -> bool {
     match node {
-        ParsedNode::Literal { .. } => true,
+        ParsedNode::Literal { .. } | ParsedNode::StringLiteral(_) => true,
         ParsedNode::Variable(_) => false,
         ParsedNode::Application { args, .. } => args.iter().all(is_ground),
         ParsedNode::Lift { operand, .. } | ParsedNode::Project { operand, .. } => {
@@ -351,20 +376,16 @@ fn emit_const_eval(node: &ParsedNode) -> proc_macro2::TokenStream {
 }
 
 /// Emit an effect declaration.
-fn emit_effect_decl(name: &str, target: &[u64], delta: i64, commutes: bool) -> TokenStream {
+fn emit_effect_decl(name: &str, props: &[(String, ParsedNode)]) -> TokenStream {
     let surface_str = surface::serialize(&ParsedNode::EffectDecl {
         name: name.to_string(),
-        target: target.to_vec(),
-        delta,
-        commutes,
+        props: props.to_vec(),
     });
     let addr = address::content_address(&surface_str);
-    let target_tokens: Vec<_> = target.iter().map(|t| quote! { #t }).collect();
     quote! {
         {
             const _SURFACE: &str = #surface_str;
             const _ADDR: u64 = #addr;
-            const _TARGET: &[u64] = &[#(#target_tokens),*];
             _SURFACE
         }
     }

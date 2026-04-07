@@ -1362,6 +1362,37 @@ pub fn validate() -> ConformanceReport {
         tests::fixtures::TEST268_VIOLATION_KIND,
         &mut report,
     );
+    // Amendment 95: Workstreams 1, 3, 4, 5, 8
+    run_test(
+        "test269_predicate_individuals",
+        tests::fixtures::TEST269_PREDICATE_INDIVIDUALS,
+        &mut report,
+    );
+    run_test(
+        "test270_constraint_subclasses",
+        tests::fixtures::TEST270_CONSTRAINT_SUBCLASSES,
+        &mut report,
+    );
+    run_test(
+        "test271_host_value_types",
+        tests::fixtures::TEST271_HOST_VALUE_TYPES,
+        &mut report,
+    );
+    run_test(
+        "test272_boundary_map_individuals",
+        tests::fixtures::TEST272_BOUNDARY_MAP_INDIVIDUALS,
+        &mut report,
+    );
+    run_test(
+        "test273_type_definition_sum",
+        tests::fixtures::TEST273_TYPE_DEFINITION_SUM,
+        &mut report,
+    );
+    run_test(
+        "test274_witness_types",
+        tests::fixtures::TEST274_WITNESS_TYPES,
+        &mut report,
+    );
 
     // Verify test fixture count matches expected
     let test_count = report.results.len() - before_tests;
@@ -1705,6 +1736,12 @@ fn run_test(name: &str, turtle_src: &str, report: &mut ConformanceReport) {
         "test266_witness_datum" => validate_basic_turtle(turtle_src),
         "test267_compile_unit_builder" => validate_basic_turtle(turtle_src),
         "test268_violation_kind" => validate_basic_turtle(turtle_src),
+        "test269_predicate_individuals" => validate_basic_turtle(turtle_src),
+        "test270_constraint_subclasses" => validate_basic_turtle(turtle_src),
+        "test271_host_value_types" => validate_basic_turtle(turtle_src),
+        "test272_boundary_map_individuals" => validate_basic_turtle(turtle_src),
+        "test273_type_definition_sum" => validate_basic_turtle(turtle_src),
+        "test274_witness_types" => validate_basic_turtle(turtle_src),
         _ => Ok(()),
     };
 

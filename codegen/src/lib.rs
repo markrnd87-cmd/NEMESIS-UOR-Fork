@@ -403,3 +403,33 @@ Apache-2.0 — see [LICENSE](https://github.com/UOR-Foundation/UOR-Framework/blo
         module_rows = rows,
     )
 }
+
+#[cfg(test)]
+#[allow(clippy::panic)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn generation_produces_correct_trait_count() {
+        let ontology = uor_ontology::Ontology::full();
+        let tmp = std::env::temp_dir().join("uor_codegen_test");
+        let _ = std::fs::create_dir_all(&tmp);
+        match generate(ontology, &tmp) {
+            Ok(report) => {
+                assert_eq!(
+                    report.trait_count,
+                    uor_ontology::counts::CLASSES,
+                    "Trait count should match CLASSES"
+                );
+                assert!(
+                    report.method_count >= uor_ontology::counts::METHODS,
+                    "Method count ({}) should be >= METHODS ({})",
+                    report.method_count,
+                    uor_ontology::counts::METHODS
+                );
+            }
+            Err(e) => panic!("Code generation failed: {e}"),
+        }
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+}

@@ -33,7 +33,7 @@ pub trait Term<P: Primitives> {}
 pub trait Triad<P: Primitives> {}
 
 /// A term that directly denotes a datum value. A Literal is a leaf node in the term language — it refers to a concrete Datum via schema:denotes without being a Datum itself.
-pub trait Literal<P: Primitives>: Term<P> {
+pub trait Literal<P: Primitives>: Term<P> + SurfaceSymbol<P> {
     /// Associated type for `Datum`.
     type Datum: Datum<P>;
     /// The datum value that a Literal term denotes. Bridges the Term/Datum disjointness: a Literal refers to a Datum without being one. Evaluation of a Literal produces its denoted Datum.
@@ -135,6 +135,25 @@ pub trait VariableBinding<P: Primitives> {
     fn variable_domain(&self) -> &P::String;
     /// The name of a bound variable (e.g., 'x', 'y', 'n').
     fn variable_name(&self) -> &P::String;
+}
+
+/// An abstract leaf value that a grounding map can accept as surface input. Has no direct instances: every SurfaceSymbol is either a Datum-denoting schema:Literal or an xsd-typed schema:HostValue, and the two cases are disjoint.
+pub trait SurfaceSymbol<P: Primitives> {}
+
+/// An xsd-typed value that denotes a host datatype rather than a ring datum. Used in property-position slots whose range is xsd and as the host-side input of a grounding map.
+/// Disjoint with: Term, Datum.
+pub trait HostValue<P: Primitives>: SurfaceSymbol<P> {}
+
+/// A host string literal carrying an xsd:string value.
+pub trait HostStringLiteral<P: Primitives>: HostValue<P> {
+    /// The string value carried by a HostStringLiteral.
+    fn host_string(&self) -> &P::String;
+}
+
+/// A host boolean literal carrying an xsd:boolean value.
+pub trait HostBooleanLiteral<P: Primitives>: HostValue<P> {
+    /// The boolean value carried by a HostBooleanLiteral.
+    fn host_boolean(&self) -> P::Boolean;
 }
 
 /// Universal quantification (forall).

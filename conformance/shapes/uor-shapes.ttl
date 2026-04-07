@@ -1,5 +1,5 @@
 # UOR Foundation SHACL Shapes
-# Generated from ontology v0.1.3 — 430 NodeShapes.
+# Generated from ontology v0.1.5 — 442 NodeShapes.
 
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
@@ -107,7 +107,7 @@ uor-sh:GlyphShape
         sh:datatype xsd:nonNegativeInteger ;
     ] .
 
-# ── schema/ namespace (17) ────────────────────────
+# ── schema/ namespace (21) ────────────────────────
 
 uor-sh:DatumShape
     a               sh:NodeShape ;
@@ -373,6 +373,38 @@ uor-sh:QuantifierKindShape
     a               sh:NodeShape ;
     sh:targetClass  schema:QuantifierKind ;
     rdfs:label      "QuantifierKindShape" .
+
+uor-sh:SurfaceSymbolShape
+    a               sh:NodeShape ;
+    sh:targetClass  schema:SurfaceSymbol ;
+    rdfs:label      "SurfaceSymbolShape" .
+
+uor-sh:HostValueShape
+    a               sh:NodeShape ;
+    sh:targetClass  schema:HostValue ;
+    rdfs:label      "HostValueShape" .
+
+uor-sh:HostStringLiteralShape
+    a               sh:NodeShape ;
+    sh:targetClass  schema:HostStringLiteral ;
+    rdfs:label      "HostStringLiteralShape" ;
+    sh:property [
+        sh:path schema:hostString ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+uor-sh:HostBooleanLiteralShape
+    a               sh:NodeShape ;
+    sh:targetClass  schema:HostBooleanLiteral ;
+    rdfs:label      "HostBooleanLiteralShape" ;
+    sh:property [
+        sh:path schema:hostBoolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] .
 
 # ── op/ namespace (19) ────────────────────────────
 
@@ -1208,7 +1240,7 @@ uor-sh:ModuliResolverShape
         sh:class homology:DeformationComplex ;
     ] .
 
-# ── type/ namespace (36) ──────────────────────────
+# ── type/ namespace (39) ──────────────────────────
 
 uor-sh:TypeDefinitionShape
     a               sh:NodeShape ;
@@ -1325,7 +1357,7 @@ uor-sh:CarryConstraintShape
         sh:path type:carryPattern ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:class schema:TermExpression ;
+        sh:class schema:Datum ;
     ] .
 
 uor-sh:DepthConstraintShape
@@ -1352,6 +1384,49 @@ uor-sh:CompositeConstraintShape
     sh:property [
         sh:path type:composedFrom ;
         sh:class type:Constraint ;
+    ] .
+
+uor-sh:HammingConstraintShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:HammingConstraint ;
+    rdfs:label      "HammingConstraintShape" ;
+    sh:property [
+        sh:path type:hammingBound ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+    ] .
+
+uor-sh:FiberConstraintShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:FiberConstraint ;
+    rdfs:label      "FiberConstraintShape" ;
+    sh:property [
+        sh:path type:fiberIndex ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
+    ] ;
+    sh:property [
+        sh:path type:fiberValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class schema:Datum ;
+    ] .
+
+uor-sh:AffineConstraintShape
+    a               sh:NodeShape ;
+    sh:targetClass  type:AffineConstraint ;
+    rdfs:label      "AffineConstraintShape" ;
+    sh:property [
+        sh:path type:affineOffset ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class schema:Datum ;
+    ] ;
+    sh:property [
+        sh:path type:affineGenerator ;
+        sh:class schema:Datum ;
     ] .
 
 uor-sh:MetricAxisShape
@@ -3882,7 +3957,7 @@ uor-sh:ChainAuditTrailShape
         sh:datatype xsd:nonNegativeInteger ;
     ] .
 
-# ── morphism/ namespace (15) ──────────────────────
+# ── morphism/ namespace (20) ──────────────────────
 
 uor-sh:TransformShape
     a               sh:NodeShape ;
@@ -3919,6 +3994,22 @@ uor-sh:TransformShape
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:class op:Identity ;
+    ] ;
+    sh:property [
+        sh:path morphism:inputClass ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class owl:Class ;
+    ] ;
+    sh:property [
+        sh:path morphism:outputClass ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class owl:Class ;
+    ] ;
+    sh:property [
+        sh:path morphism:hasWitness ;
+        sh:class morphism:Witness ;
     ] .
 
 uor-sh:IsometryShape
@@ -4034,18 +4125,6 @@ uor-sh:GroundingMapShape
     sh:targetClass  morphism:GroundingMap ;
     rdfs:label      "GroundingMapShape" ;
     sh:property [
-        sh:path morphism:surfaceSymbol ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:class schema:Literal ;
-    ] ;
-    sh:property [
-        sh:path morphism:groundedAddress ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:class u:Address ;
-    ] ;
-    sh:property [
         sh:path morphism:groundingDerivation ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
@@ -4067,12 +4146,6 @@ uor-sh:ProjectionMapShape
         sh:class state:Frame ;
     ] ;
     sh:property [
-        sh:path morphism:projectionSource ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:class partition:Partition ;
-    ] ;
-    sh:property [
         sh:path morphism:projectionOrder ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
@@ -4083,6 +4156,12 @@ uor-sh:ProjectionMapShape
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:boolean ;
+    ] ;
+    sh:property [
+        sh:path morphism:outputElementClass ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class owl:Class ;
     ] .
 
 uor-sh:GroundingCertificateShape
@@ -4225,6 +4304,71 @@ uor-sh:TransformCompositionShape
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:class morphism:ComputationDatum ;
+    ] .
+
+uor-sh:WitnessShape
+    a               sh:NodeShape ;
+    sh:targetClass  morphism:Witness ;
+    rdfs:label      "WitnessShape" .
+
+uor-sh:GroundingWitnessShape
+    a               sh:NodeShape ;
+    sh:targetClass  morphism:GroundingWitness ;
+    rdfs:label      "GroundingWitnessShape" ;
+    sh:property [
+        sh:path morphism:surfaceSymbol ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class schema:SurfaceSymbol ;
+    ] ;
+    sh:property [
+        sh:path morphism:groundedAddress ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class u:Address ;
+    ] .
+
+uor-sh:ProjectionWitnessShape
+    a               sh:NodeShape ;
+    sh:targetClass  morphism:ProjectionWitness ;
+    rdfs:label      "ProjectionWitnessShape" ;
+    sh:property [
+        sh:path morphism:projectionSource ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class partition:Partition ;
+    ] ;
+    sh:property [
+        sh:path morphism:projectionOutput ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class morphism:SymbolSequence ;
+    ] .
+
+uor-sh:SymbolSequenceShape
+    a               sh:NodeShape ;
+    sh:targetClass  morphism:SymbolSequence ;
+    rdfs:label      "SymbolSequenceShape" ;
+    sh:property [
+        sh:path morphism:hasElement ;
+        sh:class morphism:SequenceElement ;
+    ] .
+
+uor-sh:SequenceElementShape
+    a               sh:NodeShape ;
+    sh:targetClass  morphism:SequenceElement ;
+    rdfs:label      "SequenceElementShape" ;
+    sh:property [
+        sh:path morphism:elementValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class schema:SurfaceSymbol ;
+    ] ;
+    sh:property [
+        sh:path morphism:elementIndex ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:nonNegativeInteger ;
     ] .
 
 # ── state/ namespace (15) ─────────────────────────
@@ -5787,7 +5931,7 @@ uor-sh:OperadCompositionShape
         sh:path operad:composedGrounding ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:class schema:TermExpression ;
+        sh:class morphism:GroundingMap ;
     ] .
 
 # ── effect/ namespace (9) ────────────────────────

@@ -72,7 +72,10 @@ fn classes() -> Vec<Class> {
             comment: "A term that directly denotes a datum value. A Literal is a \
                       leaf node in the term language — it refers to a concrete Datum \
                       via schema:denotes without being a Datum itself.",
-            subclass_of: &["https://uor.foundation/schema/Term"],
+            subclass_of: &[
+                "https://uor.foundation/schema/Term",
+                "https://uor.foundation/schema/SurfaceSymbol",
+            ],
             disjoint_with: &[],
         },
         Class {
@@ -191,6 +194,43 @@ fn classes() -> Vec<Class> {
             comment: "The kind of quantifier: Universal (forall) or Existential \
                       (exists). Controlled vocabulary with exactly 2 individuals.",
             subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        // Amendment 95: Host-value sort (Workstream 5)
+        Class {
+            id: "https://uor.foundation/schema/SurfaceSymbol",
+            label: "SurfaceSymbol",
+            comment: "An abstract leaf value that a grounding map can accept as \
+                      surface input. Has no direct instances: every SurfaceSymbol \
+                      is either a Datum-denoting schema:Literal or an xsd-typed \
+                      schema:HostValue, and the two cases are disjoint.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/schema/HostValue",
+            label: "HostValue",
+            comment: "An xsd-typed value that denotes a host datatype rather than \
+                      a ring datum. Used in property-position slots whose range is \
+                      xsd and as the host-side input of a grounding map.",
+            subclass_of: &["https://uor.foundation/schema/SurfaceSymbol"],
+            disjoint_with: &[
+                "https://uor.foundation/schema/Term",
+                "https://uor.foundation/schema/Datum",
+            ],
+        },
+        Class {
+            id: "https://uor.foundation/schema/HostStringLiteral",
+            label: "HostStringLiteral",
+            comment: "A host string literal carrying an xsd:string value.",
+            subclass_of: &["https://uor.foundation/schema/HostValue"],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/schema/HostBooleanLiteral",
+            label: "HostBooleanLiteral",
+            comment: "A host boolean literal carrying an xsd:boolean value.",
+            subclass_of: &["https://uor.foundation/schema/HostValue"],
             disjoint_with: &[],
         },
     ]
@@ -507,6 +547,25 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/schema/InfixExpression"),
             range: XSD_STRING,
+        },
+        // Amendment 95: Host-value sort properties (Workstream 5)
+        Property {
+            id: "https://uor.foundation/schema/hostString",
+            label: "hostString",
+            comment: "The string value carried by a HostStringLiteral.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/schema/HostStringLiteral"),
+            range: XSD_STRING,
+        },
+        Property {
+            id: "https://uor.foundation/schema/hostBoolean",
+            label: "hostBoolean",
+            comment: "The boolean value carried by a HostBooleanLiteral.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/schema/HostBooleanLiteral"),
+            range: XSD_BOOLEAN,
         },
     ]
 }

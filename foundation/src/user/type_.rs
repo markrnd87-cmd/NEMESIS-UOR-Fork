@@ -70,7 +70,7 @@ pub trait Constraint<P: Primitives> {
 }
 
 /// A constraint based on residue class membership: x ≡ r (mod m). Pins fibers corresponding to the residue pattern.
-/// Disjoint with: CarryConstraint, DepthConstraint, CompositeConstraint.
+/// Disjoint with: CarryConstraint, DepthConstraint, CompositeConstraint, HammingConstraint, FiberConstraint, AffineConstraint.
 pub trait ResidueConstraint<P: Primitives>: Constraint<P> {
     /// The modulus m of a residue constraint: x ≡ r (mod m).
     fn modulus(&self) -> P::PositiveInteger;
@@ -79,16 +79,16 @@ pub trait ResidueConstraint<P: Primitives>: Constraint<P> {
 }
 
 /// A constraint based on carry propagation patterns in ring arithmetic. Pins fibers corresponding to carry positions.
-/// Disjoint with: ResidueConstraint, DepthConstraint, CompositeConstraint.
+/// Disjoint with: ResidueConstraint, DepthConstraint, CompositeConstraint, HammingConstraint, FiberConstraint, AffineConstraint.
 pub trait CarryConstraint<P: Primitives>: Constraint<P> {
-    /// Associated type for `TermExpression`.
-    type TermExpression: crate::kernel::schema::TermExpression<P>;
-    /// The carry propagation pattern of a carry constraint, expressed as a binary string (e.g., '1010').
-    fn carry_pattern(&self) -> &Self::TermExpression;
+    /// Associated type for `Datum`.
+    type Datum: crate::kernel::schema::Datum<P>;
+    /// The carry propagation pattern of a carry constraint, expressed as a Datum at the appropriate quantum level.
+    fn carry_pattern(&self) -> &Self::Datum;
 }
 
 /// A constraint on factorization depth: the minimum and maximum number of irreducible factors. Pins fibers by bounding the factorization tree depth.
-/// Disjoint with: ResidueConstraint, CarryConstraint, CompositeConstraint.
+/// Disjoint with: ResidueConstraint, CarryConstraint, CompositeConstraint, HammingConstraint, FiberConstraint, AffineConstraint.
 pub trait DepthConstraint<P: Primitives>: Constraint<P> {
     /// The minimum factorization depth required by a depth constraint.
     fn min_depth(&self) -> P::NonNegativeInteger;
@@ -97,7 +97,7 @@ pub trait DepthConstraint<P: Primitives>: Constraint<P> {
 }
 
 /// A constraint formed by composing two or more simpler constraints. The composite pins the union of fibers pinned by its components.
-/// Disjoint with: ResidueConstraint, CarryConstraint, DepthConstraint.
+/// Disjoint with: ResidueConstraint, CarryConstraint, DepthConstraint, HammingConstraint, FiberConstraint, AffineConstraint.
 pub trait CompositeConstraint<P: Primitives>: Constraint<P> {
     /// Associated type for `Constraint`.
     type Constraint: Constraint<P>;
@@ -105,10 +105,39 @@ pub trait CompositeConstraint<P: Primitives>: Constraint<P> {
     fn composed_from(&self) -> &[Self::Constraint];
 }
 
-/// A TypeDefinition certified to satisfy the UOR completeness criterion (IT_7d): its constraint nerve N(C) has Euler characteristic χ = n and all Betti numbers β_k = 0. A CompleteType guarantees that resolution closes the fiber budget in O(1) — no iterative refinement is required. Completeness is attested by a cert:CompletenessCertificate linked via cert:certifiedType.
+/// Pins the Hamming weight of the Datum to at most the bound. The horizontal axis of the tri-metric.
+/// Disjoint with: ResidueConstraint, CarryConstraint, DepthConstraint, CompositeConstraint, FiberConstraint, AffineConstraint.
+pub trait HammingConstraint<P: Primitives>: Constraint<P> {
+    /// Upper bound on the Hamming weight of the Datum.
+    fn hamming_bound(&self) -> P::NonNegativeInteger;
+}
+
+/// Pins a single fiber coordinate to 0 or 1. The atomic unit of the fiber budget.
+/// Disjoint with: ResidueConstraint, CarryConstraint, DepthConstraint, CompositeConstraint, HammingConstraint, AffineConstraint.
+pub trait FiberConstraint<P: Primitives>: Constraint<P> {
+    /// Zero-based index of the pinned fiber coordinate.
+    fn fiber_index(&self) -> P::NonNegativeInteger;
+    /// Associated type for `Datum`.
+    type Datum: crate::kernel::schema::Datum<P>;
+    /// The value the pinned fiber coordinate must equal (a Datum in the set {0, 1}).
+    fn fiber_value(&self) -> &Self::Datum;
+}
+
+/// Pins the Datum to an affine subspace specified by an offset and a set of generators.
+/// Disjoint with: ResidueConstraint, CarryConstraint, DepthConstraint, CompositeConstraint, HammingConstraint, FiberConstraint.
+pub trait AffineConstraint<P: Primitives>: Constraint<P> {
+    /// Associated type for `Datum`.
+    type Datum: crate::kernel::schema::Datum<P>;
+    /// Constant offset defining the affine subspace.
+    fn affine_offset(&self) -> &Self::Datum;
+    /// A generator of the affine subspace. Non-functional: multiple generators span the subspace.
+    fn affine_generator(&self) -> &[Self::Datum];
+}
+
+/// A TypeDefinition certified to satisfy the UOR completeness criterion (IT_7d): its constraint nerve N(C) has Euler characteristic χ = n and all Betti numbers β_k = 0. A CompleteType guarantees that resolution closes the fiber budget in O(1) — no iterative refinement is required. Completeness is attested by a cert:CompletenessCertificate linked via cert:certifiedType. This class is not addressable from a type-expr position in the term language; references from term-language positions are rejected by the resolver.
 pub trait CompleteType<P: Primitives>: TypeDefinition<P> {}
 
-/// A ConstrainedType actively undergoing the completeness certification pipeline. Links to the resolver:ResolutionState tracking the current iteration and to the resolver:ConstraintNerve being computed. Disjoint from CompleteType (which is already certified).
+/// A ConstrainedType actively undergoing the completeness certification pipeline. Links to the resolver:ResolutionState tracking the current iteration and to the resolver:ConstraintNerve being computed. Disjoint from CompleteType (which is already certified). This class is not addressable from a type-expr position in the term language; references from term-language positions are rejected by the resolver.
 /// Disjoint with: CompleteType.
 pub trait CompletenessCandidate<P: Primitives>: ConstrainedType<P> {
     /// Associated type for `ConstrainedType`.
@@ -144,7 +173,7 @@ pub trait TypeSynthesisGoal<P: Primitives> {
 /// The output of a TypeSynthesisResolver run. Contains the SynthesizedType, the realised topological signature (as a SynthesisSignature), and the SynthesisTrace recording the construction steps.
 pub trait TypeSynthesisResult<P: Primitives> {}
 
-/// A ConstrainedType produced by the TypeSynthesisResolver. Distinguished from a hand-authored ConstrainedType by the presence of a type:synthesisResult link. May or may not be a CompleteType, depending on the synthesis goal.
+/// A ConstrainedType produced by the TypeSynthesisResolver. Distinguished from a hand-authored ConstrainedType by the presence of a type:synthesisResult link. May or may not be a CompleteType, depending on the synthesis goal. This class is not addressable from a type-expr position in the term language; references from term-language positions are rejected by the resolver.
 pub trait SynthesizedType<P: Primitives>: ConstrainedType<P> {
     /// Associated type for `TypeSynthesisResult`.
     type TypeSynthesisResult: TypeSynthesisResult<P>;
@@ -186,15 +215,15 @@ pub trait LiftObstruction<P: Primitives> {
     fn obstruction_fiber(&self) -> &Self::FiberCoordinate;
 }
 
-/// A ConstrainedType whose HolonomyGroup is non-trivial — at least one closed constraint path produces a non-identity dihedral element. A TwistedType may still be a CompleteType (IT_7d is a homological, not holonomic, criterion), but its resolution paths require tracking dihedral accumulation.
+/// A ConstrainedType whose HolonomyGroup is non-trivial — at least one closed constraint path produces a non-identity dihedral element. A TwistedType may still be a CompleteType (IT_7d is a homological, not holonomic, criterion), but its resolution paths require tracking dihedral accumulation. This class is not addressable from a type-expr position in the term language; references from term-language positions are rejected by the resolver.
 /// Disjoint with: FlatType.
 pub trait TwistedType<P: Primitives>: ConstrainedType<P> {}
 
-/// A ConstrainedType whose HolonomyGroup is trivial — all closed constraint paths have identity monodromy. The constraint configuration is topologically flat: resolution is path-independent.
+/// A ConstrainedType whose HolonomyGroup is trivial — all closed constraint paths have identity monodromy. The constraint configuration is topologically flat: resolution is path-independent. This class is not addressable from a type-expr position in the term language; references from term-language positions are rejected by the resolver.
 /// Disjoint with: TwistedType.
 pub trait FlatType<P: Primitives>: ConstrainedType<P> {}
 
-/// A type representing a superposition of fiber states where fibers carry complex amplitudes rather than binary pinned/free assignments. Ontological realisation of RC_5 (Amendment 32).
+/// A type representing a superposition of fiber states where fibers carry complex amplitudes rather than binary pinned/free assignments. Ontological realisation of RC_5 (Amendment 32). This class is not addressable from a type-expr position in the term language; references from term-language positions are rejected by the resolver.
 pub trait SuperposedFiberState<P: Primitives>: TypeDefinition<P> {
     /// The amplitude coefficient for this superposed fiber state.
     fn amplitude(&self) -> P::Decimal;
@@ -435,3 +464,9 @@ pub mod bivariant {
     /// `enumVariant` -> `Bivariant`
     pub const ENUM_VARIANT: &str = "https://uor.foundation/type/Bivariant";
 }
+
+/// The canonical binary disjoint union type whose carrier is L + R.
+pub mod either_type {}
+
+/// The canonical A + Unit idiom for optional values.
+pub mod option_type {}

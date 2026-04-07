@@ -189,7 +189,13 @@ mod test265_user_types;
 mod test266_witness_datum;
 mod test267_compile_unit_builder;
 mod test268_violation_kind;
+mod test269_predicate_individuals;
 mod test26_complexity_class;
+mod test270_constraint_subclasses;
+mod test271_host_value_types;
+mod test272_boundary_map_individuals;
+mod test273_type_definition_sum;
+mod test274_witness_types;
 mod test27_rewrite_rule;
 mod test28_measurement_unit;
 mod test29_coordinate_kind;
@@ -458,7 +464,13 @@ pub use test265_user_types::TEST265_USER_TYPES;
 pub use test266_witness_datum::TEST266_WITNESS_DATUM;
 pub use test267_compile_unit_builder::TEST267_COMPILE_UNIT_BUILDER;
 pub use test268_violation_kind::TEST268_VIOLATION_KIND;
+pub use test269_predicate_individuals::TEST269_PREDICATE_INDIVIDUALS;
 pub use test26_complexity_class::TEST26_COMPLEXITY_CLASS;
+pub use test270_constraint_subclasses::TEST270_CONSTRAINT_SUBCLASSES;
+pub use test271_host_value_types::TEST271_HOST_VALUE_TYPES;
+pub use test272_boundary_map_individuals::TEST272_BOUNDARY_MAP_INDIVIDUALS;
+pub use test273_type_definition_sum::TEST273_TYPE_DEFINITION_SUM;
+pub use test274_witness_types::TEST274_WITNESS_TYPES;
 pub use test27_rewrite_rule::TEST27_REWRITE_RULE;
 pub use test28_measurement_unit::TEST28_MEASUREMENT_UNIT;
 pub use test29_coordinate_kind::TEST29_COORDINATE_KIND;
@@ -813,5 +825,11 @@ pub fn all_fixture_sources() -> Vec<&'static str> {
         TEST266_WITNESS_DATUM,
         TEST267_COMPILE_UNIT_BUILDER,
         TEST268_VIOLATION_KIND,
+        TEST269_PREDICATE_INDIVIDUALS,
+        TEST270_CONSTRAINT_SUBCLASSES,
+        TEST271_HOST_VALUE_TYPES,
+        TEST272_BOUNDARY_MAP_INDIVIDUALS,
+        TEST273_TYPE_DEFINITION_SUM,
+        TEST274_WITNESS_TYPES,
     ]
 }

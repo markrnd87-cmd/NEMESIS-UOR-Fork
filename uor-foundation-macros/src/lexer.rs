@@ -29,6 +29,8 @@ pub enum Token {
     FatArrow,
     /// `true` or `false`
     BoolLit(bool),
+    /// String literal (`"..."`)
+    StringLit(String),
     /// End of input.
     Eof,
 }
@@ -86,6 +88,34 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, String> {
                     tokens.push(Token::Eq);
                     i += 1;
                 }
+            }
+            '"' => {
+                i += 1; // skip opening quote
+                let mut s = String::new();
+                while i < chars.len() && chars[i] != '"' {
+                    if chars[i] == '\\' && i + 1 < chars.len() {
+                        i += 1;
+                        match chars[i] {
+                            '"' => s.push('"'),
+                            '\\' => s.push('\\'),
+                            'n' => s.push('\n'),
+                            'r' => s.push('\r'),
+                            't' => s.push('\t'),
+                            other => {
+                                s.push('\\');
+                                s.push(other);
+                            }
+                        }
+                    } else {
+                        s.push(chars[i]);
+                    }
+                    i += 1;
+                }
+                if i >= chars.len() {
+                    return Err("Unterminated string literal".to_string());
+                }
+                i += 1; // skip closing quote
+                tokens.push(Token::StringLit(s));
             }
             c if c.is_ascii_digit() => {
                 let start = i;

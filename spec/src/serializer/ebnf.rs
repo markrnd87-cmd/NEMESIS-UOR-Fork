@@ -1,36 +1,36 @@
-//! EBNF serializer for the UOR Term Language grammar (Amendment 42).
+//! EBNF serializer for the UOR Term Language grammar (Amendment 95).
 //!
 //! Generates an ISO/IEC 14977 EBNF grammar from the ontology, output to
-//! `public/uor.term.ebnf`. Operations, quantum levels, and rewrite rules
-//! are derived from `Ontology::full()` — all other sections are static.
+//! `public/uor.term.ebnf`. The grammar describes the free term tree;
+//! equational structure is enforced by the resolver, not by the grammar.
 
-use std::fmt::Write;
+use crate::model::Ontology;
 
-use crate::model::{Individual, IndividualValue, NamespaceModule, Ontology};
+/// Target line width for section header comments (matches the target EBNF).
+const HEADER_WIDTH: usize = 80;
 
-/// Canonical ordering of unary operations in the grammar.
-const UNARY_ORDER: &[&str] = &["neg", "bnot", "succ", "pred"];
-
-/// Canonical ordering of binary operations in the grammar.
-const BINARY_ORDER: &[&str] = &["add", "sub", "mul", "xor", "and", "or"];
-
-/// IRI prefix for op/ namespace properties.
-const OP: &str = "https://uor.foundation/op/";
-
-/// IRI prefix for schema/ namespace properties.
-const SCHEMA: &str = "https://uor.foundation/schema/";
-
-/// IRI suffix for the `RewriteRule` class.
-const REWRITE_RULE_TYPE: &str = "https://uor.foundation/derivation/RewriteRule";
-
-/// IRI suffix for the `QuantumLevel` class.
-const QUANTUM_LEVEL_TYPE: &str = "https://uor.foundation/schema/QuantumLevel";
+/// Generates a section header comment line in the EBNF style.
+///
+/// Single-line headers (no body text) produce `(* \u{2500}\u{2500} Name \u{2500}...\u{2500} *)`.
+/// Multi-line headers (with body text) produce `(* \u{2500}\u{2500} Name \u{2500}...\n`.
+fn section_header(title: &str, close: bool) -> String {
+    let prefix = format!("(* \u{2500}\u{2500} {} ", title);
+    let prefix_chars = prefix.chars().count();
+    if close {
+        let remaining = HEADER_WIDTH.saturating_sub(prefix_chars);
+        let dashes = "\u{2500}".repeat(remaining);
+        format!("{prefix}{dashes} *)")
+    } else {
+        let remaining = (HEADER_WIDTH + 1).saturating_sub(prefix_chars);
+        let dashes = "\u{2500}".repeat(remaining);
+        format!("{prefix}{dashes}")
+    }
+}
 
 /// Serializes the UOR Term Language grammar as ISO/IEC 14977 EBNF.
 ///
-/// The grammar is generated from the ontology: operations, quantum levels,
-/// and rewrite rules are derived from named individuals. All other sections
-/// (top-level syntax, type declarations, bindings, assertions) are static.
+/// The grammar is a static template parameterised only by the ontology
+/// version string.
 ///
 /// # Errors
 ///
@@ -42,36 +42,21 @@ pub fn to_ebnf(ontology: &Ontology) -> String {
     emit_header(&mut out, ontology);
     emit_top_level(&mut out);
     emit_terms(&mut out);
-    emit_quantum_level(&mut out, ontology);
     emit_applications(&mut out);
-    emit_unary_op(&mut out, ontology);
-    emit_binary_op(&mut out, ontology);
     emit_variables(&mut out);
+    emit_type_expr(&mut out);
     emit_type_decl(&mut out);
     emit_bindings(&mut out);
     emit_assertions(&mut out);
-    emit_rewrite_rules(&mut out, ontology);
-    emit_quantum_generalisation(&mut out, ontology);
-    // Amendment 83: completion plan grammar extensions
     emit_match_expr(&mut out);
     emit_stream_expr(&mut out);
+    emit_set_expr(&mut out);
+    emit_value_productions(&mut out);
     emit_effect_decl(&mut out);
     emit_try_expr(&mut out);
     emit_recurse_expr(&mut out);
     emit_boundary_decl(&mut out);
-    // Amendment 88: identity formalization grammar extensions
-    emit_relation_expr(&mut out);
-    emit_quantified_expr(&mut out);
-    emit_set_expr(&mut out);
-    emit_aggregation_expr(&mut out);
-    emit_composition_expr(&mut out);
-    emit_subscript_expr(&mut out);
-    emit_power_expr(&mut out);
-    emit_cardinality_expr(&mut out);
-    emit_connective_expr(&mut out);
-    emit_conditional_expr(&mut out);
     emit_whitespace(&mut out);
-    emit_end(&mut out);
 
     out
 }
@@ -80,946 +65,336 @@ pub fn to_ebnf(ontology: &Ontology) -> String {
 
 /// Emits the header block with version and ISO/IEC 14977 notation guide.
 fn emit_header(out: &mut String, ontology: &Ontology) {
-    let _ = write!(
+    let _ = std::fmt::Write::write_fmt(
         out,
-        "\
-(* ============================================================================
-   UOR Term Language — Extended Backus-Naur Form Grammar
-   Generated from: uor_ontology::Ontology::full()
-   Authoritative source: https://uor.foundation/
-   Specification version: v{version} (Amendment 42+)
-
-   Notation: ISO/IEC 14977 EBNF.
-     ::=   definition
-     |     alternation
-     ,     concatenation
-     {{}}    zero or more
-     []    optional
-     ()    grouping
-     \"\"    terminal string
-     (**)  comment
-   ============================================================================ *)\n\n",
-        version = ontology.version
+        format_args!(
+            "(* ============================================================================\n\
+             \x20  UOR Term Language \u{2014} EBNF\n\
+             \x20  Specification version: v{version}\n\
+             \x20  Authoritative source: https://uor.foundation/\n\
+             \x20  Notation: ISO/IEC 14977.\n\
+             \n\
+             \x20  The grammar describes the free term tree. Equational structure\n\
+             \x20  (operad axioms, rewrite rules, canonical forms) is enforced by the\n\
+             \x20  resolver, not by the grammar.\n\
+             \x20  ============================================================================ *)\n\n",
+            version = ontology.version
+        ),
     );
 }
 
 /// Emits the top-level entry point rules.
 fn emit_top_level(out: &mut String) {
     out.push_str(
-        "\
-(* ── Top-level entry point ─────────────────────────────────────────────────── *)
-
-program
-    ::= { statement } ;
-
-statement
-    ::= type-decl
-      | binding
-      | assertion
-      | effect-decl
-      | boundary-decl
-      | expression \";\" ;
-
-expression
-    ::= term ;
-
-",
+        "program          ::= { statement } ;\n\
+         \n\
+         statement        ::= type-decl\n\
+         \x20                  | binding\n\
+         \x20                  | assertion\n\
+         \x20                  | effect-decl\n\
+         \x20                  | boundary-decl\n\
+         \x20                  | expression , \";\" ;\n\
+         \n\
+         expression       ::= term ;\n\n",
     );
 }
 
 /// Emits the term, literal, and related rules.
 fn emit_terms(out: &mut String) {
+    out.push_str(&section_header(
+        "Terms (schema:Term, disjoint from schema:Datum)",
+        true,
+    ));
     out.push_str(
-        "\
-(* ── Terms ──────────────────────────────────────────────────────────────────
-   schema:Term — syntactic expressions that evaluate to Datums.
-   Disjoint from schema:Datum by the OWL disjointness axiom.
-   Subclasses: schema:Literal, schema:Application.
-   ─────────────────────────────────────────────────────────────────────────── *)
-
-term
-    ::= literal
-      | application
-      | variable
-      | match-expr
-      | try-expr
-      | recurse-expr
-      | stream-expr
-      | relation-expr
-      | quantified-expr
-      | set-expr
-      | aggregation-expr
-      | composition-expr
-      | subscript-expr
-      | power-expr
-      | cardinality-expr
-      | connective-expr
-      | conditional-expr
-      | \"(\" , term , \")\" ;
-
-(* schema:Literal — a leaf term that directly denotes a Datum via schema:denotes *)
-literal
-    ::= integer-literal
-      | braille-literal
-      | quantum-literal ;
-
-integer-literal
-    ::= digit , { digit } ;
-
-(* Braille address literal — U+2800..U+28FF glyph sequence (schema:Triad glyph) *)
-braille-literal
-    ::= braille-glyph , { braille-glyph } ;
-
-braille-glyph
-    ::= \"\\u2800\" .. \"\\u28FF\" ;   (* Unicode Braille Patterns block *)
-
-(* Quantum-tagged literal: value at an explicit quantum level Q_k *)
-quantum-literal
-    ::= integer-literal , \"@\" , quantum-level ;
-
-",
+        "\n\n\
+         term             ::= literal\n\
+         \x20                  | application\n\
+         \x20                  | variable\n\
+         \x20                  | match-expr\n\
+         \x20                  | try-expr\n\
+         \x20                  | recurse-expr\n\
+         \x20                  | stream-expr\n\
+         \x20                  | set-expr ;\n\
+         \n\
+         literal          ::= integer-literal\n\
+         \x20                  | braille-literal\n\
+         \x20                  | quantum-literal ;\n\
+         \n\
+         integer-literal  ::= digit , { digit } ;\n\
+         \n\
+         braille-literal  ::= braille-glyph , { braille-glyph } ;\n\
+         braille-glyph    ::= \"\\u2800\" .. \"\\u28FF\" ;\n\
+         \n\
+         quantum-literal  ::= integer-literal , \"@\" , name ;\n\
+         \x20                  (* name \u{2192} individual of schema:QuantumLevel. *)\n\n",
     );
 }
 
-/// Emits the quantum-level rule from QuantumLevel individuals.
-fn emit_quantum_level(out: &mut String, ontology: &Ontology) {
-    let levels = sorted_quantum_levels(ontology);
-
-    out.push_str("quantum-level\n    ::= ");
-    for (i, (label, _, _, _)) in levels.iter().enumerate() {
-        if i > 0 {
-            out.push_str(" | ");
-        }
-        let _ = write!(out, "\"{}\"", label);
-    }
-    out.push_str(
-        "\n      | \"Q\" , digit , { digit } ;   \
-         (* open: implementations declare higher levels *)\n\n",
-    );
-}
-
-/// Emits the application structure rules.
+/// Emits the application rule (n-ary).
 fn emit_applications(out: &mut String) {
+    out.push_str(&section_header("Application (schema:Application)", false));
     out.push_str(
-        "\
-(* schema:Application — a term formed by applying an operation to argument terms *)
-application
-    ::= unary-application
-      | binary-application ;
-
-",
+        "\n\
+         \x20  The n-ary form realises operadic substitution \u{03B8} \u{2218} \
+         (\u{03B8}\u{2081},\u{2026},\u{03B8}\u{2096}).\n\
+         \x20  Arity is checked semantically against op:arity for the resolved name.\n\
+         \x20  The \u{03A3}\u{2099} action and associative reassociation are quotients applied by the\n\
+         \x20  canonical-form resolver, not constraints of this grammar.\n\
+         \x20  Asymmetry with type-app: application admits \u{2265} 0 args (so op:arity = 0\n\
+         \x20  is expressible); type-app requires \u{2265} 1 because a nullary type\n\
+         \x20  constructor is already covered by the name alternative of type-expr. *)\n\
+         \n\
+         application      ::= name , \"(\" , [ term , { \",\" , term } ] , \")\" ;\n\
+         \x20                  (* name \u{2192} individual of op:Operation (a UnaryOp, BinaryOp,\n\
+         \x20                     or Involution member). op:ComposedOperation individuals\n\
+         \x20                     are synthesised by the resolver from nested applications\n\
+         \x20                     and have no introduction form in this grammar. *)\n\n",
     );
-}
-
-/// Emits the Operations section header and the unary-op rule.
-fn emit_unary_op(out: &mut String, ontology: &Ontology) {
-    out.push_str(
-        "\
-(* ── Operations ──────────────────────────────────────────────────────────────
-   Derived from op:PrimitiveOp enumeration (foundation/src/enums.rs).
-   Arity and commutativity/associativity flags match spec/src/namespaces/op.rs.
-   ─────────────────────────────────────────────────────────────────────────── *)
-
-unary-application
-    ::= unary-op , \"(\" , term , \")\" ;
-
-unary-op\n",
-    );
-
-    let op_ns = find_namespace(ontology, "op");
-
-    for (i, &op_label) in UNARY_ORDER.iter().enumerate() {
-        let prefix = if i == 0 { "    ::= " } else { "      | " };
-        let padded = format!("\"{}\"", op_label);
-        // Pad to 8 chars for alignment.
-        let pad = if padded.len() < 8 {
-            " ".repeat(8 - padded.len())
-        } else {
-            " ".to_string()
-        };
-
-        if let Some(ns) = op_ns {
-            if let Some(ind) = find_by_label(ns, op_label) {
-                let comment = format_unary_comment(ind);
-                let _ = write!(out, "{prefix}{padded}{pad}(* {comment} *)");
-            } else {
-                let _ = write!(out, "{prefix}{padded}");
-            }
-        } else {
-            let _ = write!(out, "{prefix}{padded}");
-        }
-
-        if i == UNARY_ORDER.len() - 1 {
-            out.push_str(" ;\n");
-        }
-        out.push('\n');
-    }
-}
-
-/// Emits the binary-op rule.
-fn emit_binary_op(out: &mut String, ontology: &Ontology) {
-    out.push_str(
-        "\
-binary-application
-    ::= binary-op , \"(\" , term , \",\" , term , \")\" ;
-
-binary-op\n",
-    );
-
-    let op_ns = find_namespace(ontology, "op");
-
-    for (i, &op_label) in BINARY_ORDER.iter().enumerate() {
-        let prefix = if i == 0 { "    ::= " } else { "      | " };
-        let padded = format!("\"{}\"", op_label);
-        let pad = if padded.len() < 8 {
-            " ".repeat(8 - padded.len())
-        } else {
-            " ".to_string()
-        };
-
-        if let Some(ns) = op_ns {
-            if let Some(ind) = find_by_label(ns, op_label) {
-                let comment = format_binary_comment(ind);
-                let _ = write!(out, "{prefix}{padded}{pad}(* {comment} *)");
-            } else {
-                let _ = write!(out, "{prefix}{padded}");
-            }
-        } else {
-            let _ = write!(out, "{prefix}{padded}");
-        }
-
-        if i == BINARY_ORDER.len() - 1 {
-            out.push_str(" ;\n");
-        }
-        out.push('\n');
-    }
 }
 
 /// Emits variable and identifier rules.
 fn emit_variables(out: &mut String) {
     out.push_str(
-        "\
-(* ── Variables ───────────────────────────────────────────────────────────────
-   Variables bind inside type-decl or binding forms. They denote
-   schema:Datum values and are resolved by the PRISM pipeline. *)
+        "variable         ::= identifier ;\n\
+         \n\
+         (* An identifier whose meaning is resolved through the ontology rather\n\
+         \x20  than the local binding context. Each use site comments which\n\
+         \x20  ontology class the name must resolve to. *)\n\
+         name             ::= identifier ;\n\
+         \n\
+         identifier       ::= alpha , { alpha | digit | \"_\" } ;\n\
+         alpha            ::= \"a\" .. \"z\" | \"A\" .. \"Z\" ;\n\
+         digit            ::= \"0\" .. \"9\" ;\n\n",
+    );
+}
 
-variable
-    ::= identifier ;
-
-identifier
-    ::= alpha , { alpha | digit | \"_\" } ;
-
-alpha
-    ::= \"a\" .. \"z\" | \"A\" .. \"Z\" ;
-
-digit
-    ::= \"0\" .. \"9\" ;
-
-",
+/// Emits type expression rules.
+fn emit_type_expr(out: &mut String) {
+    out.push_str(&section_header(
+        "Type expressions (operad:StructuralOperad)",
+        false,
+    ));
+    out.push_str(
+        "\n\
+         \x20  type-app is an operadic composition over the structural operad and\n\
+         \x20  materialises an operad:OperadComposition individual whose outerType,\n\
+         \x20  innerType, composedType, composedFiberCount and composedGrounding are\n\
+         \x20  populated from the AST and the carry layer. *)\n\
+         \n\
+         type-expr        ::= name\n\
+         \x20                  | type-app ;\n\
+         \x20                  (* name \u{2192} owl:NamedIndividual of type:TypeDefinition\n\
+         \x20                     (transitively, via any subclass). Category classes\n\
+         \x20                     (PrimitiveType, ProductType, SumType, ConstrainedType)\n\
+         \x20                     and state classes (CompleteType, SuperposedFiberState,\n\
+         \x20                     CompletenessCandidate, SynthesizedType, TwistedType,\n\
+         \x20                     FlatType) are not valid targets at this position. *)\n\
+         \n\
+         type-app         ::= name , \"(\" , type-expr , { \",\" , type-expr } , \")\" ;\n\
+         \x20                  (* name \u{2192} owl:NamedIndividual of type:TypeDefinition\n\
+         \x20                     (a parameterised one). The application materialises\n\
+         \x20                     a fresh operad:OperadComposition individual whose\n\
+         \x20                     outerType, innerType, composedType, composedFiberCount,\n\
+         \x20                     and composedGrounding are populated from the AST and\n\
+         \x20                     the carry layer, and a fresh type:TypeDefinition\n\
+         \x20                     individual representing the composed type. *)\n\n",
     );
 }
 
 /// Emits type declaration rules.
 fn emit_type_decl(out: &mut String) {
+    out.push_str(&section_header(
+        "Type declarations (type:TypeDefinition)",
+        false,
+    ));
     out.push_str(
-        "\
-(* ── Type declarations ───────────────────────────────────────────────────────
-   A TypeDefinition (type:TypeDefinition) declares constraints that pin
-   fibers of the Z/2Z fibration, contributing to the fiber budget.
-   Constraints are applied via the ψ-pipeline during resolution. *)
-
-type-decl
-    ::= \"type\" , identifier , \"{\" , { constraint-decl } , \"}\" ;
-
-constraint-decl
-    ::= constraint-kind , \":\" , term , \";\" ;
-
-constraint-kind
-    ::= \"residue\"    (* vertical / ring-arithmetic axis *)
-      | \"carry\"      (* carry-pattern constraint *)
-      | \"hamming\"    (* horizontal / Hamming-metric axis *)
-      | \"depth\"      (* diagonal / fiber-depth axis *)
-      | \"fiber\"      (* explicit fiber assignment *)
-      | \"affine\"     (* affine subspace constraint *) ;
-
-",
+        "\n\
+         \x20  Parameterised declarations carry the colored structural operad.\n\
+         \x20  Per-position variance (type:positionVariance, range type:VarianceAnnotation)\n\
+         \x20  is asserted via constraint-decl in the body, not encoded as syntax. *)\n\
+         \n\
+         type-decl        ::= \"type\" , identifier , [ type-params ] ,\n\
+         \x20                    \"{\" , { constraint-decl } , \"}\" ;\n\
+         \n\
+         type-params      ::= \"(\" , type-param , { \",\" , type-param } , \")\" ;\n\
+         type-param       ::= identifier ;\n\
+         \n\
+         constraint-decl  ::= name , \"(\" , [ constraint-arg , { \",\" , constraint-arg } ] , \")\" , \";\" ;\n\
+         constraint-arg   ::= name , \":\" , term ;\n\
+         \x20                  (* outer name \u{2192} subclass of type:Constraint. The currently\n\
+         \x20                     declared subclasses are ResidueConstraint,\n\
+         \x20                     CarryConstraint, DepthConstraint, HammingConstraint,\n\
+         \x20                     FiberConstraint, AffineConstraint. CompositeConstraint\n\
+         \x20                     is the implicit shape of any type-decl body containing\n\
+         \x20                     more than one constraint-decl and has no syntactic\n\
+         \x20                     constructor. inner name (in constraint-arg) \u{2192} property\n\
+         \x20                     whose rdfs:domain is the outer subclass; the trailing\n\
+         \x20                     term is the value, type-checked against the property's\n\
+         \x20                     rdfs:range and required to be Datum-denoting. Functional\n\
+         \x20                     properties accept exactly one matching constraint-arg;\n\
+         \x20                     non-functional properties accept either repeated\n\
+         \x20                     constraint-args with the same field name or a single\n\
+         \x20                     set-expr value that unpacks. *)\n\n",
     );
 }
 
 /// Emits binding rules.
 fn emit_bindings(out: &mut String) {
+    out.push_str(&section_header("Bindings", true));
     out.push_str(
-        "\
-(* ── Bindings ────────────────────────────────────────────────────────────────
-   A binding associates an identifier with a term under a given type. *)
-
-binding
-    ::= \"let\" , identifier , \":\" , identifier , \"=\" , term , \";\" ;
-
-",
+        "\n\n\
+         binding          ::= \"let\" , identifier , \":\" , type-expr , \"=\" , term , \";\" ;\n\n",
     );
 }
 
 /// Emits assertion rules.
 fn emit_assertions(out: &mut String) {
+    out.push_str(&section_header("Assertions", false));
     out.push_str(
-        "\
-(* ── Assertions ──────────────────────────────────────────────────────────────
-   Ground assertions checked by the conformance suite. *)
-
-assertion
-    ::= \"assert\" , term , equality-op , term , \";\" ;
-
-equality-op
-    ::= \"=\"    (* strict ring equality *)
-      | \"\u{2261}\"    (* canonical-form equivalence *) ;
-
-",
+        "\n\
+         \x20  The asserted term must resolve to a verdict at the predicate layer.\n\
+         \x20  Equality flavours (ring equality, canonical-form equivalence, etc.) are\n\
+         \x20  selected by the predicate identifier appearing in the term, not by syntax. *)\n\
+         \n\
+         assertion        ::= \"assert\" , term , \";\" ;\n\n",
     );
 }
-
-/// Emits the rewrite rules comment section from RewriteRule individuals.
-fn emit_rewrite_rules(out: &mut String, ontology: &Ontology) {
-    out.push_str(
-        "(* ── Rewrite rules ───────────────────────────────────────────────────────────\n\
-         \x20\x20\x20The six rewrite rules from foundation/src/enums.rs::RewriteRule.\n\
-         \x20\x20\x20Applied by the canonical-form resolver \
-         (resolver:CanonicalFormResolver). *)\n\n",
-    );
-
-    if let Some(ns) = find_namespace(ontology, "derivation") {
-        let rules: Vec<&Individual> = ns
-            .individuals
-            .iter()
-            .filter(|ind| ind.type_ == REWRITE_RULE_TYPE)
-            .collect();
-
-        for ind in &rules {
-            let patterns = rewrite_patterns(ind.label);
-            for pattern in patterns {
-                let _ = writeln!(out, "(* {pattern} *)");
-            }
-        }
-    }
-
-    out.push('\n');
-}
-
-/// Emits the quantum-level generalisation comment section.
-fn emit_quantum_generalisation(out: &mut String, ontology: &Ontology) {
-    out.push_str(
-        "(* ── Quantum-level generalisation ────────────────────────────────────────────\n\
-         \x20\x20\x20At quantum level k the ring is R_k = Z/(2^(8*(k+1)))Z.\n",
-    );
-
-    let levels = sorted_quantum_levels(ontology);
-    for (label, _index, bits, cycle) in &levels {
-        let _ = writeln!(out, "   {label}: {bits}-bit, {cycle} states.");
-    }
-
-    out.push_str("   All grammar constructs are parametric in the quantum level. *)\n\n");
-}
-
-// ── Amendment 83: Completion plan grammar extensions ─────────────────────
 
 /// Emits match expression rules.
 fn emit_match_expr(out: &mut String) {
+    out.push_str(&section_header("Match", true));
     out.push_str(
-        "\
-(* ── Match expressions ───────────────────────────────────────────────────────
-   Deterministic conditional evaluation via ordered pattern matching.
-   Each arm is a (predicate, result) pair. The match evaluates predicates
-   in order and returns the result of the first matching arm. *)
-
-match-expr
-    ::= \"match\" , term , \"{\" , { match-arm } , \"}\" ;
-
-match-arm
-    ::= predicate-ref , \"=>\" , term , \";\" ;
-
-predicate-ref
-    ::= identifier ;  (* refers to a predicate:Predicate individual *)
-
-",
+        "\n\n\
+         match-expr       ::= \"match\" , term , \"{\" , { match-arm } , \"}\" ;\n\
+         match-arm        ::= name , \"=>\" , term , \";\" ;\n\
+         \x20                  (* name \u{2192} individual of predicate:Predicate (a TypePredicate,\n\
+         \x20                     StatePredicate, or FiberPredicate member). *)\n\n",
     );
 }
 
 /// Emits stream constructor rules.
 fn emit_stream_expr(out: &mut String) {
+    out.push_str(&section_header("Streams", true));
     out.push_str(
-        "\
-(* ── Stream constructors ─────────────────────────────────────────────────────
-   Coinductive stream construction via unfold. *)
+        "\n\n\
+         stream-expr      ::= \"unfold\" , identifier , \":\" , type-expr , \"from\" , term ;\n\n",
+    );
+}
 
-stream-expr
-    ::= \"unfold\" , identifier , \":\" , identifier , \"from\" , term ;
+/// Emits set expression rules.
+fn emit_set_expr(out: &mut String) {
+    out.push_str(&section_header("Sets", false));
+    out.push_str(
+        "\n\
+         \x20  A constructor form, not a literal: elements may be arbitrary terms.\n\
+         \x20  Element order in the source is parser-arbitrary; the resolver\n\
+         \x20  canonicalises by content address (the same Normalization quotient\n\
+         \x20  applied to commutative applications). *)\n\
+         \n\
+         set-expr         ::= \"{\" , [ term , { \",\" , term } ] , \"}\" ;\n\n",
+    );
+}
 
-",
+/// Emits value, host-literal, string-literal, boolean-literal productions.
+fn emit_value_productions(out: &mut String) {
+    out.push_str(&section_header("Property values", false));
+    out.push_str(
+        "\n\
+         \x20  A value is what fills a property-position slot whose ontology range may\n\
+         \x20  be a Datum (term) or an xsd-typed host datum (host-literal). The two\n\
+         \x20  sorts are syntactically disjoint. Operations are mono-sorted over Datum\n\
+         \x20  terms \u{2014} host literals can never appear inside an application \u{2014} so the\n\
+         \x20  bi-sortedness is enforced by the grammar, not deferred to type checking. *)\n\
+         \n\
+         value            ::= term | host-literal ;\n\
+         \n\
+         host-literal     ::= string-literal | boolean-literal ;\n\
+         \x20                  (* No host-integer-literal: integer-literal in term\n\
+         \x20                     position already projects to xsd:integer through the\n\
+         \x20                     Datum integer projection, and the resolver coerces\n\
+         \x20                     when the property range is xsd:integer. *)\n\
+         \n\
+         string-literal   ::= '\"' , { string-char } , '\"' ;\n\
+         string-char      ::= any-char-except-quote-or-backslash\n\
+         \x20                  | \"\\\\\" , escape-char ;\n\
+         escape-char      ::= '\"' | \"\\\\\" | \"n\" | \"r\" | \"t\" | \"u\" , hex , hex , hex , hex ;\n\
+         hex              ::= digit | \"a\" .. \"f\" | \"A\" .. \"F\" ;\n\
+         \n\
+         boolean-literal  ::= \"true\" | \"false\" ;\n\n",
     );
 }
 
 /// Emits effect declaration rules.
 fn emit_effect_decl(out: &mut String) {
+    out.push_str(&section_header("Effects", false));
     out.push_str(
-        "\
-(* ── Effect declarations ─────────────────────────────────────────────────────
-   Typed effect declarations for external effects. *)
-
-effect-decl
-    ::= \"effect\" , identifier , \"{\" , { effect-prop } , \"}\" ;
-
-effect-prop
-    ::= \"target\" , \":\" , fiber-set , \";\"
-      | \"delta\"  , \":\" , integer-literal , \";\"
-      | \"commutes\" , \":\" , (\"true\" | \"false\") , \";\" ;
-
-fiber-set
-    ::= \"{\" , integer-literal , { \",\" , integer-literal } , \"}\" ;
-
-",
+        "\n\
+         \x20  Property keys must resolve to ontology-declared properties on the\n\
+         \x20  target effect class; the property's range constrains the value. *)\n\
+         \n\
+         effect-decl      ::= \"effect\" , identifier , \"{\" , { effect-prop } , \"}\" ;\n\
+         effect-prop      ::= name , \":\" , value , \";\" ;\n\
+         \x20                  (* name \u{2192} property IRI (an owl:DatatypeProperty or\n\
+         \x20                     owl:ObjectProperty whose domain is the effect class).\n\
+         \x20                     The \"effect\" identifier is a fresh binding occurrence\n\
+         \x20                     introducing a new effect:Effect individual. *)\n\n",
     );
 }
 
 /// Emits failure and recovery rules.
 fn emit_try_expr(out: &mut String) {
+    out.push_str(&section_header("Failure and recovery", true));
     out.push_str(
-        "\
-(* ── Failure and recovery ────────────────────────────────────────────────────
-   Partial computation with typed failure reasons and recovery paths. *)
-
-try-expr
-    ::= \"try\" , term , \"{\" , { recover-arm } , \"}\" ;
-
-recover-arm
-    ::= \"recover\" , failure-kind , \"=>\" , term , \";\" ;
-
-failure-kind
-    ::= \"guard\"
-      | \"contradiction\"
-      | \"exhaustion\"
-      | \"obstruction\"
-      | identifier ;
-
-",
+        "\n\n\
+         try-expr         ::= \"try\" , term , \"{\" , { recover-arm } , \"}\" ;\n\
+         recover-arm      ::= \"recover\" , name , \"=>\" , term , \";\" ;\n\
+         \x20                  (* name \u{2192} subclass of failure:FailureReason. The currently\n\
+         \x20                     declared subclasses are GuardFailure,\n\
+         \x20                     ConstraintContradiction, FiberExhaustion,\n\
+         \x20                     LiftObstructionFailure. *)\n\n",
     );
 }
 
 /// Emits bounded recursion rules.
 fn emit_recurse_expr(out: &mut String) {
+    out.push_str(&section_header("Bounded recursion", true));
     out.push_str(
-        "\
-(* ── Bounded recursion ───────────────────────────────────────────────────────
-   Self-referential computation with a descent measure. *)
-
-recurse-expr
-    ::= \"recurse\" , identifier , \"(\" , term , \")\"
-      , \"measure\" , term
-      , \"base\" , predicate-ref , \"=>\" , term
-      , \"step\" , \"=>\" , term ;
-
-",
+        "\n\n\
+         recurse-expr     ::= \"recurse\" , identifier , \"(\" , term , \")\" ,\n\
+         \x20                    \"measure\" , term ,\n\
+         \x20                    base-arm , { base-arm } ,\n\
+         \x20                    \"step\" , \"=>\" , term ;\n\
+         base-arm         ::= \"base\" , name , \"=>\" , term ;\n\
+         \x20                  (* name \u{2192} individual of predicate:Predicate. *)\n\n",
     );
 }
 
 /// Emits IO boundary declaration rules.
 fn emit_boundary_decl(out: &mut String) {
+    out.push_str(&section_header("IO boundary declarations", true));
     out.push_str(
-        "\
-(* ── IO boundary declarations ────────────────────────────────────────────────
-   Source and sink declarations for data crossing the kernel boundary. *)
-
-boundary-decl
-    ::= source-decl | sink-decl ;
-
-source-decl
-    ::= \"source\" , identifier , \":\" , identifier , \"via\" , identifier , \";\" ;
-
-sink-decl
-    ::= \"sink\" , identifier , \":\" , identifier , \"via\" , identifier , \";\" ;
-
-",
-    );
-}
-
-// ── Amendment 88: Identity formalization grammar extensions ──────────────────
-
-/// Emits relation expression rules (=, <=, >=, <, >, etc.).
-fn emit_relation_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Relations ──────────────────────────────────────────────────────────────
-   Precedence: lower than application, higher than connectives.
-   Used for identity equations, inequalities, and membership tests. *)
-
-relation-expr
-    ::= term , relation-op , term ;
-
-relation-op
-    ::= \"=\" | \"\\u2264\" | \"\\u2265\" | \"<\" | \">\"
-      | \"\\u2261\" | \"\\u2286\" | \"\\u2287\" | \"\\u2208\" | \"\\u2209\" | \"\\u2223\" ;
-      (* = ≤ ≥ < > ≡ ⊆ ⊇ ∈ ∉ ∣ *)
-
-",
-    );
-}
-
-/// Emits quantified expression rules (forall, exists).
-fn emit_quantified_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Quantified expressions ─────────────────────────────────────────────────
-   Universal and existential quantification over typed variables. *)
-
-quantified-expr
-    ::= quantifier , variable-decl-list , \",\" , term ;
-
-quantifier
-    ::= \"\\u2200\" | \"\\u2203\" ;   (* ∀  ∃ *)
-
-variable-decl-list
-    ::= variable-decl , { \",\" , variable-decl } ;
-
-variable-decl
-    ::= identifier , \"\\u2208\" , term ;   (* x ∈ Domain *)
-
-",
-    );
-}
-
-/// Emits set-builder notation rules.
-fn emit_set_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Set builder ────────────────────────────────────────────────────────────
-   Set comprehension and enumeration. *)
-
-set-expr
-    ::= \"{\" , term , \":\" , term , \"}\"
-      | \"{\" , term , \"}\" ;
-
-",
-    );
-}
-
-/// Emits aggregation expression rules (sum, product).
-fn emit_aggregation_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Aggregation ────────────────────────────────────────────────────────────
-   Summation and product over a variable. *)
-
-aggregation-expr
-    ::= aggregation-op , \"_\" , variable , term ;
-
-aggregation-op
-    ::= \"\\u03A3\" | \"\\u03A0\" ;   (* Σ  Π *)
-
-",
-    );
-}
-
-/// Emits function composition rules.
-fn emit_composition_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Composition ────────────────────────────────────────────────────────────
-   Function composition: f ∘ g. *)
-
-composition-expr
-    ::= term , \"\\u2218\" , term ;   (* f ∘ g *)
-
-",
-    );
-}
-
-/// Emits subscript access rules.
-fn emit_subscript_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Subscript ──────────────────────────────────────────────────────────────
-   Indexed access: x_k, fiber_k(x). Highest precedence among new productions. *)
-
-subscript-expr
-    ::= term , \"_\" , ( identifier | integer-literal ) ;
-
-",
-    );
-}
-
-/// Emits exponentiation rules.
-fn emit_power_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Exponentiation ─────────────────────────────────────────────────────────
-   Power expressions: 2^n, Ω^k. Right-associative. *)
-
-power-expr
-    ::= term , \"^\" , term ;
-
-",
-    );
-}
-
-/// Emits cardinality rules.
-fn emit_cardinality_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Cardinality ────────────────────────────────────────────────────────────
-   Set or group cardinality: |S|. *)
-
-cardinality-expr
-    ::= \"|\" , term , \"|\" ;
-
-",
-    );
-}
-
-/// Emits logical connective rules.
-fn emit_connective_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Logical connectives ────────────────────────────────────────────────────
-   Propositional connectives for compound identity statements. *)
-
-connective-expr
-    ::= term , connective-op , term ;
-
-connective-op
-    ::= \"\\u2227\" | \"\\u2228\" | \"\\u2192\" | \"\\u2194\" | \"\\u27FA\" ;
-      (* ∧ ∨ → ↔ ⟺ *)
-
-",
-    );
-}
-
-/// Emits conditional expression rules.
-fn emit_conditional_expr(out: &mut String) {
-    out.push_str(
-        "\
-(* ── Conditional ────────────────────────────────────────────────────────────
-   If-then-else for piecewise definitions. *)
-
-conditional-expr
-    ::= \"if\" , term , \"then\" , term , \"else\" , term ;
-
-",
+        "\n\n\
+         boundary-decl    ::= source-decl | sink-decl ;\n\
+         source-decl      ::= \"source\" , identifier , \":\" , type-expr , \"via\" , name , \";\" ;\n\
+         \x20                  (* \"via\" name \u{2192} individual of morphism:GroundingMap.\n\
+         \x20                     The leading identifier is a fresh binding occurrence\n\
+         \x20                     introducing a new boundary:Source individual. *)\n\
+         sink-decl        ::= \"sink\"   , identifier , \":\" , type-expr , \"via\" , name , \";\" ;\n\
+         \x20                  (* \"via\" name \u{2192} individual of morphism:ProjectionMap.\n\
+         \x20                     The leading identifier is a fresh binding occurrence\n\
+         \x20                     introducing a new boundary:Sink individual. *)\n\n",
     );
 }
 
 /// Emits whitespace and comment rules.
 fn emit_whitespace(out: &mut String) {
+    out.push_str(&section_header("Lexical", true));
     out.push_str(
-        "\
-(* ── Whitespace and comments ─────────────────────────────────────────────────
-   Whitespace is insignificant outside of string literals and braille sequences.
-   Line comments begin with \"--\".
-   Block comments are delimited by \"(*\" and \"*)\". *)
-
-whitespace
-    ::= \" \" | \"\\t\" | \"\\n\" | \"\\r\" ;
-
-line-comment
-    ::= \"--\" , { any-char-except-newline } , \"\\n\" ;
-
-block-comment
-    ::= \"(*\" , { any-char } , \"*)\" ;
-
-",
+        "\n\n\
+         whitespace       ::= \" \" | \"\\t\" | \"\\n\" | \"\\r\" ;\n\
+         line-comment     ::= \"--\" , { any-char-except-newline } , \"\\n\" ;\n\
+         block-comment    ::= \"(*\" , { any-char } , \"*)\" ;\n",
     );
-}
-
-/// Emits the end-of-grammar marker.
-fn emit_end(out: &mut String) {
-    out.push_str(
-        "(* ── End of grammar ──────────────────────────────────────────────────────── *)\n",
-    );
-}
-
-// ── Helper functions ────────────────────────────────────────────────────────
-
-/// Finds a namespace module by prefix.
-fn find_namespace<'a>(ontology: &'a Ontology, prefix: &str) -> Option<&'a NamespaceModule> {
-    ontology
-        .namespaces
-        .iter()
-        .find(|m| m.namespace.prefix == prefix)
-}
-
-/// Finds an individual by label within a namespace module.
-fn find_by_label<'a>(ns: &'a NamespaceModule, label: &str) -> Option<&'a Individual> {
-    ns.individuals.iter().find(|ind| ind.label == label)
-}
-
-/// Extracts an `IriRef` property value from an individual.
-fn get_iri_prop<'a>(ind: &'a Individual, prop_iri: &str) -> Option<&'a str> {
-    ind.properties.iter().find_map(|(k, v)| {
-        if *k == prop_iri {
-            if let IndividualValue::IriRef(iri) = v {
-                Some(*iri)
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    })
-}
-
-/// Extracts an `Int` property value from an individual.
-fn get_int_prop(ind: &Individual, prop_iri: &str) -> Option<i64> {
-    ind.properties.iter().find_map(|(k, v)| {
-        if *k == prop_iri {
-            if let IndividualValue::Int(n) = v {
-                Some(*n)
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    })
-}
-
-/// Extracts a `Bool` property value from an individual.
-fn get_bool_prop(ind: &Individual, prop_iri: &str) -> Option<bool> {
-    ind.properties.iter().find_map(|(k, v)| {
-        if *k == prop_iri {
-            if let IndividualValue::Bool(b) = v {
-                Some(*b)
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    })
-}
-
-/// Extracts a `List` property value from an individual.
-fn get_list_prop<'a>(ind: &'a Individual, prop_iri: &str) -> Option<&'a [&'a str]> {
-    ind.properties.iter().find_map(|(k, v)| {
-        if *k == prop_iri {
-            if let IndividualValue::List(items) = v {
-                Some(*items)
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    })
-}
-
-/// Extracts the local name from an IRI (after the last `/`).
-fn local_name(iri: &str) -> &str {
-    iri.rsplit('/').next().unwrap_or(iri)
-}
-
-/// Converts a PascalCase string to kebab-case.
-///
-/// `"RingReflection"` → `"ring-reflection"`,
-/// `"HypercubeTranslation"` → `"hypercube-translation"`.
-fn to_kebab_case(pascal: &str) -> String {
-    let mut result = String::with_capacity(pascal.len() + 4);
-    for (i, ch) in pascal.chars().enumerate() {
-        if ch.is_uppercase() {
-            if i > 0 {
-                result.push('-');
-            }
-            for lower in ch.to_lowercase() {
-                result.push(lower);
-            }
-        } else {
-            result.push(ch);
-        }
-    }
-    result
-}
-
-/// Formats the EBNF comment for a unary operation individual.
-///
-/// Extracts the first sentence of the comment, involution status,
-/// composition, and geometric character from the individual's properties.
-fn format_unary_comment(ind: &Individual) -> String {
-    let mut parts: Vec<String> = Vec::new();
-
-    // First sentence from comment.
-    let first = first_sentence(ind.comment);
-    parts.push(first.to_string());
-
-    // Involution note.
-    if ind.type_.ends_with("Involution") {
-        parts.push(format!("Involution: {l}({l}(x)) = x.", l = ind.label));
-    }
-
-    // Composition note (succ, pred).
-    let composed_iri = format!("{OP}composedOf");
-    if let Some(list) = get_list_prop(ind, &composed_iri) {
-        let names: Vec<&str> = list.iter().map(|iri| local_name(iri)).collect();
-        if names.len() >= 2 {
-            parts.push(format!(
-                "Critical identity: {} = {} \u{2218} {}.",
-                ind.label, names[0], names[1]
-            ));
-        }
-    }
-
-    // Inverse note.
-    let inverse_iri = format!("{OP}inverse");
-    if let Some(inv) = get_iri_prop(ind, &inverse_iri) {
-        parts.push(format!("Inverse of {}.", local_name(inv)));
-    }
-
-    // Geometric character.
-    let gc_iri = format!("{OP}hasGeometricCharacter");
-    if let Some(gc) = get_iri_prop(ind, &gc_iri) {
-        parts.push(format!(
-            "GeometricCharacter: {}",
-            to_kebab_case(local_name(gc))
-        ));
-    }
-
-    // Join with newline + padding for multi-line EBNF comments.
-    if parts.len() <= 1 {
-        parts.join("")
-    } else {
-        let first_part = parts.remove(0);
-        let rest: Vec<String> = parts
-            .iter()
-            .map(|p| format!("\n                     {p}"))
-            .collect();
-        format!("{first_part}{}", rest.join(""))
-    }
-}
-
-/// Formats the EBNF comment for a binary operation individual.
-///
-/// Extracts algebraic properties (commutativity, associativity, identity
-/// element) and geometric character from the individual's properties.
-fn format_binary_comment(ind: &Individual) -> String {
-    let mut parts: Vec<String> = Vec::new();
-
-    // First sentence from comment (the formula).
-    let first = first_sentence(ind.comment);
-    parts.push(first.to_string());
-
-    // Commutativity / associativity.
-    let comm_iri = format!("{OP}commutative");
-    let assoc_iri = format!("{OP}associative");
-    let comm = get_bool_prop(ind, &comm_iri);
-    let assoc = get_bool_prop(ind, &assoc_iri);
-
-    let mut algebra = String::new();
-    if let Some(c) = comm {
-        if c {
-            algebra.push_str("Commutative");
-        } else {
-            algebra.push_str("Not commutative");
-        }
-    }
-    if let Some(a) = assoc {
-        if !algebra.is_empty() {
-            algebra.push_str(", ");
-        }
-        if a {
-            algebra.push_str("associative.");
-        } else {
-            algebra.push_str("not associative.");
-        }
-    }
-
-    // Identity element.
-    let id_iri = format!("{OP}identity");
-    if let Some(id_val) = get_int_prop(ind, &id_iri) {
-        algebra.push_str(&format!("  Identity: {id_val}."));
-    }
-
-    if !algebra.is_empty() {
-        parts.push(algebra);
-    }
-
-    // Geometric character.
-    let gc_iri = format!("{OP}hasGeometricCharacter");
-    if let Some(gc) = get_iri_prop(ind, &gc_iri) {
-        parts.push(format!(
-            "GeometricCharacter: {}",
-            to_kebab_case(local_name(gc))
-        ));
-    }
-
-    // Join with newline + padding for multi-line EBNF comments.
-    if parts.len() <= 1 {
-        parts.join("")
-    } else {
-        let first_part = parts.remove(0);
-        let rest: Vec<String> = parts
-            .iter()
-            .map(|p| format!("\n                     {p}"))
-            .collect();
-        format!("{first_part}{}", rest.join(""))
-    }
-}
-
-/// Extracts the first sentence from a comment string.
-///
-/// Returns text up to the first `. ` (period-space) boundary, or the
-/// entire comment if no sentence boundary is found.
-fn first_sentence(comment: &str) -> &str {
-    if let Some(pos) = comment.find(". ") {
-        &comment[..pos + 1]
-    } else {
-        comment
-    }
-}
-
-/// Returns the canonical rewrite pattern lines for a RewriteRule label.
-///
-/// Each rewrite rule has one or more well-known notation lines in the grammar.
-/// Rules with multiple examples (Involution, IdentityElement) produce
-/// multiple lines, each wrapped in its own `(* ... *)` comment.
-fn rewrite_patterns(label: &str) -> Vec<&'static str> {
-    match label {
-        "CriticalIdentityRule" => vec!["CriticalIdentity:   neg(bnot(x))   \u{2192} succ(x)"],
-        "InvolutionRule" => vec![
-            "Involution:         neg(neg(x))    \u{2192} x",
-            "                    bnot(bnot(x))  \u{2192} x",
-        ],
-        "AssociativityRule" => vec!["Associativity:      f(f(a,b),c)    \u{2192} f(a,f(b,c))"],
-        "CommutativityRule" => {
-            vec!["Commutativity:      f(a,b)         \u{2192} f(b,a)  (if f comm)"]
-        }
-        "IdentityElementRule" => vec![
-            "IdentityElement:    add(x,0)       \u{2192} x",
-            "                    mul(x,1)       \u{2192} x",
-            "                    xor(x,0)       \u{2192} x",
-        ],
-        "NormalizationRule" => vec!["Normalization:      sort operands by content address"],
-        _ => vec![],
-    }
-}
-
-/// Returns sorted quantum levels as `(label, index, bits_width, cycle_size)`.
-fn sorted_quantum_levels(ontology: &Ontology) -> Vec<(&str, i64, i64, i64)> {
-    let mut levels: Vec<(&str, i64, i64, i64)> = Vec::new();
-
-    if let Some(ns) = find_namespace(ontology, "schema") {
-        for ind in &ns.individuals {
-            if ind.type_ == QUANTUM_LEVEL_TYPE {
-                let qi_iri = format!("{SCHEMA}quantumIndex");
-                let bw_iri = format!("{SCHEMA}bitsWidth");
-                let cs_iri = format!("{SCHEMA}cycleSize");
-
-                let index = get_int_prop(ind, &qi_iri).unwrap_or(0);
-                let bits = get_int_prop(ind, &bw_iri).unwrap_or(0);
-                let cycle = get_int_prop(ind, &cs_iri).unwrap_or(0);
-
-                levels.push((ind.label, index, bits, cycle));
-            }
-        }
-    }
-
-    levels.sort_by_key(|&(_, idx, _, _)| idx);
-    levels
 }
 
 #[cfg(test)]
@@ -1043,43 +418,6 @@ mod tests {
     }
 
     #[test]
-    fn contains_all_quantum_levels() {
-        let ontology = Ontology::full();
-        let ebnf = to_ebnf(ontology);
-        for level in &["\"Q0\"", "\"Q1\"", "\"Q2\"", "\"Q3\""] {
-            assert!(ebnf.contains(level), "Missing quantum level {level}");
-        }
-    }
-
-    #[test]
-    fn contains_all_operations() {
-        let ontology = Ontology::full();
-        let ebnf = to_ebnf(ontology);
-        for op in &[
-            "\"neg\"", "\"bnot\"", "\"succ\"", "\"pred\"", "\"add\"", "\"sub\"", "\"mul\"",
-            "\"xor\"", "\"and\"", "\"or\"",
-        ] {
-            assert!(ebnf.contains(op), "Missing operation {op}");
-        }
-    }
-
-    #[test]
-    fn contains_rewrite_rules() {
-        let ontology = Ontology::full();
-        let ebnf = to_ebnf(ontology);
-        for rule in &[
-            "CriticalIdentity",
-            "Involution",
-            "Associativity",
-            "Commutativity",
-            "IdentityElement",
-            "Normalization",
-        ] {
-            assert!(ebnf.contains(rule), "Missing rewrite rule {rule}");
-        }
-    }
-
-    #[test]
     fn balanced_comments() {
         let ontology = Ontology::full();
         let ebnf = to_ebnf(ontology);
@@ -1089,5 +427,38 @@ mod tests {
             opens, closes,
             "Unbalanced EBNF comments: {opens} opens vs {closes} closes"
         );
+    }
+
+    #[test]
+    fn contains_constraint_arg() {
+        let ontology = Ontology::full();
+        let ebnf = to_ebnf(ontology);
+        assert!(
+            ebnf.contains("constraint-arg"),
+            "Missing constraint-arg production"
+        );
+    }
+
+    #[test]
+    fn contains_value_production() {
+        let ontology = Ontology::full();
+        let ebnf = to_ebnf(ontology);
+        assert!(ebnf.contains("value"), "Missing value production");
+        assert!(
+            ebnf.contains("string-literal"),
+            "Missing string-literal production"
+        );
+        assert!(
+            ebnf.contains("boolean-literal"),
+            "Missing boolean-literal production"
+        );
+    }
+
+    #[test]
+    fn contains_type_expr() {
+        let ontology = Ontology::full();
+        let ebnf = to_ebnf(ontology);
+        assert!(ebnf.contains("type-expr"), "Missing type-expr production");
+        assert!(ebnf.contains("type-app"), "Missing type-app production");
     }
 }
