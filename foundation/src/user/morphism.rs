@@ -29,6 +29,14 @@ pub trait Transform<P: Primitives> {
     type Identity: crate::kernel::op::Identity<P>;
     /// The identity preserved by this transform (reference to the op:Identity that the transform commutes with).
     fn preserved_invariant(&self) -> &Self::Identity;
+    /// The OWL class of inputs this transform accepts. Uses OWL2 punning so the value is a class IRI treated as an individual at this position.
+    fn input_class(&self) -> &P::String;
+    /// The OWL class of outputs this transform produces. Uses OWL2 punning.
+    fn output_class(&self) -> &P::String;
+    /// Associated type for `Witness`.
+    type Witness: Witness<P>;
+    /// Zero or more witness pairs documenting specific input/output bindings of this transform.
+    fn has_witness(&self) -> &[Self::Witness];
 }
 
 /// A transform that preserves metric structure with respect to a specified metric. In UOR, isometry is metric-relative: neg is a ring isometry, bnot is a Hamming isometry. A transform can be an isometry with respect to one metric but not the other. This is what cert:IsometryCertificate certifies.
@@ -101,14 +109,6 @@ pub trait CompositionLaw<P: Primitives> {
 /// A Transform mapping a surface symbol (any schema:Literal) to its ring datum (a schema:Datum) via the content-addressing bijection. Typed, derivation-witnessed, constraint-preserving map from surface to coordinate. Applies identically across NLP tokens, ARC-AGI grid cells, MIDI notes, pixels, sensor readings, and logical propositions.
 /// Disjoint with: ProjectionMap.
 pub trait GroundingMap<P: Primitives>: Transform<P> {
-    /// Associated type for `Literal`.
-    type Literal: crate::kernel::schema::Literal<P>;
-    /// The surface symbol that is the source of this grounding.
-    fn surface_symbol(&self) -> &Self::Literal;
-    /// Associated type for `Address`.
-    type Address: crate::kernel::address::Address<P>;
-    /// The resolved ring address that is the target of this grounding.
-    fn grounded_address(&self) -> &Self::Address;
     /// Associated type for `Derivation`.
     type Derivation: crate::bridge::derivation::Derivation<P>;
     /// The derivation witnessing the content-addressing computation that produced the grounded address from the surface symbol.
@@ -126,16 +126,14 @@ pub trait ProjectionMap<P: Primitives>: Transform<P> {
     type Frame: crate::user::state::Frame<P>;
     /// The active frame — shared with the grounding that produced the query. The shared-frame condition (Surface Symmetry Theorem) requires G and P to reference the same frame.
     fn projection_frame(&self) -> &Self::Frame;
-    /// Associated type for `Partition`.
-    type Partition: crate::bridge::partition::Partition<P>;
-    /// The resolved partition (address neighbourhood) that this map projects back to surface symbols.
-    fn projection_source(&self) -> &Self::Partition;
     /// Associated type for `CompositeConstraint`.
     type CompositeConstraint: crate::user::type_::CompositeConstraint<P>;
     /// Ordering constraint determining the output symbol sequence. Domain-specific: syntactic position (NLP), row-major scan (ARC), temporal sequence (music).
     fn projection_order(&self) -> &Self::CompositeConstraint;
     /// Completeness criterion: does projecting the grounded source address recover a symbol in the same type class as the input? True iff the shared-frame condition holds.
     fn round_trip_coherence(&self) -> P::Boolean;
+    /// When outputClass is a sequence type, the OWL class of individual sequence elements. Uses OWL2 punning.
+    fn output_element_class(&self) -> &P::String;
 }
 
 /// A certificate attesting that a specific grounding round-trip (P∘Π∘G) satisfied the shared-frame condition and landed in the type-equivalent neighbourhood of the source symbol. Witnesses the Surface Symmetry Theorem (op:surfaceSymmetry) for one specific symbol instance.
@@ -152,10 +150,10 @@ pub trait GroundingCertificate<P: Primitives>: crate::bridge::cert::Certificate<
     type Literal: crate::kernel::schema::Literal<P>;
     /// The surface symbol that entered the grounding boundary.
     fn grounding_cert_source_symbol(&self) -> &Self::Literal;
-    /// Associated type for `Address`.
-    type Address: crate::kernel::address::Address<P>;
+    /// Associated type for `Element`.
+    type Element: crate::kernel::address::Element<P>;
     /// The ring address the symbol was grounded to.
-    fn grounding_cert_address(&self) -> &Self::Address;
+    fn grounding_cert_address(&self) -> &Self::Element;
 }
 
 /// A topological delta: records changes in topological invariants (Betti numbers, Euler characteristic, nerve structure) before and after a morphism.
@@ -185,7 +183,7 @@ pub trait ComputationDatum<P: Primitives>: crate::kernel::schema::Datum<P> {
     /// The certificate this computation datum encodes.
     fn referenced_certificate(&self) -> &Self::TransformCertificate;
     /// The content address of the referenced certificate.
-    fn computation_address(&self) -> &Self::Address;
+    fn computation_address(&self) -> &Self::Element;
 }
 
 /// A transform that applies a ComputationDatum to an input datum, producing an output datum. The output inherits the certificate of the ComputationDatum.
@@ -224,6 +222,53 @@ pub trait TransformComposition<P: Primitives>: ComputationDatum<P> {
     fn composition_right(&self) -> &Self::ComputationDatum;
 }
 
+/// Abstract supertype for one specific input/output pair witnessing a Transform.
+pub trait Witness<P: Primitives> {}
+
+/// One specific surface symbol mapped to one specific grounded address by some GroundingMap.
+/// Disjoint with: ProjectionWitness.
+pub trait GroundingWitness<P: Primitives>: Witness<P> {
+    /// Associated type for `SurfaceSymbol`.
+    type SurfaceSymbol: crate::kernel::schema::SurfaceSymbol<P>;
+    /// The surface symbol that is the source of this grounding witness.
+    fn surface_symbol(&self) -> &Self::SurfaceSymbol;
+    /// Associated type for `Element`.
+    type Element: crate::kernel::address::Element<P>;
+    /// The resolved ring address that is the target of this grounding witness.
+    fn grounded_address(&self) -> &Self::Element;
+}
+
+/// One specific input partition mapped to one specific surface symbol sequence by some ProjectionMap.
+/// Disjoint with: GroundingWitness.
+pub trait ProjectionWitness<P: Primitives>: Witness<P> {
+    /// Associated type for `Partition`.
+    type Partition: crate::bridge::partition::Partition<P>;
+    /// The resolved partition (address neighbourhood) that this projection witness projects back to surface symbols.
+    fn projection_source(&self) -> &Self::Partition;
+    /// Associated type for `SymbolSequence`.
+    type SymbolSequence: SymbolSequence<P>;
+    /// The single SymbolSequence produced by this projection witness.
+    fn projection_output(&self) -> &Self::SymbolSequence;
+}
+
+/// An ordered sequence of surface symbols. Elements are reified as SequenceElement individuals with explicit position indices.
+pub trait SymbolSequence<P: Primitives> {
+    /// Associated type for `SequenceElement`.
+    type SequenceElement: SequenceElement<P>;
+    /// Membership of a SymbolSequence. The sequence is reconstructed by sorting elements by elementIndex.
+    fn has_element(&self) -> &[Self::SequenceElement];
+}
+
+/// One position in a SymbolSequence: a reified (value, index) pair.
+pub trait SequenceElement<P: Primitives> {
+    /// Associated type for `SurfaceSymbol`.
+    type SurfaceSymbol: crate::kernel::schema::SurfaceSymbol<P>;
+    /// The surface symbol value of this sequence element.
+    fn element_value(&self) -> &Self::SurfaceSymbol;
+    /// The zero-based position of this element in the sequence.
+    fn element_index(&self) -> P::NonNegativeInteger;
+}
+
 /// The critical composition law: neg ∘ bnot = succ. This is the operational form of the critical identity theorem. The composition of the two involutions (neg, bnot) yields the successor operation. Non-associative and non-commutative.
 pub mod critical_composition {
     /// `isAssociative`
@@ -237,4 +282,58 @@ pub mod critical_composition {
     ];
     /// `lawResult` -> `succ`
     pub const LAW_RESULT: &str = "https://uor.foundation/op/succ";
+}
+
+/// Grounds integer surface symbols to ring addresses.
+pub mod integer_grounding_map {
+    /// `inputClass` -> `Literal`
+    pub const INPUT_CLASS: &str = "https://uor.foundation/schema/Literal";
+    /// `outputClass` -> `Element`
+    pub const OUTPUT_CLASS: &str = "https://uor.foundation/u/Element";
+}
+
+/// Grounds UTF-8 host strings to ring addresses.
+pub mod utf8_grounding_map {
+    /// `inputClass` -> `HostStringLiteral`
+    pub const INPUT_CLASS: &str = "https://uor.foundation/schema/HostStringLiteral";
+    /// `outputClass` -> `Element`
+    pub const OUTPUT_CLASS: &str = "https://uor.foundation/u/Element";
+}
+
+/// Grounds JSON host strings to ring addresses.
+pub mod json_grounding_map {
+    /// `inputClass` -> `HostStringLiteral`
+    pub const INPUT_CLASS: &str = "https://uor.foundation/schema/HostStringLiteral";
+    /// `outputClass` -> `Element`
+    pub const OUTPUT_CLASS: &str = "https://uor.foundation/u/Element";
+}
+
+/// Projects partitions to integer symbol sequences.
+pub mod integer_projection_map {
+    /// `inputClass` -> `Partition`
+    pub const INPUT_CLASS: &str = "https://uor.foundation/partition/Partition";
+    /// `outputClass` -> `SymbolSequence`
+    pub const OUTPUT_CLASS: &str = "https://uor.foundation/morphism/SymbolSequence";
+    /// `outputElementClass` -> `Literal`
+    pub const OUTPUT_ELEMENT_CLASS: &str = "https://uor.foundation/schema/Literal";
+}
+
+/// Projects partitions to UTF-8 symbol sequences.
+pub mod utf8_projection_map {
+    /// `inputClass` -> `Partition`
+    pub const INPUT_CLASS: &str = "https://uor.foundation/partition/Partition";
+    /// `outputClass` -> `SymbolSequence`
+    pub const OUTPUT_CLASS: &str = "https://uor.foundation/morphism/SymbolSequence";
+    /// `outputElementClass` -> `HostStringLiteral`
+    pub const OUTPUT_ELEMENT_CLASS: &str = "https://uor.foundation/schema/HostStringLiteral";
+}
+
+/// Projects partitions to JSON symbol sequences.
+pub mod json_projection_map {
+    /// `inputClass` -> `Partition`
+    pub const INPUT_CLASS: &str = "https://uor.foundation/partition/Partition";
+    /// `outputClass` -> `SymbolSequence`
+    pub const OUTPUT_CLASS: &str = "https://uor.foundation/morphism/SymbolSequence";
+    /// `outputElementClass` -> `HostStringLiteral`
+    pub const OUTPUT_ELEMENT_CLASS: &str = "https://uor.foundation/schema/HostStringLiteral";
 }

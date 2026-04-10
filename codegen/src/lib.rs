@@ -219,8 +219,8 @@ fn generate_lib_rs(ontology: &Ontology) -> String {
          //!\n\
          //! **Layer 1 — Opaque Witnesses.** [`enforcement::Datum`],\n\
          //! [`enforcement::Validated`], [`enforcement::Derivation`],\n\
-         //! [`enforcement::FiberBudget`]: sealed types with private fields that\n\
-         //! prove a value passed through the cascade evaluator or the two-phase\n\
+         //! [`enforcement::FreeRank`]: sealed types with private fields that\n\
+         //! prove a value passed through the reduction evaluator or the two-phase\n\
          //! minting boundary. Prism code consumes these but cannot fabricate them.\n\
          //!\n\
          //! **Layer 2 — Declarative Builders.** [`enforcement::CompileUnitBuilder`]\n\
@@ -259,7 +259,7 @@ fn generate_lib_rs(ontology: &Ontology) -> String {
          //! 2. Use the [`enforcement`] builders to declare your types, effects,\n\
          //!    and boundaries.\n\
          //! 3. Use the [`uor!`] macro for term-language expressions.\n\
-         //! 4. The cascade evaluator validates and evaluates your declarations,\n\
+         //! 4. The reduction evaluator validates and evaluates your declarations,\n\
          //!    producing [`enforcement::Datum`] and [`enforcement::Derivation`]\n\
          //!    witnesses.",
         ontology.version,
@@ -371,9 +371,9 @@ impl Primitives for MyImpl {{
 Then implement any foundation trait with your chosen primitives:
 
 ```rust,ignore
-use uor_foundation::bridge::partition::FiberBudget;
+use uor_foundation::bridge::partition::FreeRank;
 
-impl FiberBudget<MyImpl> for MyFiberBudget {{
+impl FreeRank<MyImpl> for MyFreeRank {{
     // ...
 }}
 ```
@@ -382,7 +382,7 @@ impl FiberBudget<MyImpl> for MyFiberBudget {{
 
 | Module | Space | Description |
 |--------|-------|-------------|
-{module_rows}| `enums` | — | Controlled vocabulary enums (QuantumLevel, PrimitiveOp, etc.) |
+{module_rows}| `enums` | — | Controlled vocabulary enums (WittLevel, PrimitiveOp, etc.) |
 | `enforcement` | — | Opaque witnesses, declarative builders, Term AST |
 
 ## Features
@@ -402,4 +402,34 @@ Apache-2.0 — see [LICENSE](https://github.com/UOR-Foundation/UOR-Framework/blo
         inds = ontology.individual_count(),
         module_rows = rows,
     )
+}
+
+#[cfg(test)]
+#[allow(clippy::panic)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn generation_produces_correct_trait_count() {
+        let ontology = uor_ontology::Ontology::full();
+        let tmp = std::env::temp_dir().join("uor_codegen_test");
+        let _ = std::fs::create_dir_all(&tmp);
+        match generate(ontology, &tmp) {
+            Ok(report) => {
+                assert_eq!(
+                    report.trait_count,
+                    uor_ontology::counts::CLASSES,
+                    "Trait count should match CLASSES"
+                );
+                assert!(
+                    report.method_count >= uor_ontology::counts::METHODS,
+                    "Method count ({}) should be >= METHODS ({})",
+                    report.method_count,
+                    uor_ontology::counts::METHODS
+                );
+            }
+            Err(e) => panic!("Code generation failed: {e}"),
+        }
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
 }

@@ -323,4 +323,17 @@ mod tests {
             assert!(!node["@id"].is_null(), "Node at index {i} is missing @id");
         }
     }
+
+    #[test]
+    fn contains_amendment_95_terms() {
+        let ontology = Ontology::full();
+        let json = to_json_ld(ontology);
+        let text = json.to_string();
+        assert!(text.contains("SurfaceSymbol"), "Missing SurfaceSymbol");
+        assert!(text.contains("always"), "Missing predicate:always");
+        assert!(
+            text.contains("IntegerGroundingMap"),
+            "Missing IntegerGroundingMap"
+        );
+    }
 }

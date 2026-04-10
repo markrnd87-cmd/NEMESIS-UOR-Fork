@@ -8,8 +8,8 @@
 //! ```rust,ignore
 //! use uor_foundation::uor;
 //!
-//! // Type declaration
-//! let pixel = uor! { type Pixel { residue: 255; } };
+//! // Type declaration (named-argument constraint syntax)
+//! let pixel = uor! { type Pixel { ResidueConstraint(modulus: 256, residue: 255); } };
 //!
 //! // Term expression
 //! let sum = uor! { add(mul(3, 5), 7) };
@@ -40,10 +40,10 @@ use proc_macro::TokenStream;
 /// in the `uor_foundation::enforcement` module. The macro handles:
 ///
 /// - **Term expressions**: `add(mul(3, 5), 7)` — operation applications
-/// - **Type declarations**: `type Pixel { residue: 255; }` — constrained types
+/// - **Type declarations**: `type Pixel { ResidueConstraint(modulus: 256, residue: 255); }` — constrained types
 /// - **Bindings**: `let x : Pixel = add(0, 0);` — named term bindings
 /// - **Assertions**: `assert lhs = rhs;` — ground assertions checked at compile time
-/// - **Effect declarations**: `effect Name { target: {0,1}; delta: 0; commutes: true; }`
+/// - **Effect declarations**: `effect Name { target: {0,1}; delta: 0; commutes: true; }` — generic props
 /// - **Boundary declarations**: `source name : Type via grounding;`
 /// - **Quantum literals**: `42@Q7` — level-annotated integers
 /// - **Lift/Project**: `lift(x, Q3)`, `project(y, Q0)` — level transitions
@@ -65,9 +65,9 @@ use proc_macro::TokenStream;
 /// // Type declarations define constrained types.
 /// let pixel = uor! {
 ///     type Pixel {
-///         residue: 255;
-///         hamming: 8;
-///         depth: 1;
+///         ResidueConstraint(modulus: 256, residue: 255);
+///         HammingConstraint(hammingBound: 8);
+///         DepthConstraint(minDepth: 0, maxDepth: 1);
 ///     }
 /// };
 ///

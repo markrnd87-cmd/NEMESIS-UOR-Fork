@@ -11,6 +11,7 @@ pub fn serialize(node: &ParsedNode) -> String {
             Some(l) => format!("{value}@{l}"),
             None => format!("{value}"),
         },
+        ParsedNode::StringLiteral(s) => format!("\"{s}\""),
         ParsedNode::Variable(name) => name.clone(),
         ParsedNode::Application { op, args } => {
             let arg_strs: Vec<String> = args.iter().map(serialize).collect();
@@ -22,10 +23,23 @@ pub fn serialize(node: &ParsedNode) -> String {
         ParsedNode::Project { operand, target } => {
             format!("project({}, {})", serialize(operand), target)
         }
-        ParsedNode::TypeDecl { name, constraints } => {
-            let mut s = format!("type {name} {{");
-            for (kind, expr) in constraints {
-                s.push_str(&format!(" {kind}: {};", serialize(expr)));
+        ParsedNode::TypeDecl {
+            name,
+            type_params,
+            constraints,
+        } => {
+            let params = if type_params.is_empty() {
+                String::new()
+            } else {
+                format!("({})", type_params.join(", "))
+            };
+            let mut s = format!("type {name}{params} {{");
+            for (kind, args) in constraints {
+                let arg_strs: Vec<String> = args
+                    .iter()
+                    .map(|(n, e)| format!("{n}: {}", serialize(e)))
+                    .collect();
+                s.push_str(&format!(" {kind}({});", arg_strs.join(", ")));
             }
             s.push_str(" }");
             s
@@ -40,17 +54,13 @@ pub fn serialize(node: &ParsedNode) -> String {
         ParsedNode::Assertion { lhs, rhs } => {
             format!("assert {} = {};", serialize(lhs), serialize(rhs))
         }
-        ParsedNode::EffectDecl {
-            name,
-            target,
-            delta,
-            commutes,
-        } => {
-            let targets: Vec<String> = target.iter().map(|t| format!("{t}")).collect();
-            format!(
-                "effect {name} {{ target: {{{}}}; delta: {delta}; commutes: {commutes}; }}",
-                targets.join(", ")
-            )
+        ParsedNode::EffectDecl { name, props } => {
+            let mut s = format!("effect {name} {{");
+            for (prop_name, value) in props {
+                s.push_str(&format!(" {prop_name}: {};", serialize(value)));
+            }
+            s.push_str(" }");
+            s
         }
         ParsedNode::SourceDecl {
             name,
@@ -79,19 +89,27 @@ pub fn serialize(node: &ParsedNode) -> String {
             s.push_str(" }");
             s
         }
+        ParsedNode::TryExpr { body, recover_arms } => {
+            let mut s = format!("try {} {{", serialize(body));
+            for (kind, expr) in recover_arms {
+                s.push_str(&format!(" recover {kind} => {};", serialize(expr)));
+            }
+            s.push_str(" }");
+            s
+        }
         ParsedNode::Recurse {
             name,
             param,
             measure,
-            base_pred,
-            base_expr,
+            base_arms,
             step_expr,
         } => {
-            format!(
-                "recurse {name}({param}) measure {measure} base {base_pred} => {} step => {}",
-                serialize(base_expr),
-                serialize(step_expr)
-            )
+            let mut s = format!("recurse {name}({param}) measure {measure}");
+            for (pred, expr) in base_arms {
+                s.push_str(&format!(" base {pred} => {}", serialize(expr)));
+            }
+            s.push_str(&format!(" step => {}", serialize(step_expr)));
+            s
         }
         ParsedNode::Unfold {
             name,

@@ -8,27 +8,27 @@
 pub const NAMESPACES: usize = 33;
 
 /// Total OWL classes across all namespaces.
-pub const CLASSES: usize = 430;
+pub const CLASSES: usize = 441;
 
 /// Total properties including the global `uor:space` annotation.
-pub const PROPERTIES: usize = 881;
+pub const PROPERTIES: usize = 892;
 
 /// Namespace-level properties only (excludes global annotation).
-pub const NAMESPACE_PROPERTIES: usize = 880;
+pub const NAMESPACE_PROPERTIES: usize = 891;
 
 /// Total named individuals across all namespaces.
 /// Includes 1870 AST term individuals (LiteralExpression / ForAllDeclaration)
 /// generated from identity lhs/rhs/forAll string values.
-pub const INDIVIDUALS: usize = 3336;
+pub const INDIVIDUALS: usize = 3356;
 
 /// Number of SHACL test instance graphs.
-pub const SHACL_TESTS: usize = 268;
+pub const SHACL_TESTS: usize = 276;
 
 /// Total conformance checks in the full suite.
-pub const CONFORMANCE_CHECKS: usize = 447;
+pub const CONFORMANCE_CHECKS: usize = 461;
 
 /// Number of amendments applied to the base ontology.
-pub const AMENDMENTS: usize = 94;
+pub const AMENDMENTS: usize = 95;
 
 /// Number of classes that become Rust enums/structs (not traits).
 pub const ENUM_CLASSES: usize = 18;
@@ -47,10 +47,10 @@ pub const USER_NAMESPACES: usize = 3;
 
 /// Number of trait methods generated (properties with domains,
 /// excluding enum-class-domain and cross-namespace-domain properties).
-pub const METHODS: usize = 844;
+pub const METHODS: usize = 856;
 
 /// Number of individual constant modules generated.
-pub const CONSTANT_MODULES: usize = 1481;
+pub const CONSTANT_MODULES: usize = 1501;
 
 /// Number of concept pages on the website (one per content/concepts/*.md file).
 pub const CONCEPT_PAGES: usize = 27;

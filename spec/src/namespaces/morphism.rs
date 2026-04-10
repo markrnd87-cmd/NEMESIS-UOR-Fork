@@ -206,6 +206,48 @@ fn classes() -> Vec<Class> {
             subclass_of: &["https://uor.foundation/morphism/ComputationDatum"],
             disjoint_with: &[],
         },
+        // Amendment 95: Boundary map registry (Workstream 4)
+        Class {
+            id: "https://uor.foundation/morphism/Witness",
+            label: "Witness",
+            comment: "Abstract supertype for one specific input/output pair \
+                      witnessing a Transform.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/morphism/GroundingWitness",
+            label: "GroundingWitness",
+            comment: "One specific surface symbol mapped to one specific \
+                      grounded address by some GroundingMap.",
+            subclass_of: &["https://uor.foundation/morphism/Witness"],
+            disjoint_with: &["https://uor.foundation/morphism/ProjectionWitness"],
+        },
+        Class {
+            id: "https://uor.foundation/morphism/ProjectionWitness",
+            label: "ProjectionWitness",
+            comment: "One specific input partition mapped to one specific \
+                      surface symbol sequence by some ProjectionMap.",
+            subclass_of: &["https://uor.foundation/morphism/Witness"],
+            disjoint_with: &["https://uor.foundation/morphism/GroundingWitness"],
+        },
+        Class {
+            id: "https://uor.foundation/morphism/SymbolSequence",
+            label: "SymbolSequence",
+            comment: "An ordered sequence of surface symbols. Elements are \
+                      reified as SequenceElement individuals with explicit \
+                      position indices.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
+        Class {
+            id: "https://uor.foundation/morphism/SequenceElement",
+            label: "SequenceElement",
+            comment: "One position in a SymbolSequence: a reified \
+                      (value, index) pair.",
+            subclass_of: &[OWL_THING],
+            disjoint_with: &[],
+        },
     ]
 }
 
@@ -471,24 +513,24 @@ fn properties() -> Vec<Property> {
             functional: true,
             range: "https://uor.foundation/homology/SimplicialComplex",
         },
-        // Amendment 24: GroundingMap properties
+        // Amendment 24 (re-domained in Amendment 95): GroundingWitness properties
         Property {
             id: "https://uor.foundation/morphism/surfaceSymbol",
             label: "surfaceSymbol",
-            comment: "The surface symbol that is the source of this grounding.",
+            comment: "The surface symbol that is the source of this grounding witness.",
             kind: PropertyKind::Object,
             functional: true,
-            domain: Some("https://uor.foundation/morphism/GroundingMap"),
-            range: "https://uor.foundation/schema/Literal",
+            domain: Some("https://uor.foundation/morphism/GroundingWitness"),
+            range: "https://uor.foundation/schema/SurfaceSymbol",
         },
         Property {
             id: "https://uor.foundation/morphism/groundedAddress",
             label: "groundedAddress",
-            comment: "The resolved ring address that is the target of this grounding.",
+            comment: "The resolved ring address that is the target of this grounding witness.",
             kind: PropertyKind::Object,
             functional: true,
-            domain: Some("https://uor.foundation/morphism/GroundingMap"),
-            range: "https://uor.foundation/u/Address",
+            domain: Some("https://uor.foundation/morphism/GroundingWitness"),
+            range: "https://uor.foundation/u/Element",
         },
         Property {
             id: "https://uor.foundation/morphism/groundingDerivation",
@@ -525,11 +567,11 @@ fn properties() -> Vec<Property> {
         Property {
             id: "https://uor.foundation/morphism/projectionSource",
             label: "projectionSource",
-            comment: "The resolved partition (address neighbourhood) that this map projects \
-                      back to surface symbols.",
+            comment: "The resolved partition (address neighbourhood) that this projection \
+                      witness projects back to surface symbols.",
             kind: PropertyKind::Object,
             functional: true,
-            domain: Some("https://uor.foundation/morphism/ProjectionMap"),
+            domain: Some("https://uor.foundation/morphism/ProjectionWitness"),
             range: "https://uor.foundation/partition/Partition",
         },
         Property {
@@ -589,7 +631,7 @@ fn properties() -> Vec<Property> {
             kind: PropertyKind::Object,
             functional: true,
             domain: Some("https://uor.foundation/morphism/GroundingCertificate"),
-            range: "https://uor.foundation/u/Address",
+            range: "https://uor.foundation/u/Element",
         },
         // Amendment 75: Higher-Order Computation properties
         Property {
@@ -608,7 +650,7 @@ fn properties() -> Vec<Property> {
             kind: PropertyKind::Object,
             functional: true,
             domain: Some("https://uor.foundation/morphism/ComputationDatum"),
-            range: "https://uor.foundation/u/Address",
+            range: "https://uor.foundation/u/Element",
         },
         Property {
             id: "https://uor.foundation/morphism/applicationTarget",
@@ -673,39 +715,230 @@ fn properties() -> Vec<Property> {
             domain: Some("https://uor.foundation/morphism/PartialApplication"),
             range: XSD_POSITIVE_INTEGER,
         },
+        // Amendment 95: Boundary map registry properties (Workstream 4)
+        Property {
+            id: "https://uor.foundation/morphism/inputClass",
+            label: "inputClass",
+            comment: "The OWL class of inputs this transform accepts. Uses \
+                      OWL2 punning so the value is a class IRI treated as \
+                      an individual at this position.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/Transform"),
+            range: OWL_CLASS,
+        },
+        Property {
+            id: "https://uor.foundation/morphism/outputClass",
+            label: "outputClass",
+            comment: "The OWL class of outputs this transform produces. Uses \
+                      OWL2 punning.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/Transform"),
+            range: OWL_CLASS,
+        },
+        Property {
+            id: "https://uor.foundation/morphism/outputElementClass",
+            label: "outputElementClass",
+            comment: "When outputClass is a sequence type, the OWL class of \
+                      individual sequence elements. Uses OWL2 punning.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/ProjectionMap"),
+            range: OWL_CLASS,
+        },
+        Property {
+            id: "https://uor.foundation/morphism/hasWitness",
+            label: "hasWitness",
+            comment: "Zero or more witness pairs documenting specific \
+                      input/output bindings of this transform.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/morphism/Transform"),
+            range: "https://uor.foundation/morphism/Witness",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/hasElement",
+            label: "hasElement",
+            comment: "Membership of a SymbolSequence. The sequence is \
+                      reconstructed by sorting elements by elementIndex.",
+            kind: PropertyKind::Object,
+            functional: false,
+            domain: Some("https://uor.foundation/morphism/SymbolSequence"),
+            range: "https://uor.foundation/morphism/SequenceElement",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/elementValue",
+            label: "elementValue",
+            comment: "The surface symbol value of this sequence element.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/SequenceElement"),
+            range: "https://uor.foundation/schema/SurfaceSymbol",
+        },
+        Property {
+            id: "https://uor.foundation/morphism/elementIndex",
+            label: "elementIndex",
+            comment: "The zero-based position of this element in the sequence.",
+            kind: PropertyKind::Datatype,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/SequenceElement"),
+            range: XSD_NON_NEGATIVE_INTEGER,
+        },
+        Property {
+            id: "https://uor.foundation/morphism/projectionOutput",
+            label: "projectionOutput",
+            comment: "The single SymbolSequence produced by this projection \
+                      witness.",
+            kind: PropertyKind::Object,
+            functional: true,
+            domain: Some("https://uor.foundation/morphism/ProjectionWitness"),
+            range: "https://uor.foundation/morphism/SymbolSequence",
+        },
     ]
 }
 
 fn individuals() -> Vec<Individual> {
-    vec![Individual {
-        id: "https://uor.foundation/morphism/criticalComposition",
-        type_: "https://uor.foundation/morphism/CompositionLaw",
-        label: "criticalComposition",
-        comment: "The critical composition law: neg ∘ bnot = succ. This is the \
+    vec![
+        Individual {
+            id: "https://uor.foundation/morphism/criticalComposition",
+            type_: "https://uor.foundation/morphism/CompositionLaw",
+            label: "criticalComposition",
+            comment: "The critical composition law: neg ∘ bnot = succ. This is the \
                       operational form of the critical identity theorem. The \
                       composition of the two involutions (neg, bnot) yields the \
                       successor operation. Non-associative and non-commutative.",
-        properties: &[
-            (
-                "https://uor.foundation/morphism/lawComponents",
-                IndividualValue::IriRef("https://uor.foundation/op/neg"),
-            ),
-            (
-                "https://uor.foundation/morphism/lawComponents",
-                IndividualValue::IriRef("https://uor.foundation/op/bnot"),
-            ),
-            (
-                "https://uor.foundation/morphism/lawResult",
-                IndividualValue::IriRef("https://uor.foundation/op/succ"),
-            ),
-            (
-                "https://uor.foundation/morphism/isAssociative",
-                IndividualValue::Bool(false),
-            ),
-            (
-                "https://uor.foundation/morphism/isCommutative",
-                IndividualValue::Bool(false),
-            ),
-        ],
-    }]
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/lawComponents",
+                    IndividualValue::IriRef("https://uor.foundation/op/neg"),
+                ),
+                (
+                    "https://uor.foundation/morphism/lawComponents",
+                    IndividualValue::IriRef("https://uor.foundation/op/bnot"),
+                ),
+                (
+                    "https://uor.foundation/morphism/lawResult",
+                    IndividualValue::IriRef("https://uor.foundation/op/succ"),
+                ),
+                (
+                    "https://uor.foundation/morphism/isAssociative",
+                    IndividualValue::Bool(false),
+                ),
+                (
+                    "https://uor.foundation/morphism/isCommutative",
+                    IndividualValue::Bool(false),
+                ),
+            ],
+        },
+        // Amendment 95: Boundary map individuals (Workstream 4)
+        Individual {
+            id: "https://uor.foundation/morphism/IntegerGroundingMap",
+            type_: "https://uor.foundation/morphism/GroundingMap",
+            label: "IntegerGroundingMap",
+            comment: "Grounds integer surface symbols to ring addresses.",
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/inputClass",
+                    IndividualValue::IriRef("https://uor.foundation/schema/Literal"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputClass",
+                    IndividualValue::IriRef("https://uor.foundation/u/Element"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/morphism/Utf8GroundingMap",
+            type_: "https://uor.foundation/morphism/GroundingMap",
+            label: "Utf8GroundingMap",
+            comment: "Grounds UTF-8 host strings to ring addresses.",
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/inputClass",
+                    IndividualValue::IriRef("https://uor.foundation/schema/HostStringLiteral"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputClass",
+                    IndividualValue::IriRef("https://uor.foundation/u/Element"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/morphism/JsonGroundingMap",
+            type_: "https://uor.foundation/morphism/GroundingMap",
+            label: "JsonGroundingMap",
+            comment: "Grounds JSON host strings to ring addresses.",
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/inputClass",
+                    IndividualValue::IriRef("https://uor.foundation/schema/HostStringLiteral"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputClass",
+                    IndividualValue::IriRef("https://uor.foundation/u/Element"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/morphism/IntegerProjectionMap",
+            type_: "https://uor.foundation/morphism/ProjectionMap",
+            label: "IntegerProjectionMap",
+            comment: "Projects partitions to integer symbol sequences.",
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/inputClass",
+                    IndividualValue::IriRef("https://uor.foundation/partition/Partition"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputClass",
+                    IndividualValue::IriRef("https://uor.foundation/morphism/SymbolSequence"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputElementClass",
+                    IndividualValue::IriRef("https://uor.foundation/schema/Literal"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/morphism/Utf8ProjectionMap",
+            type_: "https://uor.foundation/morphism/ProjectionMap",
+            label: "Utf8ProjectionMap",
+            comment: "Projects partitions to UTF-8 symbol sequences.",
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/inputClass",
+                    IndividualValue::IriRef("https://uor.foundation/partition/Partition"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputClass",
+                    IndividualValue::IriRef("https://uor.foundation/morphism/SymbolSequence"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputElementClass",
+                    IndividualValue::IriRef("https://uor.foundation/schema/HostStringLiteral"),
+                ),
+            ],
+        },
+        Individual {
+            id: "https://uor.foundation/morphism/JsonProjectionMap",
+            type_: "https://uor.foundation/morphism/ProjectionMap",
+            label: "JsonProjectionMap",
+            comment: "Projects partitions to JSON symbol sequences.",
+            properties: &[
+                (
+                    "https://uor.foundation/morphism/inputClass",
+                    IndividualValue::IriRef("https://uor.foundation/partition/Partition"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputClass",
+                    IndividualValue::IriRef("https://uor.foundation/morphism/SymbolSequence"),
+                ),
+                (
+                    "https://uor.foundation/morphism/outputElementClass",
+                    IndividualValue::IriRef("https://uor.foundation/schema/HostStringLiteral"),
+                ),
+            ],
+        },
+    ]
 }

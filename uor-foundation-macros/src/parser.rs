@@ -36,12 +36,16 @@ pub enum ParsedNode {
         /// Target level name.
         target: String,
     },
+    /// String literal (host value).
+    StringLiteral(String),
     /// Type declaration.
     TypeDecl {
         /// Type name.
         name: String,
-        /// Constraint declarations (kind, expression).
-        constraints: Vec<(String, ParsedNode)>,
+        /// Type parameters (if any).
+        type_params: Vec<String>,
+        /// Constraint declarations: (kind, named_args).
+        constraints: Vec<(String, Vec<(String, ParsedNode)>)>,
     },
     /// Named binding.
     Binding {
@@ -63,12 +67,8 @@ pub enum ParsedNode {
     EffectDecl {
         /// Effect name.
         name: String,
-        /// Target fiber set.
-        target: Vec<u64>,
-        /// Budget delta.
-        delta: i64,
-        /// Commutation flag.
-        commutes: bool,
+        /// Properties: (name, value).
+        props: Vec<(String, ParsedNode)>,
     },
     /// Source declaration.
     SourceDecl {
@@ -97,6 +97,13 @@ pub enum ParsedNode {
         /// Otherwise arm.
         otherwise: Box<ParsedNode>,
     },
+    /// Try expression with recovery arms.
+    TryExpr {
+        /// Body expression.
+        body: Box<ParsedNode>,
+        /// Recovery arms: (failure_kind_name, recovery_expr).
+        recover_arms: Vec<(String, ParsedNode)>,
+    },
     /// Bounded recursion.
     Recurse {
         /// Function name.
@@ -105,10 +112,8 @@ pub enum ParsedNode {
         param: String,
         /// Measure variable name.
         measure: String,
-        /// Base case predicate name.
-        base_pred: String,
-        /// Base case result.
-        base_expr: Box<ParsedNode>,
+        /// Base case arms: (predicate_name, result_expr).
+        base_arms: Vec<(String, ParsedNode)>,
         /// Recursive step expression.
         step_expr: Box<ParsedNode>,
     },
@@ -171,6 +176,7 @@ impl Parser {
                 "source" => self.parse_source_decl(),
                 "sink" => self.parse_sink_decl(),
                 "match" => self.parse_match(),
+                "try" => self.parse_try(),
                 "recurse" => self.parse_recurse(),
                 "unfold" => self.parse_unfold(),
                 _ => self.parse_expr(),
@@ -179,21 +185,54 @@ impl Parser {
         }
     }
 
-    /// Parse a type declaration: `type Name { kind: expr; ... }`
+    /// Parse a type declaration: `type Name [(params)] { Kind(arg: expr, ...); ... }`
     fn parse_type_decl(&mut self) -> Result<ParsedNode, String> {
         self.advance(); // consume "type"
         let name = self.expect_ident()?;
+
+        // Optional type params: (T, U, ...)
+        let mut type_params = Vec::new();
+        if self.peek() == &Token::LParen {
+            self.advance(); // consume '('
+            if self.peek() != &Token::RParen {
+                type_params.push(self.expect_ident()?);
+                while self.peek() == &Token::Comma {
+                    self.advance();
+                    type_params.push(self.expect_ident()?);
+                }
+            }
+            self.expect(&Token::RParen)?;
+        }
+
         self.expect(&Token::LBrace)?;
         let mut constraints = Vec::new();
         while self.peek() != &Token::RBrace {
             let kind = self.expect_ident()?;
-            self.expect(&Token::Colon)?;
-            let expr = self.parse_expr()?;
+            self.expect(&Token::LParen)?;
+            let mut args = Vec::new();
+            if self.peek() != &Token::RParen {
+                let arg_name = self.expect_ident()?;
+                self.expect(&Token::Colon)?;
+                let arg_expr = self.parse_expr()?;
+                args.push((arg_name, arg_expr));
+                while self.peek() == &Token::Comma {
+                    self.advance();
+                    let arg_name = self.expect_ident()?;
+                    self.expect(&Token::Colon)?;
+                    let arg_expr = self.parse_expr()?;
+                    args.push((arg_name, arg_expr));
+                }
+            }
+            self.expect(&Token::RParen)?;
             self.expect(&Token::Semi)?;
-            constraints.push((kind, expr));
+            constraints.push((kind, args));
         }
         self.expect(&Token::RBrace)?;
-        Ok(ParsedNode::TypeDecl { name, constraints })
+        Ok(ParsedNode::TypeDecl {
+            name,
+            type_params,
+            constraints,
+        })
     }
 
     /// Parse a binding: `let name : Type = expr ;`
@@ -225,54 +264,23 @@ impl Parser {
         })
     }
 
-    /// Parse an effect declaration.
+    /// Parse an effect declaration: `effect Name { prop: value; ... }`
     fn parse_effect_decl(&mut self) -> Result<ParsedNode, String> {
         self.advance(); // consume "effect"
         let name = self.expect_ident()?;
         self.expect(&Token::LBrace)?;
 
-        // target: { int, int, ... };
-        let _target_kw = self.expect_ident()?; // "target"
-        self.expect(&Token::Colon)?;
-        self.expect(&Token::LBrace)?;
-        let mut target = Vec::new();
-        while let Token::IntLit(v) = self.peek().clone() {
-            target.push(v);
-            self.advance();
-            if self.peek() == &Token::Comma {
-                self.advance();
-            } else {
-                break;
-            }
+        let mut props = Vec::new();
+        while self.peek() != &Token::RBrace {
+            let prop_name = self.expect_ident()?;
+            self.expect(&Token::Colon)?;
+            let value = self.parse_value()?;
+            self.expect(&Token::Semi)?;
+            props.push((prop_name, value));
         }
         self.expect(&Token::RBrace)?;
-        self.expect(&Token::Semi)?;
 
-        // delta: INT;
-        let _delta_kw = self.expect_ident()?;
-        self.expect(&Token::Colon)?;
-        let delta_val = match self.advance() {
-            Token::IntLit(v) => v as i64,
-            other => return Err(format!("Expected integer for delta, got {other:?}")),
-        };
-        self.expect(&Token::Semi)?;
-
-        // commutes: BOOL;
-        let _commutes_kw = self.expect_ident()?;
-        self.expect(&Token::Colon)?;
-        let commutes = match self.advance() {
-            Token::BoolLit(b) => b,
-            other => return Err(format!("Expected bool for commutes, got {other:?}")),
-        };
-        self.expect(&Token::Semi)?;
-        self.expect(&Token::RBrace)?;
-
-        Ok(ParsedNode::EffectDecl {
-            name,
-            target,
-            delta: delta_val,
-            commutes,
-        })
+        Ok(ParsedNode::EffectDecl { name, props })
     }
 
     /// Parse source declaration: `source name : Type via grounding ;`
@@ -307,7 +315,7 @@ impl Parser {
         })
     }
 
-    /// Parse match expression.
+    /// Parse match expression: `match term { name => expr; ... }`
     fn parse_match(&mut self) -> Result<ParsedNode, String> {
         self.advance(); // consume "match"
         let scrutinee = self.expect_ident()?;
@@ -329,8 +337,13 @@ impl Parser {
             }
         }
         self.expect(&Token::RBrace)?;
-        let otherwise =
-            otherwise.ok_or_else(|| "Match expression missing 'otherwise' arm".to_string())?;
+        // Default otherwise to a zero literal if not provided
+        let otherwise = otherwise.unwrap_or_else(|| {
+            Box::new(ParsedNode::Literal {
+                value: 0,
+                level: None,
+            })
+        });
         Ok(ParsedNode::Match {
             scrutinee,
             arms,
@@ -338,28 +351,61 @@ impl Parser {
         })
     }
 
-    /// Parse bounded recursion.
+    /// Parse try expression: `try term { recover Name => expr; ... }`
+    fn parse_try(&mut self) -> Result<ParsedNode, String> {
+        self.advance(); // consume "try"
+        let body = self.parse_expr()?;
+        self.expect(&Token::LBrace)?;
+        let mut recover_arms = Vec::new();
+        while self.peek() != &Token::RBrace {
+            let _recover_kw = self.expect_ident()?; // "recover"
+            let kind_name = self.expect_ident()?;
+            self.expect(&Token::FatArrow)?;
+            let expr = self.parse_expr()?;
+            self.expect(&Token::Semi)?;
+            recover_arms.push((kind_name, expr));
+        }
+        self.expect(&Token::RBrace)?;
+        Ok(ParsedNode::TryExpr {
+            body: Box::new(body),
+            recover_arms,
+        })
+    }
+
+    /// Parse bounded recursion with multiple base arms.
     fn parse_recurse(&mut self) -> Result<ParsedNode, String> {
         self.advance(); // consume "recurse"
         let name = self.expect_ident()?;
         self.expect(&Token::LParen)?;
-        let param = self.expect_ident()?;
+        let param = self.parse_expr()?;
         self.expect(&Token::RParen)?;
         let _measure_kw = self.expect_ident()?; // "measure"
         let measure = self.expect_ident()?;
-        let _base_kw = self.expect_ident()?; // "base"
-        let base_pred = self.expect_ident()?;
-        self.expect(&Token::FatArrow)?;
-        let base_expr = self.parse_expr()?;
+
+        // Parse one or more base arms
+        let mut base_arms = Vec::new();
+        while matches!(self.peek(), Token::Ident(s) if s == "base") {
+            self.advance(); // consume "base"
+            let pred = self.expect_ident()?;
+            self.expect(&Token::FatArrow)?;
+            let expr = self.parse_expr()?;
+            base_arms.push((pred, expr));
+        }
+        if base_arms.is_empty() {
+            return Err("recurse requires at least one base arm".to_string());
+        }
+
         let _step_kw = self.expect_ident()?; // "step"
         self.expect(&Token::FatArrow)?;
         let step_expr = self.parse_expr()?;
         Ok(ParsedNode::Recurse {
             name,
-            param,
+            param: match param {
+                ParsedNode::Variable(s) => s,
+                _ => return Err("recurse parameter must be an identifier".to_string()),
+            },
             measure,
-            base_pred,
-            base_expr: Box::new(base_expr),
+            base_arms,
             step_expr: Box::new(step_expr),
         })
     }
@@ -379,7 +425,7 @@ impl Parser {
         })
     }
 
-    /// Parse an expression.
+    /// Parse an expression (term).
     fn parse_expr(&mut self) -> Result<ParsedNode, String> {
         match self.peek().clone() {
             Token::IntLit(v) => {
@@ -399,18 +445,28 @@ impl Parser {
                     })
                 }
             }
+            Token::StringLit(ref s) => {
+                let s = s.clone();
+                self.advance();
+                Ok(ParsedNode::StringLiteral(s))
+            }
+            Token::BoolLit(b) => {
+                self.advance();
+                Ok(ParsedNode::StringLiteral(b.to_string()))
+            }
             Token::Ident(ref name) => {
                 let name = name.clone();
-                // Check if this is an operation (followed by '(')
-                if is_operation(&name) || name == "lift" || name == "project" {
-                    self.advance();
-                    if name == "lift" {
-                        return self.parse_lift();
-                    }
-                    if name == "project" {
-                        return self.parse_project();
-                    }
-                    self.expect(&Token::LParen)?;
+                self.advance();
+                // Lift and project are special forms
+                if name == "lift" {
+                    return self.parse_lift();
+                }
+                if name == "project" {
+                    return self.parse_project();
+                }
+                // Any ident followed by '(' is an application
+                if self.peek() == &Token::LParen {
+                    self.advance(); // consume '('
                     let mut args = Vec::new();
                     if self.peek() != &Token::RParen {
                         args.push(self.parse_expr()?);
@@ -422,12 +478,33 @@ impl Parser {
                     self.expect(&Token::RParen)?;
                     Ok(ParsedNode::Application { op: name, args })
                 } else {
-                    self.advance();
                     Ok(ParsedNode::Variable(name))
                 }
             }
+            Token::LBrace => {
+                // Set expression: { term, term, ... }
+                self.advance(); // consume '{'
+                let mut elems = Vec::new();
+                if self.peek() != &Token::RBrace {
+                    elems.push(self.parse_expr()?);
+                    while self.peek() == &Token::Comma {
+                        self.advance();
+                        elems.push(self.parse_expr()?);
+                    }
+                }
+                self.expect(&Token::RBrace)?;
+                Ok(ParsedNode::Application {
+                    op: "__set".to_string(),
+                    args: elems,
+                })
+            }
             other => Err(format!("Unexpected token in expression: {other:?}")),
         }
+    }
+
+    /// Parse a value (term or host literal).
+    fn parse_value(&mut self) -> Result<ParsedNode, String> {
+        self.parse_expr()
     }
 
     /// Parse lift(operand, Level).
@@ -455,14 +532,6 @@ impl Parser {
             target,
         })
     }
-}
-
-/// Check if an identifier is a known operation name.
-fn is_operation(name: &str) -> bool {
-    matches!(
-        name,
-        "neg" | "bnot" | "succ" | "pred" | "add" | "sub" | "mul" | "xor" | "and" | "or"
-    )
 }
 
 /// Parse the input string into a `ParsedNode`.

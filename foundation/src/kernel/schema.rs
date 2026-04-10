@@ -5,24 +5,24 @@
 //! Space: Kernel
 
 use crate::enums::QuantifierKind;
-use crate::enums::QuantumLevel;
+use crate::enums::WittLevel;
 use crate::Primitives;
 
-/// An element of the ring Z/(2^n)Z at a specific quantum level n. The primary semantic value type. Disjoint from Term: datums are values, terms are syntactic expressions that evaluate to datums.
+/// An element of the ring Z/(2^n)Z at a specific Witt level n. The primary semantic value type. Disjoint from Term: datums are values, terms are syntactic expressions that evaluate to datums.
 /// Disjoint with: Term.
 pub trait Datum<P: Primitives> {
     /// The integer value of a datum element. For a Datum in Z/(2^n)Z, this is an integer in \[0, 2^n).
     fn value(&self) -> P::NonNegativeInteger;
-    /// The quantum level n of a datum, where the datum's ring is Z/(2^n)Z. Determines the bit width and modulus of the datum.
-    fn quantum(&self) -> P::PositiveInteger;
+    /// The Witt level n of a datum, where the datum's ring is Z/(2^n)Z. Determines the bit width and modulus of the datum.
+    fn witt_length(&self) -> P::PositiveInteger;
     /// The ring-layer index of a datum, indicating its position in the stratification of Z/(2^n)Z.
     fn stratum(&self) -> P::NonNegativeInteger;
     /// The bit-pattern representation of a datum, encoding its position in the hypercube geometry of Z/(2^n)Z.
     fn spectrum(&self) -> P::NonNegativeInteger;
-    /// Associated type for `Address`.
-    type Address: crate::kernel::address::Address<P>;
-    /// The Braille address associated with this datum, linking the algebraic value to its content-addressable identifier.
-    fn glyph(&self) -> &Self::Address;
+    /// Associated type for `Element`.
+    type Element: crate::kernel::address::Element<P>;
+    /// The content-addressable element associated with this datum, linking the algebraic value to its identifier.
+    fn element(&self) -> &Self::Element;
 }
 
 /// A syntactic expression in the UOR term language. Terms are evaluated to produce Datums. Disjoint from Datum.
@@ -33,7 +33,7 @@ pub trait Term<P: Primitives> {}
 pub trait Triad<P: Primitives> {}
 
 /// A term that directly denotes a datum value. A Literal is a leaf node in the term language — it refers to a concrete Datum via schema:denotes without being a Datum itself.
-pub trait Literal<P: Primitives>: Term<P> {
+pub trait Literal<P: Primitives>: Term<P> + SurfaceSymbol<P> {
     /// Associated type for `Datum`.
     type Datum: Datum<P>;
     /// The datum value that a Literal term denotes. Bridges the Term/Datum disjointness: a Literal refers to a Datum without being one. Evaluation of a Literal produces its denoted Datum.
@@ -52,11 +52,11 @@ pub trait Application<P: Primitives>: Term<P> {
     fn argument(&self) -> &[Self::Term];
 }
 
-/// The ambient ring Z/(2^n)Z at a specific quantum level n. The Ring is the primary data structure of the UOR kernel. Its two generators (negation and complement) produce the dihedral group D_{2^n} that governs the invariance frame.
+/// The ambient ring Z/(2^n)Z at a specific Witt level n. The Ring is the primary data structure of the UOR kernel. Its two generators (negation and complement) produce the dihedral group D_{2^n} that governs the invariance frame.
 pub trait Ring<P: Primitives> {
-    /// The bit width n of the ring Z/(2^n)Z. Distinct from schema:quantum on Datum — ringQuantum is the container's bit width; datum quantum is a membership property.
-    fn ring_quantum(&self) -> P::PositiveInteger;
-    /// The modulus 2^n of the ring. Equals 2 raised to the power of ringQuantum.
+    /// The bit width n of the ring Z/(2^n)Z. Distinct from schema:wittLength on Datum — ringWittLength is the container's bit width; datum wittLength is a membership property.
+    fn ring_witt_length(&self) -> P::PositiveInteger;
+    /// The modulus 2^n of the ring. Equals 2 raised to the power of ringWittLength.
     fn modulus(&self) -> P::PositiveInteger;
     /// Associated type for `Datum`.
     type Datum: Datum<P>;
@@ -68,16 +68,16 @@ pub trait Ring<P: Primitives> {
     fn negation(&self) -> &Self::Involution;
     /// The hypercube reflection involution: bnot(x) = (2^n - 1) ⊕ x. The second generator of the dihedral group D_{2^n}.
     fn complement(&self) -> &Self::Involution;
-    /// The quantum level at which this Ring instance operates. Links a concrete Ring individual to its QuantumLevel.
-    fn at_quantum_level(&self) -> QuantumLevel;
+    /// The Witt level at which this Ring instance operates. Links a concrete Ring individual to its WittLevel.
+    fn at_witt_level(&self) -> WittLevel;
 }
 
-/// The concrete ring Z/(2^16)Z at quantum level 16. Subclass of schema:Ring. Carries 65,536 elements. Q1Ring is the first extension of the default Q0 ring and is the target of Amendment 26's universality proofs.
-pub trait Q1Ring<P: Primitives>: Ring<P> {
+/// The concrete ring Z/(2^16)Z at Witt level 16. Subclass of schema:Ring. Carries 65,536 elements. W16Ring is the first extension of the default Q0 ring and is the target of Amendment 26's universality proofs.
+pub trait W16Ring<P: Primitives>: Ring<P> {
     /// Bit width of the Q1 ring: 16.
-    fn q1bit_width(&self) -> P::PositiveInteger;
+    fn w16bit_width(&self) -> P::PositiveInteger;
     /// Carrier set size of the Q1 ring: 65,536 elements.
-    fn q1capacity(&self) -> P::PositiveInteger;
+    fn w16capacity(&self) -> P::PositiveInteger;
 }
 
 /// Root AST node for parsed EBNF term expressions. Identity lhs/rhs values are instances of TermExpression subtypes. Maps to the `term` production in the EBNF grammar.
@@ -137,74 +137,85 @@ pub trait VariableBinding<P: Primitives> {
     fn variable_name(&self) -> &P::String;
 }
 
+/// An abstract leaf value that a grounding map can accept as surface input. Has no direct instances: every SurfaceSymbol is either a Datum-denoting schema:Literal or an xsd-typed schema:HostValue, and the two cases are disjoint.
+pub trait SurfaceSymbol<P: Primitives> {}
+
+/// An xsd-typed value that denotes a host datatype rather than a ring datum. Used in property-position slots whose range is xsd and as the host-side input of a grounding map.
+/// Disjoint with: Term, Datum.
+pub trait HostValue<P: Primitives>: SurfaceSymbol<P> {}
+
+/// A host string literal carrying an xsd:string value.
+pub trait HostStringLiteral<P: Primitives>: HostValue<P> {
+    /// The string value carried by a HostStringLiteral.
+    fn host_string(&self) -> &P::String;
+}
+
+/// A host boolean literal carrying an xsd:boolean value.
+pub trait HostBooleanLiteral<P: Primitives>: HostValue<P> {
+    /// The boolean value carried by a HostBooleanLiteral.
+    fn host_boolean(&self) -> P::Boolean;
+}
+
 /// Universal quantification (forall).
 pub mod universal {}
 
 /// Existential quantification (exists).
 pub mod existential {}
 
-/// The unique generator of R_n under successor. Value = 1 at every quantum level. Under iterated application of succ, π₁ generates every element of the ring.
+/// The unique generator of R_n under successor. Value = 1 at every Witt level. Under iterated application of succ, π₁ generates every element of the ring.
 pub mod pi1 {
     /// `value`
     pub const VALUE: i64 = 1;
 }
 
-/// The additive identity of the ring. Value = 0 at every quantum level. op:add(x, zero) = x for all x in R_n.
+/// The additive identity of the ring. Value = 0 at every Witt level. op:add(x, zero) = x for all x in R_n.
 pub mod zero {
     /// `value`
     pub const VALUE: i64 = 0;
 }
 
-/// Quantum level 0: 8-bit ring Z/256Z, 256 states. The reference level for all ComputationCertificate proofs in the spec.
-pub mod q0 {
+/// Witt level 0: 8-bit ring Z/256Z, 256 states. The reference level for all ComputationCertificate proofs in the spec.
+pub mod w8 {
     /// `bitsWidth`
     pub const BITS_WIDTH: i64 = 8;
     /// `cycleSize`
     pub const CYCLE_SIZE: i64 = 256;
-    /// `nextLevel` -> `Q1`
-    pub const NEXT_LEVEL: &str = "https://uor.foundation/schema/Q1";
-    /// `quantumIndex`
-    pub const QUANTUM_INDEX: i64 = 0;
+    /// `nextWittLevel` -> `W16`
+    pub const NEXT_WITT_LEVEL: &str = "https://uor.foundation/schema/W16";
 }
 
-/// Quantum level 1: 16-bit ring Z/65536Z, 65,536 states.
-pub mod q1 {
+/// Witt level 1: 16-bit ring Z/65536Z, 65,536 states.
+pub mod w16 {
     /// `bitsWidth`
     pub const BITS_WIDTH: i64 = 16;
     /// `cycleSize`
     pub const CYCLE_SIZE: i64 = 65536;
-    /// `levelSuccessor` -> `Q0`
-    pub const LEVEL_SUCCESSOR: &str = "https://uor.foundation/schema/Q0";
-    /// `nextLevel` -> `Q2`
-    pub const NEXT_LEVEL: &str = "https://uor.foundation/schema/Q2";
-    /// `quantumIndex`
-    pub const QUANTUM_INDEX: i64 = 1;
+    /// `nextWittLevel` -> `W24`
+    pub const NEXT_WITT_LEVEL: &str = "https://uor.foundation/schema/W24";
+    /// `wittLevelPredecessor` -> `W8`
+    pub const WITT_LEVEL_PREDECESSOR: &str = "https://uor.foundation/schema/W8";
 }
 
-/// Quantum level 2: 24-bit ring Z/16777216Z, 16,777,216 states.
-pub mod q2 {
+/// Witt level 2: 24-bit ring Z/16777216Z, 16,777,216 states.
+pub mod w24 {
     /// `bitsWidth`
     pub const BITS_WIDTH: i64 = 24;
     /// `cycleSize`
     pub const CYCLE_SIZE: i64 = 16777216;
-    /// `levelSuccessor` -> `Q1`
-    pub const LEVEL_SUCCESSOR: &str = "https://uor.foundation/schema/Q1";
-    /// `nextLevel` -> `Q3`
-    pub const NEXT_LEVEL: &str = "https://uor.foundation/schema/Q3";
-    /// `quantumIndex`
-    pub const QUANTUM_INDEX: i64 = 2;
+    /// `nextWittLevel` -> `W32`
+    pub const NEXT_WITT_LEVEL: &str = "https://uor.foundation/schema/W32";
+    /// `wittLevelPredecessor` -> `W16`
+    pub const WITT_LEVEL_PREDECESSOR: &str = "https://uor.foundation/schema/W16";
 }
 
-/// Quantum level 3: 32-bit ring Z/4294967296Z, 4,294,967,296 states. The highest named level in the spec. nextLevel is absent — Prism implementations may extend the chain.
-pub mod q3 {
+/// Witt level 3: 32-bit ring Z/4294967296Z, 4,294,967,296 states. The highest named level in the spec. nextWittLevel is absent — Prism implementations may extend the chain.
+pub mod w32 {
     /// `bitsWidth`
     pub const BITS_WIDTH: i64 = 32;
     /// `cycleSize`
     pub const CYCLE_SIZE: i64 = 4294967296;
-    /// `levelSuccessor` -> `Q2`
-    pub const LEVEL_SUCCESSOR: &str = "https://uor.foundation/schema/Q2";
-    /// `quantumIndex`
-    pub const QUANTUM_INDEX: i64 = 3;
+    /// `wittLevelPredecessor` -> `W24`
+    pub const WITT_LEVEL_PREDECESSOR: &str = "https://uor.foundation/schema/W24";
 }
 
 pub mod term_critical_identity_for_all {
@@ -1204,7 +1215,7 @@ pub mod term_cm_2_for_all {
 
 pub mod term_cm_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "min constraints to cover n fibers";
+    pub const LITERAL_VALUE: &str = "min constraints to cover n sites";
 }
 
 pub mod term_cm_3_rhs {
@@ -1214,7 +1225,7 @@ pub mod term_cm_3_rhs {
 
 pub mod term_cm_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "n fibers, constraint set";
+    pub const VARIABLE_NAME: &str = "n sites, constraint set";
 }
 
 pub mod term_cr_1_lhs {
@@ -1294,7 +1305,7 @@ pub mod term_cr_5_for_all {
 
 pub mod term_f_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "pinned fiber";
+    pub const LITERAL_VALUE: &str = "pinned site";
 }
 
 pub mod term_f_1_rhs {
@@ -1304,7 +1315,7 @@ pub mod term_f_1_rhs {
 
 pub mod term_f_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberCoordinate";
+    pub const VARIABLE_NAME: &str = "SiteIndex";
 }
 
 pub mod term_f_2_lhs {
@@ -1319,22 +1330,22 @@ pub mod term_f_2_rhs {
 
 pub mod term_f_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget";
+    pub const VARIABLE_NAME: &str = "FreeRank";
 }
 
 pub mod term_f_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "pinnedCount + freeCount";
+    pub const LITERAL_VALUE: &str = "pinnedCount + freeRank";
 }
 
 pub mod term_f_3_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "totalFibers = n";
+    pub const LITERAL_VALUE: &str = "totalSites = n";
 }
 
 pub mod term_f_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget";
+    pub const VARIABLE_NAME: &str = "FreeRank";
 }
 
 pub mod term_f_4_lhs {
@@ -1344,12 +1355,12 @@ pub mod term_f_4_lhs {
 
 pub mod term_f_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount = 0 ⇔ pinnedCount = n";
+    pub const LITERAL_VALUE: &str = "freeRank = 0 ⇔ pinnedCount = n";
 }
 
 pub mod term_f_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget";
+    pub const VARIABLE_NAME: &str = "FreeRank";
 }
 
 pub mod term_fl_1_lhs {
@@ -1359,12 +1370,12 @@ pub mod term_fl_1_lhs {
 
 pub mod term_fl_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "all fibers free (freeCount = n)";
+    pub const LITERAL_VALUE: &str = "all sites free (freeRank = n)";
 }
 
 pub mod term_fl_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget lattice";
+    pub const VARIABLE_NAME: &str = "FreeRank lattice";
 }
 
 pub mod term_fl_2_lhs {
@@ -1374,12 +1385,12 @@ pub mod term_fl_2_lhs {
 
 pub mod term_fl_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "all fibers pinned (pinnedCount = n)";
+    pub const LITERAL_VALUE: &str = "all sites pinned (pinnedCount = n)";
 }
 
 pub mod term_fl_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget lattice";
+    pub const VARIABLE_NAME: &str = "FreeRank lattice";
 }
 
 pub mod term_fl_3_lhs {
@@ -1394,7 +1405,7 @@ pub mod term_fl_3_rhs {
 
 pub mod term_fl_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget states S₁, S₂";
+    pub const VARIABLE_NAME: &str = "FreeRank states S₁, S₂";
 }
 
 pub mod term_fl_4_lhs {
@@ -1409,7 +1420,7 @@ pub mod term_fl_4_rhs {
 
 pub mod term_fl_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberBudget lattice";
+    pub const VARIABLE_NAME: &str = "FreeRank lattice";
 }
 
 pub mod term_fpm_1_lhs {
@@ -1419,7 +1430,7 @@ pub mod term_fpm_1_lhs {
 
 pub mod term_fpm_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber_0(x) = 1 (x is odd)";
+    pub const LITERAL_VALUE: &str = "site_0(x) = 1 (x is odd)";
 }
 
 pub mod term_fpm_1_for_all {
@@ -1519,7 +1530,7 @@ pub mod term_fpm_7_for_all {
 
 pub mod term_fs_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber_k(x)";
+    pub const LITERAL_VALUE: &str = "site_k(x)";
 }
 
 pub mod term_fs_1_rhs {
@@ -1534,7 +1545,7 @@ pub mod term_fs_1_for_all {
 
 pub mod term_fs_2_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber_0(x)";
+    pub const LITERAL_VALUE: &str = "site_0(x)";
 }
 
 pub mod term_fs_2_rhs {
@@ -1549,7 +1560,7 @@ pub mod term_fs_2_for_all {
 
 pub mod term_fs_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber_k(x) given fibers 0..k−1";
+    pub const LITERAL_VALUE: &str = "site_k(x) given sites 0..k−1";
 }
 
 pub mod term_fs_3_rhs {
@@ -1564,7 +1575,7 @@ pub mod term_fs_3_for_all {
 
 pub mod term_fs_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fibers 0..k together";
+    pub const LITERAL_VALUE: &str = "sites 0..k together";
 }
 
 pub mod term_fs_4_rhs {
@@ -1579,7 +1590,7 @@ pub mod term_fs_4_for_all {
 
 pub mod term_fs_5_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "all n fibers";
+    pub const LITERAL_VALUE: &str = "all n sites";
 }
 
 pub mod term_fs_5_rhs {
@@ -1599,7 +1610,7 @@ pub mod term_fs_6_lhs {
 
 pub mod term_fs_6_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "v_2(x) = min{k : fiber_k(x) = 1}";
+    pub const LITERAL_VALUE: &str = "v_2(x) = min{k : site_k(x) = 1}";
 }
 
 pub mod term_fs_6_for_all {
@@ -1684,7 +1695,7 @@ pub mod term_ir_3_for_all {
 
 pub mod term_ir_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "constraint set spans all fibers";
+    pub const LITERAL_VALUE: &str = "constraint set spans all sites";
 }
 
 pub mod term_ir_4_rhs {
@@ -1899,7 +1910,7 @@ pub mod term_cb_1_lhs {
 
 pub mod term_cb_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "1 fiber per iteration";
+    pub const LITERAL_VALUE: &str = "1 site per iteration";
 }
 
 pub mod term_cb_1_for_all {
@@ -1914,7 +1925,7 @@ pub mod term_cb_2_lhs {
 
 pub mod term_cb_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "n fibers in 1 iteration";
+    pub const LITERAL_VALUE: &str = "n sites in 1 iteration";
 }
 
 pub mod term_cb_2_for_all {
@@ -1929,7 +1940,7 @@ pub mod term_cb_3_lhs {
 
 pub mod term_cb_3_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "⌊log_2(m)⌋ fibers per constraint";
+    pub const LITERAL_VALUE: &str = "⌊log_2(m)⌋ sites per constraint";
 }
 
 pub mod term_cb_3_for_all {
@@ -2194,17 +2205,17 @@ pub mod term_ob_p2_for_all {
 
 pub mod term_ob_p3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "CascadeLength(c₁ ; c₂)";
+    pub const LITERAL_VALUE: &str = "ReductionLength(c₁ ; c₂)";
 }
 
 pub mod term_ob_p3_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "CascadeLength(c₁) + CascadeLength(c₂)";
+    pub const LITERAL_VALUE: &str = "ReductionLength(c₁) + ReductionLength(c₂)";
 }
 
 pub mod term_ob_p3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascades c₁, c₂";
+    pub const VARIABLE_NAME: &str = "reductions c₁, c₂";
 }
 
 pub mod term_ct_1_lhs {
@@ -2994,12 +3005,12 @@ pub mod term_th_1_lhs {
 
 pub mod term_th_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount × ln 2";
+    pub const LITERAL_VALUE: &str = "freeRank × ln 2";
 }
 
 pub mod term_th_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "state ∈ FiberBudget";
+    pub const VARIABLE_NAME: &str = "state ∈ FreeRank";
 }
 
 pub mod term_th_2_lhs {
@@ -3059,7 +3070,7 @@ pub mod term_th_5_rhs {
 
 pub mod term_th_5_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "UOR fiber system";
+    pub const VARIABLE_NAME: &str = "UOR site system";
 }
 
 pub mod term_th_6_lhs {
@@ -3144,7 +3155,7 @@ pub mod term_ar_1_lhs {
 
 pub mod term_ar_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "decreasing freeCount × cost-per-fiber order";
+    pub const LITERAL_VALUE: &str = "decreasing freeRank × cost-per-site order";
 }
 
 pub mod term_ar_1_for_all {
@@ -3289,17 +3300,17 @@ pub mod term_pd_5_for_all {
 
 pub mod term_rc_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "reversible pinning of fiber k";
+    pub const LITERAL_VALUE: &str = "reversible pinning of site k";
 }
 
 pub mod term_rc_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "store prior state in ancilla fiber k'";
+    pub const LITERAL_VALUE: &str = "store prior state in ancilla site k'";
 }
 
 pub mod term_rc_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberCoordinate k";
+    pub const VARIABLE_NAME: &str = "SiteIndex k";
 }
 
 pub mod term_rc_2_lhs {
@@ -3354,7 +3365,7 @@ pub mod term_rc_5_lhs {
 
 pub mod term_rc_5_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "superposed fibers, cost ∝ winning path";
+    pub const LITERAL_VALUE: &str = "superposed sites, cost ∝ winning path";
 }
 
 pub mod term_rc_5_for_all {
@@ -3444,7 +3455,7 @@ pub mod term_dc_6_lhs {
 
 pub mod term_dc_6_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "∂_R f_k(x) where f_k = fiber_k";
+    pub const LITERAL_VALUE: &str = "∂_R f_k(x) where f_k = site_k";
 }
 
 pub mod term_dc_6_for_all {
@@ -3459,7 +3470,7 @@ pub mod term_dc_7_lhs {
 
 pub mod term_dc_7_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "may differ from lower fibers";
+    pub const LITERAL_VALUE: &str = "may differ from lower sites";
 }
 
 pub mod term_dc_7_for_all {
@@ -3504,7 +3515,7 @@ pub mod term_dc_10_lhs {
 
 pub mod term_dc_10_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "argmax J_k over free fibers";
+    pub const LITERAL_VALUE: &str = "argmax J_k over free sites";
 }
 
 pub mod term_dc_10_for_all {
@@ -3709,7 +3720,7 @@ pub mod term_phi_2_for_all {
 
 pub mod term_phi_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "φ₃(closed fiber state)";
+    pub const LITERAL_VALUE: &str = "φ₃(closed site state)";
 }
 
 pub mod term_phi_3_rhs {
@@ -3719,7 +3730,7 @@ pub mod term_phi_3_rhs {
 
 pub mod term_phi_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "closed FiberBudget";
+    pub const VARIABLE_NAME: &str = "closed FreeRank";
 }
 
 pub mod term_phi_4_lhs {
@@ -3890,7 +3901,7 @@ pub mod term_cc_2_for_all {
 
 pub mod term_cc_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fibersClosed(W₁) + fibersClosed(W₂)";
+    pub const LITERAL_VALUE: &str = "sitesClosed(W₁) + sitesClosed(W₂)";
 }
 
 pub mod term_cc_3_rhs {
@@ -3980,12 +3991,12 @@ pub mod term_ql_3_for_all {
 
 pub mod term_ql_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiberBudget(PrimitiveType, n)";
+    pub const LITERAL_VALUE: &str = "siteBudget(PrimitiveType, n)";
 }
 
 pub mod term_ql_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "= n (one fiber per bit)";
+    pub const LITERAL_VALUE: &str = "= n (one site per bit)";
 }
 
 pub mod term_ql_4_for_all {
@@ -4038,77 +4049,77 @@ pub mod term_ql_7_for_all {
     pub const VARIABLE_NAME: &str = "ConstrainedType, n ≥ 1";
 }
 
-pub mod term_sr_1_lhs {
+pub mod term_gr_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(B_{i+1})";
+    pub const LITERAL_VALUE: &str = "freeRank(B_{i+1})";
 }
 
-pub mod term_sr_1_rhs {
+pub mod term_gr_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "≤ freeCount(B_i)";
+    pub const LITERAL_VALUE: &str = "≤ freeRank(B_i)";
 }
 
-pub mod term_sr_1_for_all {
+pub mod term_gr_1_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "i in Session S";
 }
 
-pub mod term_sr_2_lhs {
+pub mod term_gr_2_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "b.datum resolves under b.constraint";
 }
 
-pub mod term_sr_2_rhs {
+pub mod term_gr_2_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "in O(1) iff Binding b is sound";
 }
 
-pub mod term_sr_2_for_all {
+pub mod term_gr_2_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "b: Binding";
 }
 
-pub mod term_sr_3_lhs {
+pub mod term_gr_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "∃ i: freeCount(B_i) = 0";
+    pub const LITERAL_VALUE: &str = "∃ i: freeRank(B_i) = 0";
 }
 
-pub mod term_sr_3_rhs {
+pub mod term_gr_3_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "Session S converges";
 }
 
-pub mod term_sr_3_for_all {
+pub mod term_gr_3_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "Session S";
 }
 
-pub mod term_sr_4_lhs {
+pub mod term_gr_4_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "bindings(C_fresh) ∩ bindings(C_prior)";
 }
 
-pub mod term_sr_4_rhs {
+pub mod term_gr_4_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "= ∅ after SessionBoundary";
 }
 
-pub mod term_sr_4_for_all {
+pub mod term_gr_4_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "C_prior, C_fresh: Context, SessionBoundary event";
 }
 
-pub mod term_sr_5_lhs {
+pub mod term_gr_5_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "ContradictionBoundary";
 }
 
-pub mod term_sr_5_rhs {
+pub mod term_gr_5_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "iff ∃ b, b': same address, different datum, same constraint";
 }
 
-pub mod term_sr_5_for_all {
+pub mod term_gr_5_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "b, b': Binding in same Context";
 }
@@ -4140,7 +4151,7 @@ pub mod term_ts_2_rhs {
 
 pub mod term_ts_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "IT_7d target, n-fiber types";
+    pub const VARIABLE_NAME: &str = "IT_7d target, n-site types";
 }
 
 pub mod term_ts_3_lhs {
@@ -4170,7 +4181,7 @@ pub mod term_ts_4_rhs {
 
 pub mod term_ts_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "target: realisable n-fiber type synthesis goal";
+    pub const VARIABLE_NAME: &str = "target: realisable n-site type synthesis goal";
 }
 
 pub mod term_ts_5_lhs {
@@ -4200,7 +4211,7 @@ pub mod term_ts_6_rhs {
 
 pub mod term_ts_6_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "T: n-fiber type synthesis goal";
+    pub const VARIABLE_NAME: &str = "T: n-site type synthesis goal";
 }
 
 pub mod term_ts_7_lhs {
@@ -4218,94 +4229,94 @@ pub mod term_ts_7_for_all {
     pub const VARIABLE_NAME: &str = "C: non-empty constraint set";
 }
 
-pub mod term_qls_1_lhs {
+pub mod term_wls_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "QuantumLift T' is CompleteType";
+    pub const LITERAL_VALUE: &str = "WittLift T' is CompleteType";
 }
 
-pub mod term_qls_1_rhs {
+pub mod term_wls_1_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "iff spectral sequence collapses at E_2";
 }
 
-pub mod term_qls_1_for_all {
+pub mod term_wls_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "T: CompleteType at Q_n, T': QuantumLift to Q_{n+1}";
+    pub const VARIABLE_NAME: &str = "T: CompleteType at Q_n, T': WittLift to Q_{n+1}";
 }
 
-pub mod term_qls_2_lhs {
+pub mod term_wls_2_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "non-trivial LiftObstruction location";
 }
 
-pub mod term_qls_2_rhs {
+pub mod term_wls_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "specific fiber at bit position n+1";
+    pub const LITERAL_VALUE: &str = "specific site at bit position n+1";
 }
 
-pub mod term_qls_2_for_all {
+pub mod term_wls_2_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "non-trivial LiftObstruction";
 }
 
-pub mod term_qls_3_lhs {
+pub mod term_wls_3_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "basisSize(T') for trivial lift";
 }
 
-pub mod term_qls_3_rhs {
+pub mod term_wls_3_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "basisSize(T) + 1";
 }
 
-pub mod term_qls_3_for_all {
+pub mod term_wls_3_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "T: CompleteType at Q_n with closed constraint set";
 }
 
-pub mod term_qls_4_lhs {
+pub mod term_wls_4_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "spectral sequence convergence page";
 }
 
-pub mod term_qls_4_rhs {
+pub mod term_wls_4_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "≤ E_{d+2}";
 }
 
-pub mod term_qls_4_for_all {
+pub mod term_wls_4_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "depth-d constraint configuration";
 }
 
-pub mod term_qls_5_lhs {
+pub mod term_wls_5_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "universallyValid identity in R_{n+1}";
 }
 
-pub mod term_qls_5_rhs {
+pub mod term_wls_5_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "holds with lifted constraint set";
 }
 
-pub mod term_qls_5_for_all {
+pub mod term_wls_5_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "every op:universallyValid identity, QuantumLift T'";
+    pub const VARIABLE_NAME: &str = "every op:universallyValid identity, WittLift T'";
 }
 
-pub mod term_qls_6_lhs {
+pub mod term_wls_6_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "ψ-pipeline ChainComplex(T')";
 }
 
-pub mod term_qls_6_rhs {
+pub mod term_wls_6_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "valid and restricts to ChainComplex(T) on base nerve";
 }
 
-pub mod term_qls_6_for_all {
+pub mod term_wls_6_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "T': any QuantumLift of a CompleteType T";
+    pub const VARIABLE_NAME: &str = "T': any WittLift of a CompleteType T";
 }
 
 pub mod term_mn_1_lhs {
@@ -4411,17 +4422,17 @@ pub mod term_mn_7_rhs {
 
 pub mod term_mn_7_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "T': any QuantumLift of TwistedType T";
+    pub const VARIABLE_NAME: &str = "T': any WittLift of TwistedType T";
 }
 
 pub mod term_pt_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiberBudget(A × B)";
+    pub const LITERAL_VALUE: &str = "siteBudget(A × B)";
 }
 
 pub mod term_pt_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiberBudget(A) + fiberBudget(B)";
+    pub const LITERAL_VALUE: &str = "siteBudget(A) + siteBudget(B)";
 }
 
 pub mod term_pt_1_for_all {
@@ -4476,12 +4487,12 @@ pub mod term_pt_4_for_all {
 
 pub mod term_st_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiberBudget(A + B)";
+    pub const LITERAL_VALUE: &str = "siteBudget(A + B)";
 }
 
 pub mod term_st_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "max(fiberBudget(A), fiberBudget(B))";
+    pub const LITERAL_VALUE: &str = "max(siteBudget(A), siteBudget(B))";
 }
 
 pub mod term_st_1_for_all {
@@ -4504,109 +4515,109 @@ pub mod term_st_2_for_all {
     pub const VARIABLE_NAME: &str = "A, B: TypeDefinition";
 }
 
-pub mod term_sc_1_lhs {
+pub mod term_gs_1_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "T_ctx(C)";
 }
 
-pub mod term_sc_1_rhs {
+pub mod term_gs_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(C) × ln 2 / n";
+    pub const LITERAL_VALUE: &str = "freeRank(C) × ln 2 / n";
 }
 
-pub mod term_sc_1_for_all {
+pub mod term_gs_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "C: Context, n = fiberBudget";
+    pub const VARIABLE_NAME: &str = "C: Context, n = siteBudget";
 }
 
-pub mod term_sc_2_lhs {
+pub mod term_gs_2_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "σ(C)";
 }
 
-pub mod term_sc_2_rhs {
+pub mod term_gs_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "(n − freeCount(C)) / n";
+    pub const LITERAL_VALUE: &str = "(n − freeRank(C)) / n";
 }
 
-pub mod term_sc_2_for_all {
+pub mod term_gs_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "C: Context, n = fiberBudget";
+    pub const VARIABLE_NAME: &str = "C: Context, n = siteBudget";
 }
 
-pub mod term_sc_3_lhs {
+pub mod term_gs_3_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "σ(B_{i+1})";
 }
 
-pub mod term_sc_3_rhs {
+pub mod term_gs_3_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "≥ σ(B_i)";
 }
 
-pub mod term_sc_3_for_all {
+pub mod term_gs_3_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "i in Session S";
 }
 
-pub mod term_sc_4_lhs {
+pub mod term_gs_4_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "σ(C) = 1";
 }
 
-pub mod term_sc_4_rhs {
+pub mod term_gs_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(C) = 0 ↔ S(C) = 0 ↔ T_ctx(C) = 0";
+    pub const LITERAL_VALUE: &str = "freeRank(C) = 0 ↔ S(C) = 0 ↔ T_ctx(C) = 0";
 }
 
-pub mod term_sc_4_for_all {
+pub mod term_gs_4_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "C: Context";
 }
 
-pub mod term_sc_5_lhs {
+pub mod term_gs_5_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "stepCount(q, C) at freeCount(C) = 0";
+    pub const LITERAL_VALUE: &str = "stepCount(q, C) at freeRank(C) = 0";
 }
 
-pub mod term_sc_5_rhs {
+pub mod term_gs_5_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "0";
 }
 
-pub mod term_sc_5_for_all {
+pub mod term_gs_5_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "q: Query, C: SaturatedContext";
+    pub const VARIABLE_NAME: &str = "q: Query, C: GroundedContext";
 }
 
-pub mod term_sc_6_lhs {
+pub mod term_gs_6_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "effectiveBudget(q, C)";
 }
 
-pub mod term_sc_6_rhs {
+pub mod term_gs_6_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "max(0, fiberBudget(q.type) − |pinnedFibers(C) ∩ q.fiberSet|)";
+    pub const LITERAL_VALUE: &str = "max(0, siteBudget(q.type) − |pinnedSites(C) ∩ q.siteSet|)";
 }
 
-pub mod term_sc_6_for_all {
+pub mod term_gs_6_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "q: Query, C: Context";
 }
 
-pub mod term_sc_7_lhs {
+pub mod term_gs_7_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "Cost_saturation(C)";
 }
 
-pub mod term_sc_7_rhs {
+pub mod term_gs_7_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "n × k_B T × ln 2";
 }
 
-pub mod term_sc_7_for_all {
+pub mod term_gs_7_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "C: SaturatedContext, n = fiberBudget";
+    pub const VARIABLE_NAME: &str = "C: GroundedContext, n = siteBudget";
 }
 
 pub mod term_ms_1_lhs {
@@ -4721,7 +4732,7 @@ pub mod term_gd_3_lhs {
 
 pub mod term_gd_3_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount_initial × k_B T × ln 2";
+    pub const LITERAL_VALUE: &str = "freeRank_initial × k_B T × ln 2";
 }
 
 pub mod term_gd_3_for_all {
@@ -4771,7 +4782,7 @@ pub mod term_qm_1_rhs {
 
 pub mod term_qm_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "ψ: SuperposedFiberState";
+    pub const VARIABLE_NAME: &str = "ψ: SuperposedSiteState";
 }
 
 pub mod term_qm_2_lhs {
@@ -4781,12 +4792,12 @@ pub mod term_qm_2_lhs {
 
 pub mod term_qm_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "apply(ResidueConstraint, collapsed_fiber)";
+    pub const LITERAL_VALUE: &str = "apply(ResidueConstraint, collapsed_site)";
 }
 
 pub mod term_qm_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "ψ: SuperposedFiberState";
+    pub const VARIABLE_NAME: &str = "ψ: SuperposedSiteState";
 }
 
 pub mod term_qm_3_lhs {
@@ -4801,7 +4812,7 @@ pub mod term_qm_3_rhs {
 
 pub mod term_qm_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "ψ: single-fiber SuperposedFiberState";
+    pub const VARIABLE_NAME: &str = "ψ: single-site SuperposedSiteState";
 }
 
 pub mod term_qm_4_lhs {
@@ -4816,7 +4827,7 @@ pub mod term_qm_4_rhs {
 
 pub mod term_qm_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "ψ: SuperposedFiberState";
+    pub const VARIABLE_NAME: &str = "ψ: SuperposedSiteState";
 }
 
 pub mod term_qm_5_lhs {
@@ -4831,7 +4842,7 @@ pub mod term_qm_5_rhs {
 
 pub mod term_qm_5_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SuperposedFiberState ψ";
+    pub const VARIABLE_NAME: &str = "SuperposedSiteState ψ";
 }
 
 pub mod term_rc_6_lhs {
@@ -4846,7 +4857,7 @@ pub mod term_rc_6_rhs {
 
 pub mod term_rc_6_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SuperposedFiberState ψ";
+    pub const VARIABLE_NAME: &str = "SuperposedSiteState ψ";
 }
 
 pub mod term_fpm_8_lhs {
@@ -4896,7 +4907,7 @@ pub mod term_mn_8_for_all {
 
 pub mod term_ql_8_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "levelSuccessor(nextLevel(Q_k))";
+    pub const LITERAL_VALUE: &str = "wittLevelPredecessor(nextWittLevel(Q_k))";
 }
 
 pub mod term_ql_8_rhs {
@@ -4906,7 +4917,7 @@ pub mod term_ql_8_rhs {
 
 pub mod term_ql_8_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "QuantumLevel Q_k with nextLevel defined";
+    pub const VARIABLE_NAME: &str = "WittLevel W_n with nextWittLevel defined";
 }
 
 pub mod term_d_7_lhs {
@@ -4951,7 +4962,7 @@ pub mod term_sp_2_rhs {
 
 pub mod term_sp_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SuperposedFiberState ψ";
+    pub const VARIABLE_NAME: &str = "SuperposedSiteState ψ";
 }
 
 pub mod term_sp_3_lhs {
@@ -4966,12 +4977,12 @@ pub mod term_sp_3_rhs {
 
 pub mod term_sp_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SuperposedFiberState ψ";
+    pub const VARIABLE_NAME: &str = "SuperposedSiteState ψ";
 }
 
 pub mod term_sp_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "P(collapse to fiber k)";
+    pub const LITERAL_VALUE: &str = "P(collapse to site k)";
 }
 
 pub mod term_sp_4_rhs {
@@ -4981,7 +4992,7 @@ pub mod term_sp_4_rhs {
 
 pub mod term_sp_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SuperposedFiberState ψ, fiber index k";
+    pub const VARIABLE_NAME: &str = "SuperposedSiteState ψ, site index k";
 }
 
 pub mod term_pt_2a_lhs {
@@ -5029,114 +5040,114 @@ pub mod term_gd_6_for_all {
     pub const VARIABLE_NAME: &str = "ComputationTrace trace";
 }
 
-pub mod term_qt_1_lhs {
+pub mod term_wt_1_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "LiftChain(Q_j, Q_k) valid";
 }
 
-pub mod term_qt_1_rhs {
+pub mod term_wt_1_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "every chainStep has trivial or resolved LiftObstruction";
 }
 
-pub mod term_qt_1_for_all {
+pub mod term_wt_1_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain from Q_j to Q_k";
 }
 
-pub mod term_qt_2_lhs {
+pub mod term_wt_2_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "obstructionCount(chain)";
 }
 
-pub mod term_qt_2_rhs {
+pub mod term_wt_2_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "<= chainLength(chain)";
 }
 
-pub mod term_qt_2_for_all {
+pub mod term_wt_2_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain";
 }
 
-pub mod term_qt_3_lhs {
+pub mod term_wt_3_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "resolvedBasisSize(Q_k)";
 }
 
-pub mod term_qt_3_rhs {
+pub mod term_wt_3_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "basisSize(Q_j) + chainLength + obstructionResolutionCost";
 }
 
-pub mod term_qt_3_for_all {
+pub mod term_wt_3_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain with source Q_j, target Q_k";
 }
 
-pub mod term_qt_4_lhs {
+pub mod term_wt_4_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "isFlat(chain)";
 }
 
-pub mod term_qt_4_rhs {
+pub mod term_wt_4_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "obstructionCount = 0 iff HolonomyGroup trivial at every step";
 }
 
-pub mod term_qt_4_for_all {
+pub mod term_wt_4_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain";
 }
 
-pub mod term_qt_5_lhs {
+pub mod term_wt_5_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "LiftChainCertificate exists";
 }
 
-pub mod term_qt_5_rhs {
+pub mod term_wt_5_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "CompleteType at Q_k satisfies IT_7d with witness chain";
 }
 
-pub mod term_qt_5_for_all {
+pub mod term_wt_5_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "Q_k for arbitrary k";
 }
 
-pub mod term_qt_6_lhs {
+pub mod term_wt_6_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "QT_3 with chainLength=1, cost=0";
 }
 
-pub mod term_qt_6_rhs {
+pub mod term_wt_6_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "reduces to QLS_3";
 }
 
-pub mod term_qt_6_for_all {
+pub mod term_wt_6_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "Single-step chains";
 }
 
-pub mod term_qt_7_lhs {
+pub mod term_wt_7_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "flat chain resolvedBasisSize(Q_k)";
 }
 
-pub mod term_qt_7_rhs {
+pub mod term_wt_7_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "basisSize(Q_j) + (k - j)";
 }
 
-pub mod term_qt_7_for_all {
+pub mod term_wt_7_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain with isFlat = true";
 }
 
 pub mod term_cc_pins_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "pinsFibers(CarryConstraint(p))";
+    pub const LITERAL_VALUE: &str = "pinsSites(CarryConstraint(p))";
 }
 
 pub mod term_cc_pins_rhs {
@@ -5149,17 +5160,17 @@ pub mod term_cc_pins_for_all {
     pub const VARIABLE_NAME: &str = "bit-pattern p in CarryConstraint";
 }
 
-pub mod term_cc_cost_fiber_lhs {
+pub mod term_cc_cost_site_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "|pinsFibers(CarryConstraint(p))|";
+    pub const LITERAL_VALUE: &str = "|pinsSites(CarryConstraint(p))|";
 }
 
-pub mod term_cc_cost_fiber_rhs {
+pub mod term_cc_cost_site_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "popcount(p) + 1";
 }
 
-pub mod term_cc_cost_fiber_for_all {
+pub mod term_cc_cost_site_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "bit-pattern p in CarryConstraint";
 }
@@ -5186,7 +5197,7 @@ pub mod term_jsat_cr_lhs {
 
 pub mod term_jsat_cr_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "pin-fiber intersection residue-class compatible";
+    pub const LITERAL_VALUE: &str = "pin-site intersection residue-class compatible";
 }
 
 pub mod term_jsat_cr_for_all {
@@ -5266,7 +5277,7 @@ pub mod term_exp_2_rhs {
 
 pub mod term_exp_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "QuantumLevel Q_n, n >= 1";
+    pub const VARIABLE_NAME: &str = "WittLevel W_n, n >= 1";
 }
 
 pub mod term_exp_3_lhs {
@@ -5341,7 +5352,7 @@ pub mod term_ts_8_rhs {
 
 pub mod term_ts_8_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "first Betti number k >= 1, n-fiber type";
+    pub const VARIABLE_NAME: &str = "first Betti number k >= 1, n-site type";
 }
 
 pub mod term_ts_9_lhs {
@@ -5356,7 +5367,7 @@ pub mod term_ts_9_rhs {
 
 pub mod term_ts_9_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "QuantumLevel Q_n, any target signature";
+    pub const VARIABLE_NAME: &str = "WittLevel W_n, any target signature";
 }
 
 pub mod term_ts_10_lhs {
@@ -5374,32 +5385,32 @@ pub mod term_ts_10_for_all {
     pub const VARIABLE_NAME: &str = "topological signature sigma at Q_n";
 }
 
-pub mod term_qt_8_lhs {
+pub mod term_wt_8_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "ObstructionChain length from Q_j to Q_k";
 }
 
-pub mod term_qt_8_rhs {
+pub mod term_wt_8_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "<= (k-j) * C(basisSize(Q_j), 3)";
 }
 
-pub mod term_qt_8_for_all {
+pub mod term_wt_8_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain from Q_j to Q_k";
 }
 
-pub mod term_qt_9_lhs {
+pub mod term_wt_9_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "TowerCompletenessResolver terminates";
 }
 
-pub mod term_qt_9_rhs {
+pub mod term_wt_9_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "within QT_8 bound";
 }
 
-pub mod term_qt_9_for_all {
+pub mod term_wt_9_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "LiftChain of finite length";
 }
@@ -5416,17 +5427,17 @@ pub mod term_coeff_1_rhs {
 
 pub mod term_coeff_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "ConstraintNerve N(C) at any quantum level";
+    pub const VARIABLE_NAME: &str = "CechNerve N(C) at any quantum level";
 }
 
 pub mod term_go_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "pinsFibers(killing constraint for obstruction c)";
+    pub const LITERAL_VALUE: &str = "pinsSites(killing constraint for obstruction c)";
 }
 
 pub mod term_go_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "superset of pinsFibers(C_i) cap pinsFibers(C_j)";
+    pub const LITERAL_VALUE: &str = "superset of pinsSites(C_i) cap pinsSites(C_j)";
 }
 
 pub mod term_go_1_for_all {
@@ -5434,39 +5445,39 @@ pub mod term_go_1_for_all {
     pub const VARIABLE_NAME: &str = "GluingObstruction c, cycle pair (C_i, C_j)";
 }
 
-pub mod term_sr_6_lhs {
+pub mod term_gr_6_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(q) after saturation";
+    pub const LITERAL_VALUE: &str = "freeRank(q) after grounding";
 }
 
-pub mod term_sr_6_rhs {
+pub mod term_gr_6_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fibers of q not in BindingAccumulator";
+    pub const LITERAL_VALUE: &str = "sites of q not in BindingAccumulator";
 }
 
-pub mod term_sr_6_for_all {
+pub mod term_gr_6_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "saturated Session, new RelationQuery q";
+    pub const VARIABLE_NAME: &str = "grounded Session, new RelationQuery q";
 }
 
-pub mod term_sr_7_lhs {
+pub mod term_gr_7_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "sigma after re-entry with query q";
 }
 
-pub mod term_sr_7_rhs {
+pub mod term_gr_7_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "min(sigma, 1 - freeCount(q)/n)";
+    pub const LITERAL_VALUE: &str = "min(sigma, 1 - freeRank(q)/n)";
 }
 
-pub mod term_sr_7_for_all {
+pub mod term_gr_7_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "SessionResolver, new query q";
 }
 
 pub mod term_qm_6_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "amplitude index set of SuperposedFiberState over T";
+    pub const LITERAL_VALUE: &str = "amplitude index set of SuperposedSiteState over T";
 }
 
 pub mod term_qm_6_rhs {
@@ -5476,7 +5487,7 @@ pub mod term_qm_6_rhs {
 
 pub mod term_qm_6_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SuperposedFiberState over ConstrainedType T at Q_n";
+    pub const VARIABLE_NAME: &str = "SuperposedSiteState over ConstrainedType T at Q_n";
 }
 
 pub mod term_cic_1_lhs {
@@ -5526,17 +5537,17 @@ pub mod term_cic_3_for_all {
 
 pub mod term_cic_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "σ(C) = 1 ∧ freeCount = 0";
+    pub const LITERAL_VALUE: &str = "σ(C) = 1 ∧ freeRank = 0";
 }
 
 pub mod term_cic_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "∃ c: SaturationCertificate. certifies(c, C)";
+    pub const LITERAL_VALUE: &str = "∃ c: GroundingCertificate. certifies(c, C)";
 }
 
 pub mod term_cic_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "SaturatedContext C";
+    pub const VARIABLE_NAME: &str = "GroundedContext C";
 }
 
 pub mod term_cic_5_lhs {
@@ -5599,93 +5610,93 @@ pub mod term_gc_1_for_all {
     pub const VARIABLE_NAME: &str = "GroundingMap with valid ProjectionMap";
 }
 
-pub mod term_sr_8_lhs {
+pub mod term_gr_8_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "compose(S_A, S_B) valid at Q_k";
 }
 
-pub mod term_sr_8_rhs {
+pub mod term_gr_8_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str =
-        "∀ j ≤ k: ∀ a ∈ pinnedFibers(S_A, Q_j) ∩ pinnedFibers(S_B, Q_j): datum(S_A, a, Q_j) = datum(S_B, a, Q_j)";
+        "∀ j ≤ k: ∀ a ∈ pinnedSites(S_A, Q_j) ∩ pinnedSites(S_B, Q_j): datum(S_A, a, Q_j) = datum(S_B, a, Q_j)";
 }
 
-pub mod term_sr_8_for_all {
+pub mod term_gr_8_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "S_A, S_B: Session at quantum level Q_k (k ≥ 0)";
 }
 
-pub mod term_sr_9_lhs {
+pub mod term_gr_9_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "leasedFibers(L_A) ∩ leasedFibers(L_B)";
+    pub const LITERAL_VALUE: &str = "leasedSites(L_A) ∩ leasedSites(L_B)";
 }
 
-pub mod term_sr_9_rhs {
+pub mod term_gr_9_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "= ∅";
 }
 
-pub mod term_sr_9_for_all {
+pub mod term_gr_9_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "L_A, L_B: ContextLease on SharedContext C, L_A ≠ L_B";
 }
 
-pub mod term_sr_10_lhs {
+pub mod term_gr_10_lhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "finalState(R, P_1, Q)";
 }
 
-pub mod term_sr_10_rhs {
+pub mod term_gr_10_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str = "= finalState(R, P_2, Q) for any P_1, P_2: ExecutionPolicy";
 }
 
-pub mod term_sr_10_for_all {
+pub mod term_gr_10_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str = "SessionResolver R with ExecutionPolicy P, pending query set Q";
 }
 
 pub mod term_mc_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "Σᵢ freeCount(leasedFibers(L_i))";
+    pub const LITERAL_VALUE: &str = "Σᵢ freeRank(leasedSites(L_i))";
 }
 
 pub mod term_mc_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "= freeCount(C)";
+    pub const LITERAL_VALUE: &str = "= freeRank(C)";
 }
 
 pub mod term_mc_1_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str =
-        "SharedContext C; leaseSet {L_1, …, L_k} covering all fibers of C";
+        "SharedContext C; leaseSet {L_1, …, L_k} covering all sites of C";
 }
 
 pub mod term_mc_2_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(B_{i+1} |_L)";
+    pub const LITERAL_VALUE: &str = "freeRank(B_{i+1} |_L)";
 }
 
 pub mod term_mc_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "≤ freeCount(B_i |_L)";
+    pub const LITERAL_VALUE: &str = "≤ freeRank(B_i |_L)";
 }
 
 pub mod term_mc_2_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str =
-        "ContextLease L held by Session S; binding step i within S restricted to leasedFibers(L)";
+        "ContextLease L held by Session S; binding step i within S restricted to leasedSites(L)";
 }
 
 pub mod term_mc_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(compose(S_A, S_B))";
+    pub const LITERAL_VALUE: &str = "freeRank(compose(S_A, S_B))";
 }
 
 pub mod term_mc_3_rhs {
     /// `literalValue`
     pub const LITERAL_VALUE: &str =
-        "freeCount(S_A) + freeCount(S_B) − |pinnedFibers(S_A) ∩ pinnedFibers(S_B)|";
+        "freeRank(S_A) + freeRank(S_B) − |pinnedSites(S_A) ∩ pinnedSites(S_B)|";
 }
 
 pub mod term_mc_3_for_all {
@@ -5695,12 +5706,12 @@ pub mod term_mc_3_for_all {
 
 pub mod term_mc_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(compose(S_A, S_B))";
+    pub const LITERAL_VALUE: &str = "freeRank(compose(S_A, S_B))";
 }
 
 pub mod term_mc_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "= freeCount(S_A) + freeCount(S_B)";
+    pub const LITERAL_VALUE: &str = "= freeRank(S_A) + freeRank(S_B)";
 }
 
 pub mod term_mc_4_for_all {
@@ -5732,13 +5743,13 @@ pub mod term_mc_6_lhs {
 
 pub mod term_mc_6_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "= 1 (FullSaturation)";
+    pub const LITERAL_VALUE: &str = "= 1 (FullGrounding)";
 }
 
 pub mod term_mc_6_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str =
-        "SharedContext C; leases {L_1, …, L_k} pairwise disjoint (SR_9) and fully covering C; each S_i with freeCount = 0 within L_i";
+        "SharedContext C; leases {L_1, …, L_k} pairwise disjoint (SR_9) and fully covering C; each S_i with freeRank = 0 within L_i";
 }
 
 pub mod term_mc_7_lhs {
@@ -5770,7 +5781,7 @@ pub mod term_mc_8_rhs {
 pub mod term_mc_8_for_all {
     /// `variableName`
     pub const VARIABLE_NAME: &str =
-        "SharedContext C with totalFibers = n; uniform partition into k leases";
+        "SharedContext C with totalSites = n; uniform partition into k leases";
 }
 
 pub mod term_wc_1_lhs {
@@ -6375,7 +6386,7 @@ pub mod term_md_8_for_all {
 
 pub mod term_md_9_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber(ModuliTowerMap, T) dimension";
+    pub const LITERAL_VALUE: &str = "site(ModuliTowerMap, T) dimension";
 }
 
 pub mod term_md_9_rhs {
@@ -6390,7 +6401,7 @@ pub mod term_md_9_for_all {
 
 pub mod term_md_10_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber(ModuliTowerMap, T)";
+    pub const LITERAL_VALUE: &str = "site(ModuliTowerMap, T)";
 }
 
 pub mod term_md_10_rhs {
@@ -6540,12 +6551,12 @@ pub mod term_cy_5_for_all {
 
 pub mod term_cy_6_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "min d_Δ fiber ordering";
+    pub const LITERAL_VALUE: &str = "min d_Δ site ordering";
 }
 
 pub mod term_cy_6_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "high-significance fibers → most informative observables";
+    pub const LITERAL_VALUE: &str = "high-significance sites → most informative observables";
 }
 
 pub mod term_cy_6_for_all {
@@ -6575,12 +6586,12 @@ pub mod term_bm_1_lhs {
 
 pub mod term_bm_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "(n − freeCount(C)) / n";
+    pub const LITERAL_VALUE: &str = "(n − freeRank(C)) / n";
 }
 
 pub mod term_bm_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "Context C with n fibers";
+    pub const VARIABLE_NAME: &str = "Context C with n sites";
 }
 
 pub mod term_bm_2_lhs {
@@ -6615,7 +6626,7 @@ pub mod term_bm_3_for_all {
 
 pub mod term_bm_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "J_k (pinned fiber k)";
+    pub const LITERAL_VALUE: &str = "J_k (pinned site k)";
 }
 
 pub mod term_bm_4_rhs {
@@ -6625,7 +6636,7 @@ pub mod term_bm_4_rhs {
 
 pub mod term_bm_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "pinned fiber k";
+    pub const VARIABLE_NAME: &str = "pinned site k";
 }
 
 pub mod term_bm_5_lhs {
@@ -6710,7 +6721,7 @@ pub mod term_gl_4_lhs {
 
 pub mod term_gl_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiber(T₂) ⊆ fiber(T₁)";
+    pub const LITERAL_VALUE: &str = "site(T₂) ⊆ site(T₁)";
 }
 
 pub mod term_gl_4_for_all {
@@ -6825,12 +6836,12 @@ pub mod term_sd_3_for_all {
 
 pub mod term_sd_4_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fibers(Tuple(f₁,...,fₖ))";
+    pub const LITERAL_VALUE: &str = "sites(Tuple(f₁,...,fₖ))";
 }
 
 pub mod term_sd_4_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "Σᵢ fibers(fᵢ)";
+    pub const LITERAL_VALUE: &str = "Σᵢ sites(fᵢ)";
 }
 
 pub mod term_sd_4_for_all {
@@ -6940,7 +6951,7 @@ pub mod term_pi_1_rhs {
 
 pub mod term_pi_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "symbol s, SaturatedContext C";
+    pub const VARIABLE_NAME: &str = "symbol s, GroundedContext C";
 }
 
 pub mod term_pi_2_lhs {
@@ -7020,12 +7031,12 @@ pub mod term_pa_1_for_all {
 
 pub mod term_pa_2_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fibers(α(b,C))";
+    pub const LITERAL_VALUE: &str = "sites(α(b,C))";
 }
 
 pub mod term_pa_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fibers(C) ∪ {b.fiber}";
+    pub const LITERAL_VALUE: &str = "sites(C) ∪ {b.site}";
 }
 
 pub mod term_pa_2_for_all {
@@ -7120,7 +7131,7 @@ pub mod term_pl_3_rhs {
 
 pub mod term_pl_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "fiber f in shared context S";
+    pub const VARIABLE_NAME: &str = "site f in shared context S";
 }
 
 pub mod term_pk_1_lhs {
@@ -7180,7 +7191,7 @@ pub mod term_pe_1_rhs {
 
 pub mod term_pe_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade ψ";
+    pub const VARIABLE_NAME: &str = "reduction ψ";
 }
 
 pub mod term_pe_2_lhs {
@@ -7270,7 +7281,7 @@ pub mod term_pe_7_rhs {
 
 pub mod term_pe_7_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade ψ";
+    pub const VARIABLE_NAME: &str = "reduction ψ";
 }
 
 pub mod term_pm_1_lhs {
@@ -7455,17 +7466,17 @@ pub mod term_ea_1_for_all {
 
 pub mod term_ea_2_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "saturated(epoch(n))";
+    pub const LITERAL_VALUE: &str = "grounded(epoch(n))";
 }
 
 pub mod term_ea_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "saturated(epoch(n+1))";
+    pub const LITERAL_VALUE: &str = "grounded(epoch(n+1))";
 }
 
 pub mod term_ea_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "saturated fibers across epoch boundary";
+    pub const VARIABLE_NAME: &str = "grounded sites across epoch boundary";
 }
 
 pub mod term_ea_3_lhs {
@@ -7600,7 +7611,7 @@ pub mod term_cs_1_rhs {
 
 pub mod term_cs_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade stage k";
+    pub const VARIABLE_NAME: &str = "reduction step k";
 }
 
 pub mod term_cs_2_lhs {
@@ -7615,7 +7626,7 @@ pub mod term_cs_2_rhs {
 
 pub mod term_cs_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade pipeline";
+    pub const VARIABLE_NAME: &str = "reduction pipeline";
 }
 
 pub mod term_cs_3_lhs {
@@ -7630,7 +7641,7 @@ pub mod term_cs_3_rhs {
 
 pub mod term_cs_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade rollback operation";
+    pub const VARIABLE_NAME: &str = "reduction rollback operation";
 }
 
 pub mod term_cs_4_lhs {
@@ -7650,7 +7661,7 @@ pub mod term_cs_4_for_all {
 
 pub mod term_cs_5_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "cost(cascade)";
+    pub const LITERAL_VALUE: &str = "cost(reduction)";
 }
 
 pub mod term_cs_5_rhs {
@@ -7660,13 +7671,12 @@ pub mod term_cs_5_rhs {
 
 pub mod term_cs_5_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade with n stages";
+    pub const VARIABLE_NAME: &str = "reduction with n stages";
 }
 
 pub mod term_cs_6_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str =
-        "thermodynamicBudget(U) < bitsWidth(unitQuantumLevel(U)) × ln 2";
+    pub const LITERAL_VALUE: &str = "thermodynamicBudget(U) < bitsWidth(unitWittLevel(U)) × ln 2";
 }
 
 pub mod term_cs_6_rhs {
@@ -7706,7 +7716,7 @@ pub mod term_fa_1_rhs {
 
 pub mod term_fa_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "query q in cascade";
+    pub const VARIABLE_NAME: &str = "query q in reduction";
 }
 
 pub mod term_fa_2_lhs {
@@ -7901,7 +7911,7 @@ pub mod term_tj_3_rhs {
 
 pub mod term_tj_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade transaction";
+    pub const VARIABLE_NAME: &str = "reduction transaction";
 }
 
 pub mod term_ap_1_lhs {
@@ -7961,7 +7971,7 @@ pub mod term_ec_1_rhs {
 
 pub mod term_ec_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "cascade phase angle Ω = e^{iπ/6}";
+    pub const VARIABLE_NAME: &str = "reduction phase angle Ω = e^{iπ/6}";
 }
 
 pub mod term_ec_2_lhs {
@@ -7976,7 +7986,7 @@ pub mod term_ec_2_rhs {
 
 pub mod term_ec_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "complex z in cascade";
+    pub const VARIABLE_NAME: &str = "complex z in reduction";
 }
 
 pub mod term_ec_3_lhs {
@@ -8031,7 +8041,7 @@ pub mod term_ec_4b_lhs {
 
 pub mod term_ec_4b_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "<= |three_way_fibers|";
+    pub const LITERAL_VALUE: &str = "<= |three_way_sites|";
 }
 
 pub mod term_ec_4b_for_all {
@@ -8046,12 +8056,12 @@ pub mod term_ec_4c_lhs {
 
 pub mod term_ec_4c_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "associative(resolved_fiber_space)";
+    pub const LITERAL_VALUE: &str = "associative(resolved_site_space)";
 }
 
 pub mod term_ec_4c_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "resolved fiber space";
+    pub const VARIABLE_NAME: &str = "resolved site space";
 }
 
 pub mod term_ec_5_lhs {
@@ -8206,7 +8216,7 @@ pub mod term_in_2_for_all {
 
 pub mod term_in_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "shared_fibers(A,B) ≠ ∅";
+    pub const LITERAL_VALUE: &str = "shared_sites(A,B) ≠ ∅";
 }
 
 pub mod term_in_3_rhs {
@@ -8216,7 +8226,7 @@ pub mod term_in_3_rhs {
 
 pub mod term_in_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "entity pairs with shared fibers";
+    pub const VARIABLE_NAME: &str = "entity pairs with shared sites";
 }
 
 pub mod term_in_4_lhs {
@@ -8446,12 +8456,12 @@ pub mod term_mo_5_for_all {
 
 pub mod term_op_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "fiberCount(F(G))";
+    pub const LITERAL_VALUE: &str = "siteCount(F(G))";
 }
 
 pub mod term_op_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "F.fibers + Σ_i G_i.fibers";
+    pub const LITERAL_VALUE: &str = "F.sites + Σ_i G_i.sites";
 }
 
 pub mod term_op_1_for_all {
@@ -8521,12 +8531,12 @@ pub mod term_op_5_for_all {
 
 pub mod term_fx_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(postContext(e))";
+    pub const LITERAL_VALUE: &str = "freeRank(postContext(e))";
 }
 
 pub mod term_fx_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(preContext(e)) − 1";
+    pub const LITERAL_VALUE: &str = "freeRank(preContext(e)) − 1";
 }
 
 pub mod term_fx_1_for_all {
@@ -8536,12 +8546,12 @@ pub mod term_fx_1_for_all {
 
 pub mod term_fx_2_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(postContext(e))";
+    pub const LITERAL_VALUE: &str = "freeRank(postContext(e))";
 }
 
 pub mod term_fx_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(preContext(e)) + 1";
+    pub const LITERAL_VALUE: &str = "freeRank(preContext(e)) + 1";
 }
 
 pub mod term_fx_2_for_all {
@@ -8551,12 +8561,12 @@ pub mod term_fx_2_for_all {
 
 pub mod term_fx_3_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(postContext(e))";
+    pub const LITERAL_VALUE: &str = "freeRank(postContext(e))";
 }
 
 pub mod term_fx_3_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCount(preContext(e))";
+    pub const LITERAL_VALUE: &str = "freeRank(preContext(e))";
 }
 
 pub mod term_fx_3_for_all {
@@ -8581,12 +8591,12 @@ pub mod term_fx_4_for_all {
 
 pub mod term_fx_5_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCountDelta(E₁ ; E₂)";
+    pub const LITERAL_VALUE: &str = "freeRankDelta(E₁ ; E₂)";
 }
 
 pub mod term_fx_5_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCountDelta(E₁) + freeCountDelta(E₂)";
+    pub const LITERAL_VALUE: &str = "freeRankDelta(E₁) + freeRankDelta(E₂)";
 }
 
 pub mod term_fx_5_for_all {
@@ -8611,12 +8621,12 @@ pub mod term_fx_6_for_all {
 
 pub mod term_fx_7_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCountDelta(e)";
+    pub const LITERAL_VALUE: &str = "freeRankDelta(e)";
 }
 
 pub mod term_fx_7_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "declared freeCountDelta in EffectShape";
+    pub const LITERAL_VALUE: &str = "declared freeRankDelta in EffectShape";
 }
 
 pub mod term_fx_7_for_all {
@@ -8697,7 +8707,7 @@ pub mod term_pr_5_rhs {
 
 pub mod term_pr_5_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "GuardedTransition g at cascade stage k";
+    pub const VARIABLE_NAME: &str = "GuardedTransition g at reduction step k";
 }
 
 pub mod term_cg_1_lhs {
@@ -8712,7 +8722,7 @@ pub mod term_cg_1_rhs {
 
 pub mod term_cg_1_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "CascadeStage s with entryGuard g";
+    pub const VARIABLE_NAME: &str = "ReductionStep s with entryGuard g";
 }
 
 pub mod term_cg_2_lhs {
@@ -8727,7 +8737,7 @@ pub mod term_cg_2_rhs {
 
 pub mod term_cg_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "CascadeStage s with exitGuard g and stageEffect e";
+    pub const VARIABLE_NAME: &str = "ReductionStep s with exitGuard g and stageEffect e";
 }
 
 pub mod term_dis_1_lhs {
@@ -8777,12 +8787,12 @@ pub mod term_par_1_for_all {
 
 pub mod term_par_2_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCountDelta(A ∥ B)";
+    pub const LITERAL_VALUE: &str = "freeRankDelta(A ∥ B)";
 }
 
 pub mod term_par_2_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "freeCountDelta(A) + freeCountDelta(B)";
+    pub const LITERAL_VALUE: &str = "freeRankDelta(A) + freeRankDelta(B)";
 }
 
 pub mod term_par_2_for_all {
@@ -8802,7 +8812,7 @@ pub mod term_par_3_rhs {
 
 pub mod term_par_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "FiberPartitioning P over n fibers";
+    pub const VARIABLE_NAME: &str = "SitePartitioning P over n sites";
 }
 
 pub mod term_par_4_lhs {
@@ -8897,7 +8907,7 @@ pub mod term_ho_4_for_all {
 
 pub mod term_str_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "cascade(e_k) converges to π";
+    pub const LITERAL_VALUE: &str = "reduction(e_k) converges to π";
 }
 
 pub mod term_str_1_rhs {
@@ -9077,7 +9087,7 @@ pub mod term_flr_6_for_all {
 
 pub mod term_ln_1_lhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "Σ targetCount(fiber_i)";
+    pub const LITERAL_VALUE: &str = "Σ targetCount(site_i)";
 }
 
 pub mod term_ln_1_rhs {
@@ -9102,7 +9112,7 @@ pub mod term_ln_2_rhs {
 
 pub mod term_ln_2_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "LinearEffect e on fiber f";
+    pub const VARIABLE_NAME: &str = "LinearEffect e on site f";
 }
 
 pub mod term_ln_3_lhs {
@@ -9117,7 +9127,7 @@ pub mod term_ln_3_rhs {
 
 pub mod term_ln_3_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "LinearEffect e on fiber f, any subsequent effect e′";
+    pub const VARIABLE_NAME: &str = "LinearEffect e on site f, any subsequent effect e′";
 }
 
 pub mod term_ln_4_lhs {
@@ -9337,7 +9347,7 @@ pub mod term_rg_1_lhs {
 
 pub mod term_rg_1_rhs {
     /// `literalValue`
-    pub const LITERAL_VALUE: &str = "computable from N(C(T)) and stage k fiber targets";
+    pub const LITERAL_VALUE: &str = "computable from N(C(T)) and stage k site targets";
 }
 
 pub mod term_rg_1_for_all {
@@ -9387,7 +9397,7 @@ pub mod term_rg_4_rhs {
 
 pub mod term_rg_4_for_all {
     /// `variableName`
-    pub const VARIABLE_NAME: &str = "Cascade stage k with WorkingSet W_k";
+    pub const VARIABLE_NAME: &str = "Reduction step k with WorkingSet W_k";
 }
 
 pub mod term_io_1_lhs {

@@ -2,7 +2,7 @@
 
 //! UOR Foundation — typed Rust traits for the complete ontology.
 //!
-//! Version: 0.1.4
+//! Version: 0.2.0
 //!
 //! This crate exports every ontology class as a trait, every property as a
 //! method, and every named individual as a constant. Implementations (like
@@ -39,8 +39,8 @@
 //!
 //! **Layer 1 — Opaque Witnesses.** [`enforcement::Datum`],
 //! [`enforcement::Validated`], [`enforcement::Derivation`],
-//! [`enforcement::FiberBudget`]: sealed types with private fields that
-//! prove a value passed through the cascade evaluator or the two-phase
+//! [`enforcement::FreeRank`]: sealed types with private fields that
+//! prove a value passed through the reduction evaluator or the two-phase
 //! minting boundary. Prism code consumes these but cannot fabricate them.
 //!
 //! **Layer 2 — Declarative Builders.** [`enforcement::CompileUnitBuilder`]
@@ -79,7 +79,7 @@
 //! 2. Use the [`enforcement`] builders to declare your types, effects,
 //!    and boundaries.
 //! 3. Use the [`uor!`] macro for term-language expressions.
-//! 4. The cascade evaluator validates and evaluates your declarations,
+//! 4. The reduction evaluator validates and evaluates your declarations,
 //!    producing [`enforcement::Datum`] and [`enforcement::Derivation`]
 //!    witnesses.
 

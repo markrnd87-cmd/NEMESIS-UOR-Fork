@@ -14,9 +14,9 @@ Documentation follows the [Diataxis framework](https://diataxis.fr/), organized 
 ## Completeness
 
 Every ontology term must be documented:
-- All 430 classes must appear in at least one documentation page.
-- All 881 properties must appear in at least one documentation page.
-- All 3336 named individuals must appear in at least one documentation page.
+- All 441 classes must appear in at least one documentation page.
+- All 892 properties must appear in at least one documentation page.
+- All 3356 named individuals must appear in at least one documentation page.
 
 ## Accuracy
 

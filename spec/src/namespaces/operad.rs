@@ -21,7 +21,7 @@ pub fn module() -> NamespaceModule {
             comment: "Structural type nesting via operad composition. Governs \
                       how types compose: Table(Tuple(Sequence(Symbol(...)))).",
             space: Space::Kernel,
-            imports: &[NS_TYPE, NS_CARRY],
+            imports: &[NS_TYPE, NS_CARRY, NS_MORPHISM],
         },
         classes: classes(),
         properties: properties(),
@@ -90,9 +90,9 @@ fn properties() -> Vec<Property> {
             range: "https://uor.foundation/type/TypeDefinition",
         },
         Property {
-            id: "https://uor.foundation/operad/composedFiberCount",
-            label: "composedFiberCount",
-            comment: "Fiber count of the composed type F(G).",
+            id: "https://uor.foundation/operad/composedSiteCount",
+            label: "composedSiteCount",
+            comment: "Site count of the composed type F(G).",
             kind: PropertyKind::Datatype,
             functional: true,
             domain: Some("https://uor.foundation/operad/OperadComposition"),
@@ -105,7 +105,7 @@ fn properties() -> Vec<Property> {
             kind: PropertyKind::Object,
             functional: true,
             domain: Some("https://uor.foundation/operad/OperadComposition"),
-            range: "https://uor.foundation/schema/TermExpression",
+            range: "https://uor.foundation/morphism/GroundingMap",
         },
     ]
 }

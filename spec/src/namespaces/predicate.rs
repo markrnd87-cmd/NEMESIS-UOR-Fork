@@ -1,16 +1,18 @@
 //! `predicate/` namespace — Predicates and dispatch.
 //!
 //! The `predicate/` namespace formalizes boolean-valued functions on kernel
-//! objects: resolver dispatch, cascade guard evaluation, and conditional
+//! objects: resolver dispatch, reduction guard evaluation, and conditional
 //! resolution paths. Every predicate is total (evaluation terminates for
 //! all inputs) and pure (no side effects).
 //!
-//! - **Amendment 72**: 9 classes, 15 properties, 0 individuals (identities in op/)
+//! - **Amendment 95**: 9 classes, 15 properties, 12 individuals (predicate registry)
 //!
 //! **Space classification:** `kernel` — immutable algebra.
 
 use crate::model::iris::*;
-use crate::model::{Class, Namespace, NamespaceModule, Property, PropertyKind, Space};
+use crate::model::{
+    Class, Individual, IndividualValue, Namespace, NamespaceModule, Property, PropertyKind, Space,
+};
 
 /// Returns the `predicate/` namespace module.
 #[must_use]
@@ -21,14 +23,14 @@ pub fn module() -> NamespaceModule {
             iri: NS_PREDICATE,
             label: "UOR Predicates and Dispatch",
             comment: "Boolean-valued functions on kernel objects. Formalizes \
-                      resolver dispatch, cascade guard evaluation, and \
+                      resolver dispatch, reduction guard evaluation, and \
                       conditional resolution paths.",
             space: Space::Kernel,
-            imports: &[NS_OP, NS_SCHEMA, NS_TYPE, NS_STATE, NS_EFFECT],
+            imports: &[NS_OP, NS_SCHEMA, NS_TYPE, NS_STATE, NS_EFFECT, NS_PARTITION],
         },
         classes: classes(),
         properties: properties(),
-        individuals: vec![],
+        individuals: individuals(),
     }
 }
 
@@ -55,15 +57,15 @@ fn classes() -> Vec<Class> {
             id: "https://uor.foundation/predicate/StatePredicate",
             label: "StatePredicate",
             comment: "A predicate over state:Context or \
-                      cascade:CascadeState. Used for cascade stage guards.",
+                      reduction:ReductionState. Used for reduction step guards.",
             subclass_of: &["https://uor.foundation/predicate/Predicate"],
             disjoint_with: &[],
         },
         Class {
-            id: "https://uor.foundation/predicate/FiberPredicate",
-            label: "FiberPredicate",
-            comment: "A predicate over partition:FiberCoordinate. Used for \
-                      fiber-level selection in geodesic resolution.",
+            id: "https://uor.foundation/predicate/SitePredicate",
+            label: "SitePredicate",
+            comment: "A predicate over partition:SiteIndex. Used for \
+                      site-level selection in geodesic resolution.",
             subclass_of: &["https://uor.foundation/predicate/Predicate"],
             disjoint_with: &[],
         },
@@ -88,9 +90,9 @@ fn classes() -> Vec<Class> {
             id: "https://uor.foundation/predicate/GuardedTransition",
             label: "GuardedTransition",
             comment: "A triple (StatePredicate, effect:Effect, \
-                      cascade:CascadeStage). The guard is a StatePredicate; \
-                      if true, the effect is applied and the cascade advances \
-                      to the target stage.",
+                      reduction:ReductionStep). The guard is a StatePredicate; \
+                      if true, the effect is applied and the reduction advances \
+                      to the target step.",
             subclass_of: &[OWL_THING],
             disjoint_with: &[],
         },
@@ -175,13 +177,13 @@ fn properties() -> Vec<Property> {
         Property {
             id: "https://uor.foundation/predicate/guardTarget",
             label: "guardTarget",
-            comment: "The cascade stage to advance to.",
+            comment: "The reduction step to advance to.",
             kind: PropertyKind::Object,
             functional: true,
             domain: Some("https://uor.foundation/predicate/GuardedTransition"),
-            // Full IRI string: predicate/ cannot import cascade/
-            // because cascade/ will import predicate/ in Phase 3
-            range: "https://uor.foundation/cascade/CascadeStage",
+            // Full IRI string: predicate/ cannot import reduction/
+            // because reduction/ will import predicate/ in Phase 3
+            range: "https://uor.foundation/reduction/ReductionStep",
         },
         Property {
             id: "https://uor.foundation/predicate/matchArms",
@@ -260,6 +262,134 @@ fn properties() -> Vec<Property> {
             functional: true,
             domain: Some("https://uor.foundation/predicate/MatchArm"),
             range: XSD_NON_NEGATIVE_INTEGER,
+        },
+    ]
+}
+
+const EVALUATES_OVER: &str = "https://uor.foundation/predicate/evaluatesOver";
+
+/// Amendment 95: Predicate registry individuals (Workstream 1).
+fn individuals() -> Vec<Individual> {
+    vec![
+        Individual {
+            id: "https://uor.foundation/predicate/always",
+            type_: "https://uor.foundation/predicate/Predicate",
+            label: "always",
+            comment: "True on every Datum. Match-arm default catch-all.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/never",
+            type_: "https://uor.foundation/predicate/Predicate",
+            label: "never",
+            comment: "False on every Datum. Disabled-arm marker.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isZero",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isZero",
+            comment: "True iff the Datum is the additive identity of its ring.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isUnit",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isUnit",
+            comment: "True iff the Datum is the multiplicative identity.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isOdd",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isOdd",
+            comment: "True iff the Datum parity bit is 1.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isEven",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isEven",
+            comment: "True iff the Datum parity bit is 0.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/isInvolution",
+            type_: "https://uor.foundation/predicate/TypePredicate",
+            label: "isInvolution",
+            comment: "True iff op(op(x)) = x for the bound op.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/schema/Datum"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/sitePinned",
+            type_: "https://uor.foundation/predicate/SitePredicate",
+            label: "sitePinned",
+            comment: "True iff the named site coordinate is currently pinned.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/partition/SiteIndex"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/siteFree",
+            type_: "https://uor.foundation/predicate/SitePredicate",
+            label: "siteFree",
+            comment: "True iff the named site coordinate is currently free.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/partition/SiteIndex"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/contradictionReached",
+            type_: "https://uor.foundation/predicate/StatePredicate",
+            label: "contradictionReached",
+            comment: "True iff the resolver has entered a ContradictionBoundary.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/state/ContradictionBoundary"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/budgetExhausted",
+            type_: "https://uor.foundation/predicate/StatePredicate",
+            label: "budgetExhausted",
+            comment: "True iff the FreeRank deficit is zero.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/partition/FreeRank"),
+            )],
+        },
+        Individual {
+            id: "https://uor.foundation/predicate/reductionConverged",
+            type_: "https://uor.foundation/predicate/StatePredicate",
+            label: "reductionConverged",
+            comment: "True iff the reduction fixpoint has been reached.",
+            properties: &[(
+                EVALUATES_OVER,
+                IndividualValue::IriRef("https://uor.foundation/reduction/ReductionState"),
+            )],
         },
     ]
 }
